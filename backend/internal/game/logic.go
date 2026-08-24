@@ -134,6 +134,14 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 		{X: -1, Y: 1},  {X: 0, Y: 1},  {X: 1, Y: 1},
 	}
 
+	capturedMap := make(map[domain.Point]bool)
+	for _, p := range state.CapturedP1 {
+		capturedMap[p] = true
+	}
+	for _, p := range state.CapturedP2 {
+		capturedMap[p] = true
+	}
+
 	globalVisited := make(map[domain.Point]bool)
 
 	for _, cd := range checkDirs {
@@ -152,7 +160,7 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 			continue // Own boundary
 		}
 
-		if l.isCaptured(state, nx, ny) {
+		if capturedMap[startPt] {
 			continue
 		}
 
@@ -191,7 +199,7 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 					continue
 				}
 
-				if state.Board[adjY][adjX] == playerID {
+				if state.Board[adjY][adjX] == playerID && !capturedMap[adj] {
 					boundary[adj] = true
 				} else {
 					if !regionVisited[adj] {
