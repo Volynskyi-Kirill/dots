@@ -7,7 +7,7 @@ export class WSService {
   connect(roomId?: string) {
     if (this.ws) return;
     
-    // Динамически определяем URL, чтобы запросы шли на тот же домен (localhost или Pinggy)
+    // Динамически определяем URL, чтобы запросы шли на тот же домен (localhost или Ngrok)
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const proxyWsUrl = `${protocol}//${window.location.host}/ws`;
     

@@ -209,6 +209,36 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     canvasRef.current?.setPointerCapture(e.pointerId);
   };
 
+  const clampOffset = (x: number, y: number, currentScale: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x, y };
+    
+    const cw = canvas.width;
+    const ch = canvas.height;
+    const bw = (width - 1) * currentScale;
+    const bh = (height - 1) * currentScale;
+
+    let newX = x;
+    let newY = y;
+    const margin = 20;
+
+    if (bw + margin * 2 <= cw) {
+      newX = (cw - bw) / 2;
+    } else {
+      newX = Math.min(newX, margin);
+      newX = Math.max(newX, cw - bw - margin);
+    }
+
+    if (bh + margin * 2 <= ch) {
+      newY = (ch - bh) / 2;
+    } else {
+      newY = Math.min(newY, margin);
+      newY = Math.max(newY, ch - bh - margin);
+    }
+
+    return { x: newX, y: newY };
+  };
+
   const handlePointerMove = (e: React.PointerEvent) => {
     if (e.pointerType === 'mouse') return; // Disable mouse dragging
     if (!activeTouches.current.has(e.pointerId)) return;
@@ -225,7 +255,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
 
     if (activeTouches.current.size === 1) {
       // Panning
-      setOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
+      setOffset(prev => clampOffset(prev.x + dx, prev.y + dy, scale));
     } else if (activeTouches.current.size === 2) {
       // Pinch to Zoom
       const pts = Array.from(activeTouches.current.values());
@@ -233,16 +263,28 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
       const centerX = (pts[0].x + pts[1].x) / 2;
       const centerY = (pts[0].y + pts[1].y) / 2;
 
+      const rect = canvasRef.current!.getBoundingClientRect();
+      const canvasCenterX = centerX - rect.left;
+      const canvasCenterY = centerY - rect.top;
+
       if (lastTouchDist.current !== null && lastTouchCenter.current !== null) {
         const deltaScale = dist / lastTouchDist.current;
+        const lastCanvasCenterX = lastTouchCenter.current.x - rect.left;
+        const lastCanvasCenterY = lastTouchCenter.current.y - rect.top;
+        
+        const panX = canvasCenterX - lastCanvasCenterX;
+        const panY = canvasCenterY - lastCanvasCenterY;
         
         setScale(prevScale => {
           const newScale = Math.max(5, Math.min(prevScale * deltaScale, 80));
-          // Zoom towards the center of the pinch
-          setOffset(prevOff => ({
-            x: centerX - (centerX - prevOff.x) * (newScale / prevScale),
-            y: centerY - (centerY - prevOff.y) * (newScale / prevScale)
-          }));
+          
+          setOffset(prevOff => {
+            let newX = prevOff.x + panX;
+            let newY = prevOff.y + panY;
+            newX = canvasCenterX - (canvasCenterX - newX) * (newScale / prevScale);
+            newY = canvasCenterY - (canvasCenterY - newY) * (newScale / prevScale);
+            return clampOffset(newX, newY, newScale);
+          });
           return newScale;
         });
       }
