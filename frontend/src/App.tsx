@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { wsService } from './services/websocket'
 import { GameBoard, GameState } from './components/GameBoard'
 import { cn } from './lib/utils'
-import { Copy, Check, Share2, LogOut } from 'lucide-react'
+import { Copy, Check, Share2, LogOut, Menu } from 'lucide-react'
 
 function App() {
   const [roomId, setRoomId] = useState('')
@@ -10,6 +10,7 @@ function App() {
   const [gameState, setGameState] = useState<GameState | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const joinRoomById = useCallback((id: string) => {
     const cleanId = id.trim()
@@ -129,12 +130,12 @@ function App() {
     return (
       <div className="flex flex-col w-screen h-screen bg-background text-foreground dark overflow-hidden">
         {/* Top UI Bar */}
-        <div className="w-full px-4 py-3 flex flex-wrap gap-2 justify-between items-center bg-background z-10 border-b shadow-sm flex-none">
+        <div className="w-full px-4 py-3 flex justify-between items-center bg-background z-10 border-b shadow-sm flex-none">
           <div className="flex items-center gap-3">
             <h1 className="text-lg font-bold tracking-tight bg-gradient-to-r from-blue-400 to-red-400 bg-clip-text text-transparent">
               Dots
             </h1>
-            <div className="flex items-center gap-1.5 bg-secondary/80 px-2.5 py-1 rounded-md border text-xs font-mono">
+            <div className="hidden sm:flex items-center gap-1.5 bg-secondary/80 px-2.5 py-1 rounded-md border text-xs font-mono">
               <span>Room: <strong>{joinedRoom}</strong></span>
               <button
                 onClick={handleCopyLink}
@@ -179,31 +180,80 @@ function App() {
               </div>
             )}
 
-            {gameState && (
-              <div className="text-xs sm:text-sm font-medium">
-                {gameState.status === 'playing' ? (
-                  <span className={cn(
-                    "px-2.5 py-1 rounded-full border shadow-sm hidden sm:inline-block",
-                    gameState.currentTurn === 1 
-                      ? "bg-blue-500/10 text-blue-400 border-blue-500/30" 
-                      : "bg-red-500/10 text-red-400 border-red-500/30"
-                  )}>
-                    Player {gameState.currentTurn}'s Turn
-                  </span>
-                ) : (
-                  <span className="text-muted-foreground animate-pulse">
-                    Waiting for opponent...
-                  </span>
-                )}
-              </div>
-            )}
-            <button 
-              onClick={handleLeaveRoom}
-              className="flex items-center gap-1 px-3 py-1 bg-destructive/90 hover:bg-destructive text-destructive-foreground rounded-md text-xs font-medium transition-colors"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Leave</span>
-            </button>
+            {/* Desktop-only: Turn & Leave */}
+            <div className="hidden sm:flex items-center gap-4">
+              {gameState && (
+                <div className="text-sm font-medium">
+                  {gameState.status === 'playing' ? (
+                    <span className={cn(
+                      "px-2.5 py-1 rounded-full border shadow-sm inline-block",
+                      gameState.currentTurn === 1 
+                        ? "bg-blue-500/10 text-blue-400 border-blue-500/30" 
+                        : "bg-red-500/10 text-red-400 border-red-500/30"
+                    )}>
+                      Player {gameState.currentTurn}'s Turn
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground animate-pulse">
+                      Waiting for opponent...
+                    </span>
+                  )}
+                </div>
+              )}
+              <button 
+                onClick={handleLeaveRoom}
+                className="flex items-center gap-1 px-3 py-1 bg-destructive/90 hover:bg-destructive text-destructive-foreground rounded-md text-xs font-medium transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Leave</span>
+              </button>
+            </div>
+
+            {/* Mobile-only: Burger Menu */}
+            <div className="sm:hidden relative">
+              <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 -mr-2 text-foreground">
+                <Menu className="w-5 h-5" />
+              </button>
+              
+              {menuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)}></div>
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-card border rounded-lg shadow-xl z-50 flex flex-col py-1 animate-in fade-in zoom-in duration-150">
+                    <div className="px-4 py-2 border-b">
+                      <div className="text-xs text-muted-foreground">Room ID</div>
+                      <div className="font-mono font-bold">{joinedRoom}</div>
+                    </div>
+                    
+                    {gameState && (
+                      <div className="px-4 py-2 border-b">
+                        <div className="text-xs text-muted-foreground mb-1">Status</div>
+                        {gameState.status === 'playing' ? (
+                          <span className={cn(
+                            "text-xs font-bold",
+                            gameState.currentTurn === 1 ? "text-blue-500" : "text-red-500"
+                          )}>
+                            Player {gameState.currentTurn}'s Turn
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground animate-pulse">Waiting...</span>
+                        )}
+                      </div>
+                    )}
+
+                    <button onClick={() => { handleCopyLink(); setMenuOpen(false); }} className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted text-left mt-1">
+                      {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />} 
+                      {copied ? <span className="text-green-500">Copied!</span> : <span>Copy Link</span>}
+                    </button>
+                    <button onClick={() => { handleShare(); setMenuOpen(false); }} className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted text-left">
+                      <Share2 className="w-4 h-4" /> Share Link
+                    </button>
+                    <button onClick={handleLeaveRoom} className="flex items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-destructive/10 text-left mt-1 border-t pt-2">
+                      <LogOut className="w-4 h-4" /> Leave Game
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
