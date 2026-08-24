@@ -27,8 +27,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Camera state
-  const [scale, setScale] = useState(24);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [{ scale, offset }, setCamera] = useState({ scale: 24, offset: { x: 0, y: 0 } });
   const [initializedCenter, setInitializedCenter] = useState(false);
 
   // Touch tracking
@@ -53,10 +52,12 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
       (ch - padding) / (height - 1)
     ));
     
-    setScale(fitScale);
-    setOffset({
-      x: (cw - (width - 1) * fitScale) / 2,
-      y: (ch - (height - 1) * fitScale) / 2
+    setCamera({
+      scale: fitScale,
+      offset: {
+        x: (cw - (width - 1) * fitScale) / 2,
+        y: (ch - (height - 1) * fitScale) / 2
+      }
     });
   }, [width, height]);
 
@@ -258,7 +259,10 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
 
     if (activeTouches.current.size === 1) {
       // Panning
-      setOffset(prev => clampOffset(prev.x + dx, prev.y + dy, scale));
+      setCamera(prev => ({
+        scale: prev.scale,
+        offset: clampOffset(prev.offset.x + dx, prev.offset.y + dy, prev.scale)
+      }));
     } else if (activeTouches.current.size === 2) {
       // Pinch to Zoom
       const pts = Array.from(activeTouches.current.values());
@@ -278,17 +282,18 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
         const panX = canvasCenterX - lastCanvasCenterX;
         const panY = canvasCenterY - lastCanvasCenterY;
         
-        setScale(prevScale => {
-          const newScale = Math.max(5, Math.min(prevScale * deltaScale, 80));
+        setCamera(prev => {
+          const newScale = Math.max(5, Math.min(prev.scale * deltaScale, 80));
           
-          setOffset(prevOff => {
-            let newX = prevOff.x + panX;
-            let newY = prevOff.y + panY;
-            newX = canvasCenterX - (canvasCenterX - newX) * (newScale / prevScale);
-            newY = canvasCenterY - (canvasCenterY - newY) * (newScale / prevScale);
-            return clampOffset(newX, newY, newScale);
-          });
-          return newScale;
+          let newX = prev.offset.x + panX;
+          let newY = prev.offset.y + panY;
+          newX = canvasCenterX - (canvasCenterX - newX) * (newScale / prev.scale);
+          newY = canvasCenterY - (canvasCenterY - newY) * (newScale / prev.scale);
+          
+          return {
+            scale: newScale,
+            offset: clampOffset(newX, newY, newScale)
+          };
         });
       }
       lastTouchDist.current = dist;
