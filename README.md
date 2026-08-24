@@ -1,88 +1,104 @@
-# Dots Game (Игра "Точки")
+*[Читать на русском](README.ru.md)*
 
-Браузерная многопользовательская стратегическая игра "Точки" с классическими правилами, современным минималистичным дизайном и отзывчивым управлением.
+# Dots Game
 
-## 🌟 Особенности
+A browser-based multiplayer strategic game "Dots" featuring classic rules, a modern minimalist design, and responsive controls.
 
-- **Полный мультиплеер:** Реал-тайм игра через WebSocket.
-- **Классические правила:** Алгоритм строго захватывает территорию только в том случае, если внутри замкнутого контура находится хотя бы одна вражеская точка.
-- **Адаптивный Canvas:** 
-  - На ПК: жестко зафиксированная и автоматически центрируемая сетка.
-  - На мобильных устройствах: поддержка Multi-touch жестов (pinch-to-zoom для масштабирования и drag для перетаскивания).
-- **Современный UI/UX:** Темная/Светлая тема, мягкие неоновые заливки захваченных баз, удобное копирование ссылок для инвайтов.
-- **Чистая архитектура (Clean Architecture):** Игровая логика на Go полностью изолирована от слоя вебсокетов.
+## 🌟 Features
 
-## 🛠 Стек технологий
+- **Full Multiplayer:** Real-time gameplay via WebSocket.
+- **Classic Rules:** The algorithm strictly captures territory only if at least one enemy dot is enclosed within a closed boundary.
+- **Adaptive Canvas:** 
+  - On PC: A strictly fixed and automatically centered grid.
+  - On Mobile: Support for Multi-touch gestures (pinch-to-zoom for scaling and drag to pan).
+- **Modern UI/UX:** Dark/Light themes, soft neon glowing fills for captured bases, and convenient invite link copying.
+- **Clean Architecture:** Game logic in Go is fully isolated from the WebSocket layer.
+
+## 🛠 Tech Stack
 
 **Backend:**
-- Язык: Go (Golang)
-- Мультиплеер: `gorilla/websocket`
-- Архитектура: Standard Project Layout, Dependency Injection
-- Алгоритмы: Поиск в ширину (BFS) / Flood Fill на графах для поиска контуров
+- Language: Go (Golang)
+- Multiplayer: `gorilla/websocket`
+- Architecture: Standard Project Layout, Dependency Injection
+- Algorithms: Breadth-First Search (BFS) / Flood Fill on graphs for finding boundaries
 
 **Frontend:**
-- Фреймворк: React + Vite + TypeScript
-- Стилизация: Tailwind CSS + shadcn/ui
-- Рендеринг: HTML5 Canvas API
+- Framework: React + Vite + TypeScript
+- Styling: Tailwind CSS + shadcn/ui
+- Rendering: HTML5 Canvas API
 
-**Инфраструктура:**
-- Оркестрация: Docker Compose
-- Live Reload: `air` (Go) и Vite (React)
+**Infrastructure:**
+- Orchestration: Docker Compose
+- Live Reload: `air` (Go) and Vite (React)
 
-## 🚀 Как запустить локально
+## 🚀 How to Run Locally
 
-Для запуска проекта вам понадобятся только установленные **Docker** и **Docker Compose**.
+To run the project, you only need **Docker** and **Docker Compose** installed.
 
-1. Клонируйте репозиторий.
-2. В корне проекта выполните команду:
+1. Clone the repository.
+2. In the project root, run:
    ```bash
    make up
-   # Или вручную: docker-compose up -d --build
+   # Or manually: docker-compose up -d --build
    ```
-3. Откройте приложение в браузере:
-   - Фронтенд: [http://localhost:5173](http://localhost:5173)
-   - Бэкенд (WS): `ws://localhost:8080/ws`
+3. Open the application in your browser:
+   - Frontend: [http://localhost:5173](http://localhost:5173)
+   - Backend (WS): `ws://localhost:8080/ws`
 
-### Полезные команды (Makefile)
+### Useful Commands (Makefile)
 
-- `make up` — поднять все контейнеры в фоне
-- `make down` — остановить и удалить контейнеры
-- `make restart` — перезагрузить контейнеры
-- `make logs` — смотреть логи фронтенда и бэкенда в реальном времени
-- `make test` — запустить unit-тесты алгоритма игровой логики (Go)
+- `make up` — start all containers in the background
+- `make down` — stop and remove containers
+- `make restart` — restart containers
+- `make logs` — view frontend and backend logs in real-time
+- `make test` — run unit tests for the game logic algorithm (Go)
+- `make share` — **expose the game to the internet using Ngrok**
 
-## 📁 Структура проекта
+## 🌐 How to Play with Friends Online
+
+By default, the game only runs locally. To let a friend join you, you need to "tunnel" it through the internet.
+
+1. Install [Ngrok](https://ngrok.com/download) and authenticate (run `ngrok config add-authtoken <YOUR_TOKEN>`).
+2. Make sure the game is running (`make up`).
+3. In a new terminal, run:
+   ```bash
+   make share
+   ```
+4. Ngrok will give you a green forwarding link like `https://1234-abcd.ngrok-free.app`.
+5. Open that link, create a room, and send the final link to your friend! All requests (including WebSockets) will be automatically routed.
+
+## 📁 Project Structure
 
 ```text
 .
-├── backend/                  # Сервер на Go
-│   ├── cmd/server/           # Точка входа в приложение (main.go)
-│   ├── internal/             # Изолированная бизнес-логика
-│   │   ├── config/           # Парсинг .env переменных
-│   │   ├── constants/        # Игровые константы
-│   │   ├── domain/           # Модели данных (GameState, Point и др.)
-│   │   ├── game/             # Алгоритмы игры (обход графов, захват)
-│   │   ├── handler/          # Хэндлеры WebSocket соединений
-│   │   └── service/          # Менеджер комнат и игроков
-│   ├── Dockerfile            # Контейнер для разработки (с поддержкой air)
-│   └── .air.toml             # Конфиг для Hot Reload
-├── frontend/                 # Клиент на React/Vite
+├── backend/                  # Go server
+│   ├── cmd/server/           # Application entrypoint (main.go)
+│   ├── internal/             # Isolated business logic
+│   │   ├── config/           # .env variables parsing
+│   │   ├── constants/        # Game constants
+│   │   ├── domain/           # Data models (GameState, Point, etc.)
+│   │   ├── game/             # Game algorithms (graph traversal, capturing)
+│   │   ├── handler/          # WebSocket connection handlers
+│   │   └── service/          # Room and player manager
+│   ├── Dockerfile            # Development container (with air support)
+│   └── .air.toml             # Hot Reload config
+├── frontend/                 # React/Vite client
 │   ├── src/
-│   │   ├── components/       # UI компоненты (GameBoard.tsx с Canvas)
-│   │   ├── lib/              # Утилиты
-│   │   ├── services/         # Клиент WebSocket (websocket.ts)
-│   │   ├── App.tsx           # Роутинг и стейт интерфейса
-│   │   └── index.css         # Цветовая палитра Tailwind (светлая/темная тема)
-│   └── Dockerfile            # Контейнер для Node.js + Vite
-├── docker-compose.yml        # Оркестрация среды
-├── Makefile                  # Быстрые команды
-└── .env                      # Базовые настройки среды
+│   │   ├── components/       # UI components (GameBoard.tsx with Canvas)
+│   │   ├── lib/              # Utilities
+│   │   ├── services/         # WebSocket client (websocket.ts)
+│   │   ├── App.tsx           # Routing and UI state
+│   │   └── index.css         # Tailwind color palette (light/dark theme)
+│   └── Dockerfile            # Node.js + Vite container
+├── docker-compose.yml        # Environment orchestration
+├── Makefile                  # Quick commands
+└── .env                      # Basic environment variables
 ```
 
-## 🎮 Как играть
+## 🎮 How to Play
 
-1. Перейдите на `http://localhost:5173`.
-2. Нажмите **"Create New Room"**.
-3. Скопируйте ссылку с помощью кнопки в верхней панели.
-4. Отправьте ссылку другу (или откройте в режиме Инкогнито для тестов).
-5. Ставьте точки по очереди, стараясь замкнуть точки противника в кольцо!
+1. Go to `http://localhost:5173`.
+2. Click **"Create New Room"**.
+3. Copy the link using the button in the top bar.
+4. Send the link to a friend (or open it in Incognito mode to test yourself).
+5. Take turns placing dots, trying to enclose your opponent's dots in a ring!

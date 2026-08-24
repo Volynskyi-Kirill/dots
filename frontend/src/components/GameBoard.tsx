@@ -220,20 +220,23 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
 
     let newX = x;
     let newY = y;
-    const margin = 20;
+    
+    // Allow panning until the edge of the board reaches the center of the screen
+    const marginX = cw / 2;
+    const marginY = ch / 2;
 
-    if (bw + margin * 2 <= cw) {
+    if (bw <= cw) {
       newX = (cw - bw) / 2;
     } else {
-      newX = Math.min(newX, margin);
-      newX = Math.max(newX, cw - bw - margin);
+      newX = Math.min(newX, marginX);
+      newX = Math.max(newX, cw - bw - marginX);
     }
 
-    if (bh + margin * 2 <= ch) {
+    if (bh <= ch) {
       newY = (ch - bh) / 2;
     } else {
-      newY = Math.min(newY, margin);
-      newY = Math.max(newY, ch - bh - margin);
+      newY = Math.min(newY, marginY);
+      newY = Math.max(newY, ch - bh - marginY);
     }
 
     return { x: newX, y: newY };
