@@ -29,19 +29,35 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
   // Camera state
   const [scale, setScale] = useState(24);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [initializedCenter, setInitializedCenter] = useState(false);
 
+  // Touch tracking
+  const activeTouches = useRef<Map<number, Point>>(new Map());
+  const lastTouchDist = useRef<number | null>(null);
+  const lastTouchCenter = useRef<Point | null>(null);
+  const hasDragged = useRef(false);
+
   // Helper to center the board on screen
-  const centerBoard = useCallback((currentScale: number) => {
+  const centerBoard = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const boardWidthPx = (width - 1) * currentScale;
-    const boardHeightPx = (height - 1) * currentScale;
-    const centerX = (canvas.width - boardWidthPx) / 2;
-    const centerY = (canvas.height - boardHeightPx) / 2;
-    setOffset({ x: centerX, y: centerY });
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+    
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
+    const isDesktop = window.innerWidth > 768;
+    const padding = isDesktop ? 80 : 20; // Extra padding on desktop
+    
+    const fitScale = Math.max(5, Math.min(
+      (cw - padding) / (width - 1),
+      (ch - padding) / (height - 1)
+    ));
+    
+    setScale(fitScale);
+    setOffset({
+      x: (cw - (width - 1) * fitScale) / 2,
+      y: (ch - (height - 1) * fitScale) / 2
+    });
   }, [width, height]);
 
   // Handle Resize & Initial Centering
@@ -52,22 +68,18 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
       if (canvas && container) {
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
-        if (!initializedCenter) {
-          // Adjust initial scale to fit reasonably on screen
-          const fitScale = Math.min(
-            Math.max(12, Math.floor(Math.min(container.clientWidth, container.clientHeight) / (width + 2))),
-            28
-          );
-          setScale(fitScale);
-          centerBoard(fitScale);
-          setInitializedCenter(true);
+        
+        // Auto-center on desktop always, on mobile only initially
+        if (window.innerWidth > 768 || !initializedCenter) {
+          centerBoard();
+          if (!initializedCenter) setInitializedCenter(true);
         }
       }
     };
     window.addEventListener('resize', handleResize);
-    handleResize();
+    handleResize(); // Initial setup
     return () => window.removeEventListener('resize', handleResize);
-  }, [centerBoard, initializedCenter, width]);
+  }, [centerBoard, initializedCenter]);
 
   // Draw loop
   const draw = useCallback(() => {
@@ -127,7 +139,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
           ctx.lineCap = 'round';
           ctx.stroke();
 
-          // Also connect any adjacent boundary dots directly (handles complex shapes & diagonals cleanly)
+          // Also connect any adjacent boundary dots directly
           ctx.beginPath();
           for (let i = 0; i < poly.length; i++) {
             for (let j = i + 1; j < poly.length; j++) {
@@ -189,52 +201,70 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     draw();
   }, [draw]);
 
-  // Event Handlers for Panning & Zooming
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const zoomSensitivity = 0.003;
-    const delta = -e.deltaY * zoomSensitivity;
-    let newScale = scale * Math.exp(delta);
-    
-    // Limits
-    if (newScale < 8) newScale = 8;
-    if (newScale > 80) newScale = 80;
-
-    const rect = canvasRef.current!.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    const newOffset = {
-      x: mouseX - (mouseX - offset.x) * (newScale / scale),
-      y: mouseY - (mouseY - offset.y) * (newScale / scale),
-    };
-
-    setScale(newScale);
-    setOffset(newOffset);
-  };
-
+  // Touch Event Handlers for Mobile Pan & Zoom (Mouse is ignored for movement)
   const handlePointerDown = (e: React.PointerEvent) => {
-    setIsDragging(true);
-    setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
+    if (e.pointerType === 'mouse') return; // Disable mouse dragging
+    activeTouches.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    hasDragged.current = false;
     canvasRef.current?.setPointerCapture(e.pointerId);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (isDragging) {
-      setOffset({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y,
-      });
+    if (e.pointerType === 'mouse') return; // Disable mouse dragging
+    if (!activeTouches.current.has(e.pointerId)) return;
+
+    const prevPos = activeTouches.current.get(e.pointerId)!;
+    const dx = e.clientX - prevPos.x;
+    const dy = e.clientY - prevPos.y;
+    
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+      hasDragged.current = true;
+    }
+    
+    activeTouches.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (activeTouches.current.size === 1) {
+      // Panning
+      setOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
+    } else if (activeTouches.current.size === 2) {
+      // Pinch to Zoom
+      const pts = Array.from(activeTouches.current.values());
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      const centerX = (pts[0].x + pts[1].x) / 2;
+      const centerY = (pts[0].y + pts[1].y) / 2;
+
+      if (lastTouchDist.current !== null && lastTouchCenter.current !== null) {
+        const deltaScale = dist / lastTouchDist.current;
+        
+        setScale(prevScale => {
+          const newScale = Math.max(5, Math.min(prevScale * deltaScale, 80));
+          // Zoom towards the center of the pinch
+          setOffset(prevOff => ({
+            x: centerX - (centerX - prevOff.x) * (newScale / prevScale),
+            y: centerY - (centerY - prevOff.y) * (newScale / prevScale)
+          }));
+          return newScale;
+        });
+      }
+      lastTouchDist.current = dist;
+      lastTouchCenter.current = { x: centerX, y: centerY };
     }
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
-    setIsDragging(false);
+    if (e.pointerType === 'mouse') return;
+    activeTouches.current.delete(e.pointerId);
+    if (activeTouches.current.size < 2) {
+      lastTouchDist.current = null;
+      lastTouchCenter.current = null;
+    }
     canvasRef.current?.releasePointerCapture(e.pointerId);
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    if (isDragging && (Math.abs(e.clientX - (dragStart.x + offset.x)) > 5 || Math.abs(e.clientY - (dragStart.y + offset.y)) > 5)) {
+    // Prevent placing a dot if the user was just dragging on mobile
+    if (hasDragged.current) {
+      hasDragged.current = false;
       return;
     }
 
@@ -254,18 +284,19 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-background">
       <canvas
         ref={canvasRef}
-        onWheel={handleWheel}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
         onClick={handleClick}
+        // onWheel is intentionally removed so desktop users can't zoom with mouse wheel
         className="w-full h-full touch-none cursor-crosshair"
       />
       
-      {/* Floating Center / Reset Zoom Control */}
+      {/* Mobile-only center button (hidden on desktop) */}
       <button
-        onClick={() => centerBoard(scale)}
-        className="absolute bottom-4 right-4 px-3 py-1.5 text-xs font-medium bg-secondary/80 hover:bg-secondary text-secondary-foreground backdrop-blur-md rounded-md shadow-md border transition-all"
+        onClick={centerBoard}
+        className="md:hidden absolute bottom-4 right-4 px-3 py-1.5 text-xs font-medium bg-secondary/80 hover:bg-secondary text-secondary-foreground backdrop-blur-md rounded-md shadow-md border transition-all z-10"
       >
         Center Board
       </button>
