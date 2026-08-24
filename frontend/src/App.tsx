@@ -118,6 +118,13 @@ function App() {
     }
   }
 
+  let p1Score = 0;
+  let p2Score = 0;
+  if (gameState) {
+    p1Score = (gameState.capturedP1 || []).filter(p => gameState.board[p.y] && gameState.board[p.y][p.x] === 2).length;
+    p2Score = (gameState.capturedP2 || []).filter(p => gameState.board[p.y] && gameState.board[p.y][p.x] === 1).length;
+  }
+
   if (joinedRoom) {
     return (
       <div className="flex flex-col w-screen h-screen bg-background text-foreground dark overflow-hidden">
@@ -193,7 +200,31 @@ function App() {
         )}
 
         {/* Game Canvas */}
-        <div className="flex-1 w-full min-h-0">
+        <div className="flex-1 w-full min-h-0 relative">
+          
+          {/* Floating Scoreboard */}
+          {gameState && gameState.status === 'playing' && (
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 flex items-center gap-6 px-6 py-2 bg-background/85 backdrop-blur-md rounded-full border shadow-lg z-10 pointer-events-none">
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Player 1</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"></div>
+                  <span className="font-mono font-bold text-xl leading-none">{p1Score}</span>
+                </div>
+              </div>
+              
+              <div className="w-px h-8 bg-border"></div>
+              
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Player 2</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-bold text-xl leading-none">{p2Score}</span>
+                  <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <GameBoard state={gameState} onMove={handleMove} />
         </div>
       </div>
