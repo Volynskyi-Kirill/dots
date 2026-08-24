@@ -164,12 +164,26 @@ function App() {
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            {gameState && gameState.status === 'playing' && (
+              <div className="flex items-center gap-3 bg-secondary/30 px-3 py-1 rounded-full border shadow-inner">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]"></div>
+                  <span className="font-mono font-bold text-sm">{p1Score}</span>
+                </div>
+                <div className="w-px h-4 bg-border"></div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-mono font-bold text-sm">{p2Score}</span>
+                  <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]"></div>
+                </div>
+              </div>
+            )}
+
             {gameState && (
               <div className="text-xs sm:text-sm font-medium">
                 {gameState.status === 'playing' ? (
                   <span className={cn(
-                    "px-2.5 py-1 rounded-full border shadow-sm",
+                    "px-2.5 py-1 rounded-full border shadow-sm hidden sm:inline-block",
                     gameState.currentTurn === 1 
                       ? "bg-blue-500/10 text-blue-400 border-blue-500/30" 
                       : "bg-red-500/10 text-red-400 border-red-500/30"
@@ -188,7 +202,7 @@ function App() {
               className="flex items-center gap-1 px-3 py-1 bg-destructive/90 hover:bg-destructive text-destructive-foreground rounded-md text-xs font-medium transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Leave</span>
+              <span className="hidden sm:inline">Leave</span>
             </button>
           </div>
         </div>
@@ -201,30 +215,6 @@ function App() {
 
         {/* Game Canvas */}
         <div className="flex-1 w-full min-h-0 relative">
-          
-          {/* Floating Scoreboard */}
-          {gameState && gameState.status === 'playing' && (
-            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 flex items-center gap-6 px-6 py-2 bg-background/85 backdrop-blur-md rounded-full border shadow-lg z-10 pointer-events-none">
-              <div className="flex flex-col items-center">
-                <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Player 1</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"></div>
-                  <span className="font-mono font-bold text-xl leading-none">{p1Score}</span>
-                </div>
-              </div>
-              
-              <div className="w-px h-8 bg-border"></div>
-              
-              <div className="flex flex-col items-center">
-                <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Player 2</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-xl leading-none">{p2Score}</span>
-                  <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>
-                </div>
-              </div>
-            </div>
-          )}
-
           <GameBoard state={gameState} onMove={handleMove} />
         </div>
       </div>
