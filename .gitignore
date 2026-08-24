@@ -1,0 +1,23 @@
+# Binaries & build artifacts
+/backend/tmp/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE & OS files
+.DS_Store
+.vscode/
+.idea/
