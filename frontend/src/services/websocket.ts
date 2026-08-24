@@ -7,8 +7,15 @@ export class WSService {
   connect(roomId?: string) {
     if (this.ws) return;
     
-    // Retrieve URL from environment variables, fallback to default
-    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws';
+    // Динамически определяем URL, чтобы запросы шли на тот же домен (localhost или Pinggy)
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const proxyWsUrl = `${protocol}//${window.location.host}/ws`;
+    
+    // Если VITE_WS_URL задан жестко (и это не дефолтный localhost), используем его, иначе прокси
+    let wsUrl = import.meta.env.VITE_WS_URL;
+    if (!wsUrl || wsUrl.includes('localhost:8080')) {
+      wsUrl = proxyWsUrl;
+    }
     this.ws = new WebSocket(wsUrl);
 
     this.ws.onopen = () => {

@@ -14,6 +14,12 @@ export default defineConfig({
     host: '0.0.0.0', // Needed for Docker
     watch: {
       usePolling: true
+    },
+    proxy: {
+      '/ws': {
+        target: 'ws://backend:8080',
+        ws: true,
+      }
     }
   }
 })
