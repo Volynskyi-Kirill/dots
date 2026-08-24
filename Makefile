@@ -34,3 +34,6 @@ prod-logs:
 
 share:
 	ngrok http 5173
+
+share-prod:
+	ngrok http 80
