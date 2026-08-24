@@ -12,6 +12,7 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0', // Needed for Docker
+    allowedHosts: true, // Allow ngrok domains
     watch: {
       usePolling: true
     },

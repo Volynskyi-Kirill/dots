@@ -1,4 +1,4 @@
-.PHONY: up down restart build test logs
+.PHONY: up down restart build test logs share
 
 up:
 	docker-compose up -d
@@ -17,3 +17,6 @@ logs:
 
 test:
 	cd backend && go test -v ./...
+
+share:
+	ngrok http 5173
