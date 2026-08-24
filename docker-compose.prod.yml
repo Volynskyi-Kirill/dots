@@ -1,0 +1,35 @@
+services:
+  backend:
+    image: dots-game-backend-prod
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+    restart: unless-stopped
+    networks:
+      - dots-network
+
+  frontend:
+    image: dots-game-frontend-prod
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        # NOTE: For local testing of prod build, leave as localhost.
+        # When deploying to a real server, override this in your .env or shell:
+        # VITE_WS_URL=wss://yourdomain.com/ws docker-compose -f docker-compose.prod.yml up -d
+        - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:8080/ws}
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - dots-network
+
+networks:
+  dots-network:
+    driver: bridge

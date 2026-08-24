@@ -3,6 +3,16 @@ type MessageHandler = (payload: any) => void;
 export class WSService {
   private ws: WebSocket | null = null;
   private handlers: Map<string, MessageHandler[]> = new Map();
+  private sessionId: string;
+
+  constructor() {
+    let storedId = localStorage.getItem('dots_session_id');
+    if (!storedId) {
+      storedId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('dots_session_id', storedId);
+    }
+    this.sessionId = storedId;
+  }
 
   connect(roomId?: string) {
     if (this.ws) return;
@@ -58,6 +68,10 @@ export class WSService {
   }
 
   send(type: string, payload: any) {
+    if (type === 'join') {
+      payload = { ...payload, sessionId: this.sessionId };
+    }
+    
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({ type, payload }));
     }

@@ -85,7 +85,7 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 			case constants.MessageJoin:
 				var payload domain.JoinPayload
 				if err := json.Unmarshal(msg.Payload, &payload); err == nil {
-					room, pid, _ := rm.JoinRoom(payload.RoomID, client)
+					room, pid, _ := rm.JoinRoom(payload.RoomID, payload.SessionID, client)
 					if room != nil {
 						currentRoom = room
 						playerID = pid

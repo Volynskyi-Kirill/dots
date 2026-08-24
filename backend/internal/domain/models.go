@@ -34,5 +34,6 @@ type MovePayload struct {
 }
 
 type JoinPayload struct {
-	RoomID string `json:"roomId"`
+	RoomID    string `json:"roomId"`
+	SessionID string `json:"sessionId"`
 }
