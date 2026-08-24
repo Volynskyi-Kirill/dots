@@ -13,6 +13,7 @@ export interface GameState {
   polygonsP1: Point[][];
   polygonsP2: Point[][];
   status: string;
+  lastMove?: Point;
 }
 
 interface GameBoardProps {
@@ -178,13 +179,24 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
         for (let y = 0; y < height; y++) {
           for (let x = 0; x < width; x++) {
             if (state.board[y][x] === player) {
+              const isLastMove = state.lastMove?.x === x && state.lastMove?.y === y;
+              
               ctx.save();
               ctx.fillStyle = color;
               ctx.shadowColor = glowColor;
-              ctx.shadowBlur = 8;
+              ctx.shadowBlur = isLastMove ? 12 : 8;
+              
               ctx.beginPath();
-              ctx.arc(x, y, 0.32, 0, Math.PI * 2);
+              ctx.arc(x, y, isLastMove ? 0.34 : 0.32, 0, Math.PI * 2);
               ctx.fill();
+              
+              if (isLastMove) {
+                // White inner core outline
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 0.08;
+                ctx.stroke();
+              }
+              
               ctx.restore();
             }
           }

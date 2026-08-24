@@ -20,6 +20,7 @@ type GameState struct {
 	PolygonsP1  [][]Point `json:"polygonsP1"` // Array of polygons for drawing
 	PolygonsP2  [][]Point `json:"polygonsP2"`
 	Status      string  `json:"status"`      // "waiting", "playing", "finished"
+	LastMove    *Point  `json:"lastMove,omitempty"`
 }
 
 type Message struct {

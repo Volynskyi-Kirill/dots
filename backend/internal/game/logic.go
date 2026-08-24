@@ -44,6 +44,7 @@ func (l *gameLogic) MakeMove(state *domain.GameState, playerID int, x, y int) er
 	}
 
 	state.Board[y][x] = playerID
+	state.LastMove = &domain.Point{X: x, Y: y}
 
 	l.detectCaptures(state, playerID, x, y)
 
