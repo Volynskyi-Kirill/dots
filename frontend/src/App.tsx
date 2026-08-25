@@ -430,7 +430,7 @@ function App() {
 
         {/* Game Canvas */}
         <div className="flex-1 w-full min-h-0 relative">
-          <GameBoard state={gameState} onMove={handleMove} controlScheme={controlScheme} />
+          <GameBoard state={gameState} onMove={handleMove} controlScheme={controlScheme} myPlayerId={myPlayerId} />
         </div>
       </div>
     )

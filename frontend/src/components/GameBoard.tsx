@@ -41,9 +41,10 @@ interface GameBoardProps {
   width?: number;
   height?: number;
   controlScheme?: 'direct' | 'drag' | 'confirm';
+  myPlayerId?: number | null;
 }
 
-export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39, height = 39, controlScheme = "direct" }) => {
+export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39, height = 39, controlScheme = "direct", myPlayerId }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -229,7 +230,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     }
 
     // Draw Ghost Dot (before restoring context so it uses grid scaling)
-    if (ghostDot && (controlScheme === 'drag' || controlScheme === 'confirm')) {
+    if (ghostDot && (controlScheme === 'drag' || controlScheme === 'confirm') && state?.currentTurn === myPlayerId) {
       ctx.save();
       ctx.fillStyle = controlScheme === 'drag' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(234, 179, 8, 0.8)';
       ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
@@ -291,6 +292,10 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
   };
 
   const updateGhostDot = (clientX: number, clientY: number) => {
+    if (state?.currentTurn !== myPlayerId) {
+      setGhostDot(null);
+      return;
+    }
     const rect = canvasRef.current!.getBoundingClientRect();
     
     // Calculate based on the latest state values (closure)
@@ -420,7 +425,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
 
     if (controlScheme === 'drag' && activeTouches.current.size === 1 && hasDragged.current) {
        setGhostDot(currentGhost => {
-           if (currentGhost) {
+           if (currentGhost && state?.currentTurn === myPlayerId) {
                onMove(currentGhost.x, currentGhost.y);
            }
            return null;
@@ -451,6 +456,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     const gridX = Math.round((mouseX - offset.x) / scale);
     const gridY = Math.round((mouseY - offset.y) / scale);
 
+    if (state?.currentTurn !== myPlayerId) return;
+
     if (gridX >= 0 && gridX < width && gridY >= 0 && gridY < height) {
       if (controlScheme === 'confirm') {
          setGhostDot(prev => {
@@ -468,7 +475,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
 
   return (
     <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-background">
-      {controlScheme === 'confirm' && ghostDot && (
+      {controlScheme === 'confirm' && ghostDot && state?.currentTurn === myPlayerId && (
         <button
           onClick={(e) => { e.stopPropagation(); onMove(ghostDot.x, ghostDot.y); setGhostDot(null); }}
           className="absolute bottom-20 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full shadow-[0_0_25px_rgba(255,255,255,0.2)] border border-primary/50 z-20 text-sm sm:text-base animate-in slide-in-from-bottom-5 duration-200"
