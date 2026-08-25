@@ -114,7 +114,13 @@
     "matchScore": "Счёт в серии",
     "scoreCaptured": "Захвачено точек",
     "winReasonDisconnect": "Противник отключился",
-    "playerDisconnected": "Отключен"
+    "playerDisconnected": "Отключен",
+    "winReasonSurrenderWin": "Противник сдался",
+    "winReasonSurrenderLose": "Вы сдались",
+    "winReasonDisconnectWin": "Противник отключился",
+    "winReasonDisconnectLose": "Вы отключились",
+    "winReasonTimeoutWin": "У противника вышло время",
+    "winReasonTimeoutLose": "У вас вышло время"
   },
   "Theme": {
     "light": "Светлая",

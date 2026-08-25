@@ -514,11 +514,11 @@ function GameOverOverlay({
   const title = isTie ? t('tieTitle') : iWon ? t('winTitle') : t('loseTitle');
 
   const reasonKey = gameState.winReason === 'surrender'
-    ? 'winReasonSurrender'
+    ? (iWon ? 'winReasonSurrenderWin' : 'winReasonSurrenderLose')
     : gameState.winReason === 'timeout'
-    ? 'winReasonTimeout'
+    ? (iWon ? 'winReasonTimeoutWin' : 'winReasonTimeoutLose')
     : gameState.winReason === 'disconnect'
-    ? 'winReasonDisconnect'
+    ? (iWon ? 'winReasonDisconnectWin' : 'winReasonDisconnectLose')
     : 'winReasonBoardFull';
 
   return (

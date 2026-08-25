@@ -114,7 +114,13 @@
     "matchScore": "Match Score",
     "scoreCaptured": "Captured dots",
     "winReasonDisconnect": "Opponent disconnected",
-    "playerDisconnected": "Disconnected"
+    "playerDisconnected": "Disconnected",
+    "winReasonSurrenderWin": "Opponent surrendered",
+    "winReasonSurrenderLose": "You surrendered",
+    "winReasonDisconnectWin": "Opponent disconnected",
+    "winReasonDisconnectLose": "You disconnected",
+    "winReasonTimeoutWin": "Opponent ran out of time",
+    "winReasonTimeoutLose": "You ran out of time"
   },
   "Theme": {
     "light": "Light",

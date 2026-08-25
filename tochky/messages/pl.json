@@ -114,7 +114,13 @@
     "matchScore": "Wynik meczu",
     "scoreCaptured": "Zdobyte punkty",
     "winReasonDisconnect": "Przeciwnik rozłączony",
-    "playerDisconnected": "Rozłączony"
+    "playerDisconnected": "Rozłączony",
+    "winReasonSurrenderWin": "Przeciwnik się poddał",
+    "winReasonSurrenderLose": "Poddałeś się",
+    "winReasonDisconnectWin": "Przeciwnik rozłączony",
+    "winReasonDisconnectLose": "Zostałeś rozłączony",
+    "winReasonTimeoutWin": "Przeciwnikowi skończył się czas",
+    "winReasonTimeoutLose": "Skończył ci się czas"
   },
   "Theme": {
     "light": "Jasny",
