@@ -1,0 +1,90 @@
+# Dots Game — System Architecture & Knowledge Base
+
+This document serves as the master reference for the game's architecture, business logic, algorithms, and data flow.
+
+## 1. Technical Stack
+*   **Backend**: Go (Golang)
+    *   WebSocket handling via `gorilla/websocket`.
+    *   No persistent database (in-memory state).
+*   **Frontend**: React 18, TypeScript, Vite.
+    *   Styling: Tailwind CSS, `shadcn/ui` concepts.
+    *   Rendering: HTML5 Canvas (`<canvas>`) inside a React component (`GameBoard.tsx`).
+*   **DevOps / Infrastructure**:
+    *   See the detailed infrastructure breakdown in [infrastructure.md](./infrastructure.md).
+
+---
+
+## 2. Multiplayer & Networking
+
+### Architecture
+The game operates on an **authoritative server model**. The frontend is a "dumb" client that renders the state received from the backend and sends user actions (clicks).
+
+### Session & Reconnects
+*   **Identity**: Frontend generates a unique `sessionId` and saves it in `localStorage`.
+*   **Join Flow**:
+    1.  Client connects via WS and sends `{"type": "join", "payload": {"roomId": "xxx", "sessionId": "yyy"}}`.
+    2.  `RoomManager` checks if `sessionId` matches an existing disconnected player. If so, they seamlessly reconnect and reclaim their `PlayerID`.
+    3.  If it's a new session and the room has space, they are assigned `Player 1` or `Player 2`.
+    4.  Backend replies directly to the client with `{"type": "welcome", "payload": {"playerId": X}}`.
+*   **State Sync**: After any state change (join, move, undo), the backend broadcasts the full JSON `GameState` to both players.
+
+---
+
+## 3. Core Game Logic (`backend/internal/game/logic.go`)
+
+### The Grid
+*   Fixed 39x39 grid (`constants.Empty=0`, `constants.Player1=1`, `constants.Player2=2`).
+
+### Capture Algorithm (Flood-Fill)
+When a dot is placed, the backend checks for enclosures:
+1.  **BFS / Flood Fill**: We initiate a Breadth-First Search from empty or enemy dots adjacent to the newly placed dot.
+2.  **Boundary Detection**: The BFS stops when it hits the current player's dots. If the BFS cannot reach the edge of the board (39x39 limits), the area is considered **captured**.
+3.  **Dead Dots Rule**: Enemy dots that were already captured in previous turns (`CapturedP1` / `CapturedP2`) are treated as "transparent/empty" space during BFS. They cannot act as boundary walls for new captures.
+4.  **Polygon Generation**: To draw the neon boundary, the outer dots forming the enclosure are extracted. They are sorted by angle relative to their centroid (`orderBoundaryPoints`) so the frontend can draw a clean, continuous `lineTo` polygon without crisscrossing lines.
+
+### Undo Mechanism (State Rebuilding)
+Because reversing flood-fills and un-capturing territories is mathematically complex and prone to edge-case bugs, the Undo system uses **Event Sourcing**:
+*   The backend maintains a chronological `MovesHistory` array of all placed dots.
+*   When an Undo is approved, the backend pops the last move.
+*   It then completely wipes the board state to zero and replays `MakeMove()` sequentially for all remaining moves in the history.
+*   *Performance*: 1500 iterations of a Go function take fractions of a millisecond, guaranteeing a 100% bug-free state restoration.
+
+---
+
+## 4. Frontend Rendering (`GameBoard.tsx`)
+
+### Canvas Interactions
+*   **Desktop**: The board is statically centered and scaled to perfectly fit the browser window. Mouse panning and wheel zooming are explicitly disabled to prevent misclicks and UI jitter.
+*   **Mobile**: 
+    *   Native multi-touch pinch-to-zoom is supported. The math uses the pinch centroid to scale exactly where the user's fingers are.
+    *   Touch panning is constrained with margins (`canvasWidth / 2`) so the board can be dragged comfortably to screen edges but cannot be thrown entirely off-screen.
+
+### UI / Visuals
+*   **Theme**: Dark mode, minimal aesthetics, glowing neon accents.
+*   **Last Move Indicator**: The very last dot placed has a distinct white core and a stronger neon drop-shadow to easily track opponent actions.
+*   **HUD**: The header contains live score tracking (calculated frontend-side by counting captured arrays) and Undo handshake UI.
+
+---
+
+## 5. File Structure Map
+
+```text
+├── Makefile                     # Dev/Prod docker commands
+├── docker-compose.yml           # Local dev environment
+├── docker-compose.prod.yml      # Production orchestration
+├── backend/
+│   ├── cmd/server/main.go       # HTTP server setup
+│   ├── internal/
+│   │   ├── constants/           # Enums, Player IDs, WS message types
+│   │   ├── domain/models.go     # GameState, Payloads JSON definitions
+│   │   ├── game/logic.go        # The "Brain" (BFS, Polygons, Replay)
+│   │   ├── handler/websocket.go # WS Router, Undo Handshakes
+│   │   └── service/room_manager.go # Session routing, Room creation
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx              # Main UI layout, Modals, State wiring
+│   │   ├── components/
+│   │   │   └── GameBoard.tsx    # Canvas rendering, touch math
+│   │   └── services/
+│   │       └── websocket.ts     # WS Client, reconnects, localStorage ID
+```
