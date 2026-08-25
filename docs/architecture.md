@@ -34,6 +34,7 @@ The game operates on an **authoritative server model**. The frontend is a "dumb"
 ## 3. Sub-domain Documentation
 
 Detailed architecture for specific domains can be found here:
+- **System Flow & Dependencies**: See [`docs/game_flow.md`](./game_flow.md)
 - **Backend Game Logic (BFS, Event Sourcing, Timers)**: See [`backend/docs/README.md`](../backend/docs/README.md)
 - **Frontend Rendering (Canvas, Touch UX, UI)**: See [`tochky/docs/README.md`](../tochky/docs/README.md)
 

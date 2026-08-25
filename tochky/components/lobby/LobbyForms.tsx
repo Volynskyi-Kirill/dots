@@ -42,7 +42,6 @@ export function LobbyForms() {
       <div className="relative group">
         <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur-md opacity-30 group-hover:opacity-60 transition duration-500" />
         <Card className="relative border-border/80 bg-card/95 backdrop-blur-sm shadow-xl rounded-2xl overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500" />
           <CardHeader className="pb-4">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
