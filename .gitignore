@@ -21,3 +21,6 @@ dist-ssr/
 .DS_Store
 .vscode/
 .idea/
+
+# Playwright MCP logs
+.playwright-mcp/
