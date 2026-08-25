@@ -73,11 +73,42 @@ export default function Page() {
     inLanguage: ['en', 'ru', 'uk', 'pl']
   };
 
+  const faqLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: t('faq1Q'),
+        acceptedAnswer: { '@type': 'Answer', text: t('faq1A') }
+      },
+      {
+        '@type': 'Question',
+        name: t('faq2Q'),
+        acceptedAnswer: { '@type': 'Answer', text: t('faq2A') }
+      },
+      {
+        '@type': 'Question',
+        name: t('faq3Q'),
+        acceptedAnswer: { '@type': 'Answer', text: t('faq3A') }
+      },
+      {
+        '@type': 'Question',
+        name: t('faq4Q'),
+        acceptedAnswer: { '@type': 'Answer', text: t('faq4A') }
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
       <header className="w-full max-w-5xl mx-auto p-4 flex justify-between items-center border-b border-border/40">
         <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-red-400 bg-clip-text text-transparent">
@@ -98,14 +129,42 @@ export default function Page() {
 
         <LobbyForms />
 
-        <section className="mt-16 max-w-3xl mx-auto prose dark:prose-invert">
-          <h3>{t('howToPlay')}</h3>
-          <ul>
-            <li><strong>{t('objectiveTitle')}</strong> {t('objectiveText')}</li>
-            <li><strong>{t('placementTitle')}</strong> {t('placementText')}</li>
-            <li><strong>{t('capturingTitle')}</strong> {t('capturingText')}</li>
-            <li><strong>{t('winningTitle')}</strong> {t('winningText')}</li>
-          </ul>
+        <section className="mt-16 max-w-3xl mx-auto">
+          <div className="prose dark:prose-invert max-w-none">
+            <h3 className="text-2xl font-bold mb-4">{t('howToPlay')}</h3>
+            <p className="mb-4">
+              <strong>{t('objectiveTitle')}</strong> {t('objectiveText')}
+            </p>
+            <p className="mb-4">
+              <strong>{t('placementTitle')}</strong> {t('placementText')}
+            </p>
+            <p className="mb-4">
+              <strong>{t('capturingTitle')}</strong> {t('capturingText')}
+            </p>
+            <p className="mb-4">
+              <strong>{t('winningTitle')}</strong> {t('winningText')}
+            </p>
+
+            <h3 className="text-2xl font-bold mt-12 mb-6">{t('faqTitle')}</h3>
+            <div className="space-y-6">
+              <div>
+                <h4 className="text-lg font-semibold m-0 mb-2">{t('faq1Q')}</h4>
+                <p className="m-0 text-muted-foreground">{t('faq1A')}</p>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold m-0 mb-2">{t('faq2Q')}</h4>
+                <p className="m-0 text-muted-foreground">{t('faq2A')}</p>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold m-0 mb-2">{t('faq3Q')}</h4>
+                <p className="m-0 text-muted-foreground">{t('faq3A')}</p>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold m-0 mb-2">{t('faq4Q')}</h4>
+                <p className="m-0 text-muted-foreground">{t('faq4A')}</p>
+              </div>
+            </div>
+          </div>
         </section>
       </main>
     </div>
