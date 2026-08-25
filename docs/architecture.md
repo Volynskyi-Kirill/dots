@@ -64,16 +64,24 @@ Because reversing flood-fills and un-capturing territories is mathematically com
 
 ## 4. Frontend Rendering (`GameBoard.tsx`)
 
-### Canvas Interactions
-*   **Desktop**: The board is statically centered and scaled to perfectly fit the browser window. Mouse panning and wheel zooming are explicitly disabled to prevent misclicks and UI jitter.
+### Canvas Interactions & Camera
+*   **Desktop**: The board centers automatically. Users can pan using mouse drag (or touch) and zoom via scroll wheel (or pinch).
 *   **Mobile**: 
-    *   Native multi-touch pinch-to-zoom is supported. The math uses the pinch centroid to scale exactly where the user's fingers are.
-    *   Touch panning is constrained with margins (`canvasWidth / 2`) so the board can be dragged comfortably to screen edges but cannot be thrown entirely off-screen.
+    *   Native multi-touch pinch-to-zoom is supported using pinch centroid math.
+    *   Panning is constrained with margins so the board cannot be dragged off-screen.
 
-### UI / Visuals
+### Mobile & Touch UX (Control Schemes)
+To solve the classic "fat finger" problem on large grids (39x39), the game offers three UX control schemes (stored in `localStorage: dots_control_scheme`):
+1. **Classic (Direct Tap)**: Default mode. Single tap instantly places a dot. 1-finger pans the board.
+2. **Smart Aim (Drag & Release)**: Touch and drag creates a glowing ghost dot offset 40px *above* the finger. The dot magnetically snaps to grid intersections, allowing pixel-perfect precision without zooming in. Releasing the finger places the dot. 2-fingers are used for panning. On desktop, this mode attaches a hover-reticle to the mouse cursor.
+3. **Double Tap (Confirm)**: Tapping an intersection selects it (showing a yellow marker) and brings up a "Confirm Move" button. Tapping the same spot again or clicking the button finalizes the move.
+
+*Note: In `Smart Aim` and `Double Tap` modes, the aiming visuals and inputs are strictly disabled during the opponent's turn to prevent UI clutter and invalid actions.*
+
+### Visuals & HUD
 *   **Theme**: Dark mode, minimal aesthetics, glowing neon accents.
-*   **Last Move Indicator**: The very last dot placed has a distinct white core and a stronger neon drop-shadow to easily track opponent actions.
-*   **HUD**: The header contains live score tracking (calculated frontend-side by counting captured arrays) and Undo handshake UI.
+*   **Last Move Indicator**: The very last dot placed has a distinct white core and a stronger neon drop-shadow.
+*   **HUD**: The header contains live score tracking, timers, and Undo handshake UI. Mobile users have a burger menu containing settings, share links, and the series score.
 
 ---
 
