@@ -127,13 +127,14 @@ export default function GuidePage() {
             </div>
           </section>
 
-          {/* Mobile Controls Section */}
+          {/* Settings & Controls Section */}
           <section>
             <h2 className="text-3xl font-bold mb-8 text-center">{t('mobileControls')}</h2>
             <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div className="prose dark:prose-invert text-lg">
+              <div className="prose dark:prose-invert text-lg space-y-3">
                 <p><strong>{t('directTouch')}</strong></p>
                 <p><strong>{t('dragRelease')}</strong></p>
+                <p><strong>{t('themeLanguage')}</strong></p>
               </div>
               <div className="bg-muted rounded-xl overflow-hidden shadow-lg border">
                 <Image src="/images/guide/settings.png" alt="Settings & Controls" width={800} height={600} className="w-full h-auto object-cover" unoptimized />

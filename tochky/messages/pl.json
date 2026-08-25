@@ -52,9 +52,10 @@
     "inviteFriend": "Zapraszanie znajomego: Kliknij przycisk «Kopiuj link z zaproszeniem» u góry pokoju, aby udostępnić link przeciwnikowi.",
     "undoMove": "Cofnięcie ruchu: Jeśli popełnisz błąd, kliknij «Cofnij ruch». Twój przeciwnik musi zaakceptować prośbę o cofnięcie.",
     "surrenderRematch": "Poddanie się i rewanż: Możesz zakończyć grę przedwcześnie, klikając «Poddaj się». Po zakończeniu gry kliknij «Rewanż», aby rozpocząć nową partię w tym samym pokoju.",
-    "mobileControls": "Sterowanie dotykowe na urządzeniach mobilnych",
+    "mobileControls": "Ustawienia i sterowanie",
     "directTouch": "Bezpośrednie dotknięcie: Dotknij bezpośrednio przecięcia linii siatki, aby postawić kropkę. Najlepsze na tabletach.",
-    "dragRelease": "Przeciągnij i upuść: Dotknij ekranu w dowolnym miejscu i przeciągnij, aby przesunąć wirtualny kursor. Puść palec, aby postawić kropkę. Wysoce zalecane na małych ekranach telefonów, aby uniknąć przypadkowych kliknięć."
+    "dragRelease": "Przeciągnij i upuść: Dotknij ekranu w dowolnym miejscu i przeciągnij, aby przesunąć wirtualny kursor. Puść palec, aby postawić kropkę. Wysoce zalecane na małych ekranach telefonów, aby uniknąć przypadkowych kliknięć.",
+    "themeLanguage": "Motyw i język: Możesz w dowolnym momencie przełączać motyw jasny, ciemny lub systemowy, a także zmieniać język interfejsu w górnym pasku nawigacji lub w oknie ustawień gry."
   },
   "Lobby": {
     "joinRoom": "Dołącz do pokoju",

@@ -52,9 +52,10 @@
     "inviteFriend": "Inviting a Friend: Click the 'Copy Invite Link' button at the top of the room to share the URL with your opponent.",
     "undoMove": "Undo Move: If you make a mistake, click 'Undo'. Your opponent must approve the undo request.",
     "surrenderRematch": "Surrender & Rematch: You can concede the game early by clicking 'Surrender'. After a game ends, click 'Rematch' to start a new round in the same room.",
-    "mobileControls": "Mobile Touch Controls",
+    "mobileControls": "Settings & Controls",
     "directTouch": "Direct Touch: Tap directly on a grid intersection to place a dot. Best for tablets.",
-    "dragRelease": "Drag & Release: Touch the screen anywhere and drag to move a virtual cursor. Release your finger to place the dot. Highly recommended for small phone screens to prevent misclicks."
+    "dragRelease": "Drag & Release: Touch the screen anywhere and drag to move a virtual cursor. Release your finger to place the dot. Highly recommended for small phone screens to prevent misclicks.",
+    "themeLanguage": "Theme & Language: You can switch between light, dark, or system themes and change the interface language anytime from the header bar or in-game settings."
   },
   "Lobby": {
     "joinRoom": "Join Room",
