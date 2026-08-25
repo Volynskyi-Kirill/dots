@@ -123,7 +123,8 @@
     "winReasonTimeoutLose": "Skończył ci się czas",
     "shareInstruction": "Udostępnij ten link przeciwnikowi, aby rozpocząć grę",
     "yourTurn": "Twój ruch",
-    "opponentTurn": "Oczekiwanie na przeciwnika..."
+    "opponentTurn": "Oczekiwanie na przeciwnika...",
+    "undoDescription": "Przeciwnik poprosił o cofnięcie ostatniego ruchu. Zgadzasz się?"
   },
   "Theme": {
     "light": "Jasny",

@@ -222,27 +222,11 @@ export function GameRoom({ roomId }: { roomId: string }) {
                         <RotateCcw className="w-3.5 h-3.5" />
                         <span className="hidden sm:inline">{t("undo")}</span>
                       </button>
-                    ) : gameState.undoRequestedBy === myPlayerId ? (
+                    ) : (
                       <span className="text-[10px] sm:text-xs text-muted-foreground animate-pulse border px-2 py-1 rounded-md bg-secondary/30 w-full text-center">
                         {t("waiting")}
                       </span>
-                    ) : !!gameState.undoRequestedBy && gameState.undoRequestedBy !== myPlayerId ? (
-                      <div className="flex items-center gap-1">
-                        <span className="text-[10px] sm:text-xs font-bold text-destructive mr-0.5">{t("undoQuestion")}</span>
-                        <button 
-                          onClick={() => wsService.send('answer_undo', { accept: true })}
-                          className="px-2 py-1 bg-green-500/20 text-green-500 hover:bg-green-500/30 rounded-md text-[10px] sm:text-xs font-bold border border-green-500/30"
-                        >
-                          Yes
-                        </button>
-                        <button 
-                          onClick={() => wsService.send('answer_undo', { accept: false })}
-                          className="px-2 py-1 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-md text-[10px] sm:text-xs font-bold border border-red-500/30"
-                        >
-                          No
-                        </button>
-                      </div>
-                    ) : null}
+                    )}
                   </div>
                   
                   <button 
@@ -385,6 +369,34 @@ export function GameRoom({ roomId }: { roomId: string }) {
                 className="px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-md text-sm font-medium transition-colors shadow-sm"
               >
                 {t("confirmLeave")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Opponent Undo Request Overlay */}
+      {gameState?.status === 'playing' && !!gameState.undoRequestedBy && gameState.undoRequestedBy !== myPlayerId && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-card border shadow-xl rounded-xl w-full max-w-sm p-6 relative animate-in zoom-in-95 duration-200">
+            <h2 className="text-xl font-bold mb-3 flex items-center gap-2 text-primary">
+              <RotateCcw className="w-5 h-5" /> {t("undoQuestion")}
+            </h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              {t("undoDescription")}
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => wsService.send('answer_undo', { accept: false })}
+                className="flex-1 px-4 py-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md text-sm font-bold transition-colors"
+              >
+                {t("no")}
+              </button>
+              <button
+                onClick={() => wsService.send('answer_undo', { accept: true })}
+                className="flex-1 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md text-sm font-bold transition-colors shadow-sm"
+              >
+                {t("yes")}
               </button>
             </div>
           </div>

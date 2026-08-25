@@ -123,7 +123,8 @@
     "winReasonTimeoutLose": "You ran out of time",
     "shareInstruction": "Share this link with your opponent to start the game",
     "yourTurn": "Your turn",
-    "opponentTurn": "Waiting for opponent..."
+    "opponentTurn": "Waiting for opponent...",
+    "undoDescription": "Opponent requested to undo their last move. Do you accept?"
   },
   "Theme": {
     "light": "Light",
