@@ -14,6 +14,14 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
+export const metadata = {
+  icons: {
+    icon: '/icons/icon.jpg',
+    shortcut: '/icons/icon.jpg',
+    apple: '/icons/apple-icon.jpg',
+  },
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
