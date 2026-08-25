@@ -71,20 +71,25 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 				rm.LeaveRoom(currentRoom.ID, client)
 				if playerID > 0 {
 					state, exists := gameStates[currentRoom.ID]
-					if exists && state.Status == "playing" {
+					if exists {
 						if playerID == 1 {
 							state.P1Disconnected = true
 						} else if playerID == 2 {
 							state.P2Disconnected = true
 						}
-						timeoutStr := os.Getenv("DISCONNECT_TIMEOUT")
-						timeout := int64(15)
-						if timeoutStr != "" {
-							if val, err := strconv.ParseInt(timeoutStr, 10, 64); err == nil {
-								timeout = val
+						
+						// Only start timeout if game is still playing
+						if state.Status == "playing" {
+							timeoutStr := os.Getenv("DISCONNECT_TIMEOUT")
+							timeout := int64(15)
+							if timeoutStr != "" {
+								if val, err := strconv.ParseInt(timeoutStr, 10, 64); err == nil {
+									timeout = val
+								}
 							}
+							state.DisconnectDeadline = time.Now().UnixMilli() + (timeout * 1000)
 						}
-						state.DisconnectDeadline = time.Now().UnixMilli() + (timeout * 1000)
+						
 						stateBytes, _ := json.Marshal(domain.Message{
 							Type:    constants.MessageState,
 							Payload: marshalState(state),

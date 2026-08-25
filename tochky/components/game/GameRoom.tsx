@@ -508,6 +508,7 @@ function GameOverOverlay({
   const iWon = gameState.winner === myPlayerId;
   const isTie = gameState.winner === 0;
   const confettiRan = useRef(false);
+  const opponentDisconnected = myPlayerId === 1 ? gameState.p2Disconnected : gameState.p1Disconnected;
 
   useEffect(() => {
     if (iWon && !confettiRan.current) {
@@ -568,27 +569,36 @@ function GameOverOverlay({
 
         {/* Actions */}
         <div className="flex flex-col gap-3">
-          {!gameState.rematchRequestedBy && (
-            <button
-              onClick={onRematch}
-              className="w-full px-6 py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl font-bold text-base transition-colors shadow-sm"
-            >
-              🔄 {t('rematch')}
-            </button>
-          )}
-          {gameState.rematchRequestedBy === myPlayerId && (
-            <span className="text-sm text-muted-foreground animate-pulse border px-4 py-3 rounded-xl bg-secondary/30">
-              {t('waiting')}
-            </span>
-          )}
-          {!!gameState.rematchRequestedBy && gameState.rematchRequestedBy !== myPlayerId && (
-            <div className="flex flex-col gap-2">
+          {opponentDisconnected ? (
+            <div className="w-full px-6 py-3 bg-secondary/50 text-muted-foreground rounded-xl text-sm border flex items-center justify-center gap-2">
+              <LogOut className="w-4 h-4" />
+              {t('playerDisconnected')}
+            </div>
+          ) : (
+            <>
+              {!gameState.rematchRequestedBy && (
+                <button
+                  onClick={onRematch}
+                  className="w-full px-6 py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl font-bold text-base transition-colors shadow-sm"
+                >
+                  🔄 {t('rematch')}
+                </button>
+              )}
+              {gameState.rematchRequestedBy === myPlayerId && (
+                <span className="text-sm text-muted-foreground animate-pulse border px-4 py-3 rounded-xl bg-secondary/30">
+                  {t('waiting')}
+                </span>
+              )}
+              {!!gameState.rematchRequestedBy && gameState.rematchRequestedBy !== myPlayerId && (
+                <div className="flex flex-col gap-2">
               <p className="text-sm font-bold text-primary">{t('rematchQuestion')}</p>
               <div className="flex gap-3">
                 <button onClick={() => wsService.send('answer_rematch', { accept: true })} className="flex-1 px-4 py-2 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg text-sm font-bold hover:bg-green-500/30 transition-colors">{t('yes')}</button>
                 <button onClick={() => wsService.send('answer_rematch', { accept: false })} className="flex-1 px-4 py-2 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-sm font-bold hover:bg-red-500/30 transition-colors">{t('no')}</button>
               </div>
             </div>
+          )}
+          </>
           )}
           <button
             onClick={onLeave}

@@ -114,7 +114,7 @@
     "matchScore": "Match Score",
     "scoreCaptured": "Captured dots",
     "winReasonDisconnect": "Opponent disconnected",
-    "playerDisconnected": "Disconnected",
+    "playerDisconnected": "Player disconnected",
     "winReasonSurrenderWin": "Opponent surrendered",
     "winReasonSurrenderLose": "You surrendered",
     "winReasonDisconnectWin": "Opponent disconnected",
