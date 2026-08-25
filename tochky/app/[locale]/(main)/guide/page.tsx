@@ -17,9 +17,60 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default function GuidePage() {
   const t = useTranslations('Guide');
+  const tMeta = useTranslations('Metadata');
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://dots-game.com';
+
+  const articleLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: t('title'),
+    description: tMeta('guideDescription'),
+    image: `${baseUrl}/og-image.jpg`,
+    author: {
+      '@type': 'Organization',
+      name: 'Dots Game',
+      url: baseUrl,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Dots Game',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/icons/icon.jpg`,
+      },
+    },
+    mainEntityOfPage: `${baseUrl}/guide`,
+  };
+
+  const breadcrumbsLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Dots Game',
+        item: baseUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: t('title'),
+        item: `${baseUrl}/guide`,
+      },
+    ],
+  };
 
   return (
     <main className="min-h-screen bg-background text-foreground flex flex-col items-center">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsLd) }}
+      />
       <div className="w-full max-w-3xl mx-auto p-4 md:p-8 mt-8">
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-12">
           {t('title')}
