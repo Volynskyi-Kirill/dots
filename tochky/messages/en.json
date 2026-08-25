@@ -112,7 +112,9 @@
     "winReasonTimeout": "Time ran out",
     "score": "Score",
     "matchScore": "Match Score",
-    "scoreCaptured": "Captured dots"
+    "scoreCaptured": "Captured dots",
+    "winReasonDisconnect": "Opponent disconnected",
+    "playerDisconnected": "Disconnected"
   },
   "Theme": {
     "light": "Light",

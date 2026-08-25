@@ -433,6 +433,23 @@ export function GameRoom({ roomId }: { roomId: string }) {
           />
         )}
 
+        {/* Disconnect Overlay */}
+        {gameState?.status === 'playing' && (gameState.p1Disconnected || gameState.p2Disconnected) && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-10">
+            <div className="bg-card border shadow-xl rounded-xl p-6 text-center animate-pulse">
+              <h3 className="text-xl font-bold text-destructive mb-2">{t("playerDisconnected")}</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                {gameState.p1Disconnected ? "Player 1" : "Player 2"} has left the room.
+              </p>
+              {gameState.disconnectDeadline && (
+                <div className="text-2xl font-mono text-primary">
+                  <DisconnectCountdown deadline={gameState.disconnectDeadline} />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Connection Overlay */}
         {!gameState && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-10">
@@ -445,6 +462,21 @@ export function GameRoom({ roomId }: { roomId: string }) {
       </div>
     </div>
   );
+}
+
+// ─── Disconnect Countdown Component ──────────────────────────────────────────
+
+function DisconnectCountdown({ deadline }: { deadline: number }) {
+  const [left, setLeft] = useState(Math.max(0, Math.ceil((deadline - Date.now()) / 1000)));
+
+  useEffect(() => {
+    const int = setInterval(() => {
+      setLeft(Math.max(0, Math.ceil((deadline - Date.now()) / 1000)));
+    }, 100);
+    return () => clearInterval(int);
+  }, [deadline]);
+
+  return <span>{left}s</span>;
 }
 
 // ─── Game Over Overlay Component ────────────────────────────────────────────
@@ -485,6 +517,8 @@ function GameOverOverlay({
     ? 'winReasonSurrender'
     : gameState.winReason === 'timeout'
     ? 'winReasonTimeout'
+    : gameState.winReason === 'disconnect'
+    ? 'winReasonDisconnect'
     : 'winReasonBoardFull';
 
   return (

@@ -46,6 +46,11 @@ type GameState struct {
 	StartingPlayer     int `json:"startingPlayer"`
 	RematchRequestedBy int `json:"rematchRequestedBy,omitempty"`
 
+	// Disconnect tracking
+	P1Disconnected     bool  `json:"p1Disconnected"`
+	P2Disconnected     bool  `json:"p2Disconnected"`
+	DisconnectDeadline int64 `json:"disconnectDeadline,omitempty"`
+
 	// Timer tracking
 	Settings     RoomSettings `json:"settings"`
 	TimeP1       int64        `json:"timeP1"`       // ms remaining

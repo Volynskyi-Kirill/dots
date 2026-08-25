@@ -2,9 +2,11 @@ package handler
 
 import (
 	"encoding/json"
-	"time"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
+	"time"
 
 	"github.com/dots-game/backend/internal/constants"
 	"github.com/dots-game/backend/internal/domain"
@@ -67,6 +69,29 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 		defer func() {
 			if currentRoom != nil {
 				rm.LeaveRoom(currentRoom.ID, client)
+				if playerID > 0 {
+					state, exists := gameStates[currentRoom.ID]
+					if exists && state.Status == "playing" {
+						if playerID == 1 {
+							state.P1Disconnected = true
+						} else if playerID == 2 {
+							state.P2Disconnected = true
+						}
+						timeoutStr := os.Getenv("DISCONNECT_TIMEOUT")
+						timeout := int64(15)
+						if timeoutStr != "" {
+							if val, err := strconv.ParseInt(timeoutStr, 10, 64); err == nil {
+								timeout = val
+							}
+						}
+						state.DisconnectDeadline = time.Now().UnixMilli() + (timeout * 1000)
+						stateBytes, _ := json.Marshal(domain.Message{
+							Type:    constants.MessageState,
+							Payload: marshalState(state),
+						})
+						currentRoom.Broadcast <- stateBytes
+					}
+				}
 			}
 			conn.Close()
 		}()
@@ -113,7 +138,34 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 									if !exists {
 										return
 									}
-									if state.Status == "playing" && state.Settings.TimerEnabled && state.LastMoveTime > 0 {
+									if state.Status == "playing" {
+										// Disconnect timeout check
+										if (state.P1Disconnected || state.P2Disconnected) && state.DisconnectDeadline > 0 {
+											if time.Now().UnixMilli() > state.DisconnectDeadline {
+												state.Status = "finished"
+												state.WinReason = "disconnect"
+												if state.P1Disconnected {
+													state.Winner = 2
+													state.MatchScoreP2++
+												} else {
+													state.Winner = 1
+													state.MatchScoreP1++
+												}
+												state.DisconnectDeadline = 0 // clear
+												
+												room := rm.GetRoom(rID)
+												if room != nil {
+													stateBytes, _ := json.Marshal(domain.Message{
+														Type:    "state",
+														Payload: marshalState(state),
+													})
+													room.Broadcast <- stateBytes
+												}
+												continue
+											}
+										}
+
+										if state.Settings.TimerEnabled && state.LastMoveTime > 0 && !state.P1Disconnected && !state.P2Disconnected {
 										elapsed := time.Now().UnixMilli() - state.LastMoveTime
 										var timeout bool
 										if state.CurrentTurn == 1 { // Player1
@@ -146,12 +198,21 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 												room.Broadcast <- stateBytes
 											}
 										}
+										}
 									}
 								}
 							}(room.ID)
 						}
 
 						state := gameStates[room.ID]
+						
+						// Clear disconnect flag for the joining player
+						if playerID == 1 {
+							state.P1Disconnected = false
+						} else if playerID == 2 {
+							state.P2Disconnected = false
+						}
+						
 						if len(room.Clients) == 2 && state.Status == "waiting" {
 							state.Status = "playing"
 							if state.Settings.TimerEnabled && state.LastMoveTime == 0 {

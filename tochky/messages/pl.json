@@ -112,7 +112,9 @@
     "winReasonTimeout": "Czas minął",
     "score": "Wynik",
     "matchScore": "Wynik meczu",
-    "scoreCaptured": "Zdobyte punkty"
+    "scoreCaptured": "Zdobyte punkty",
+    "winReasonDisconnect": "Przeciwnik rozłączony",
+    "playerDisconnected": "Rozłączony"
   },
   "Theme": {
     "light": "Jasny",

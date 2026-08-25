@@ -23,9 +23,14 @@ export interface GameState {
   undoRequestedBy?: number;
 
   matchScoreP1: number;
-  matchScoreP2: number;
-  startingPlayer: number;
+  matchScoreP2?: number;
+  startingPlayer?: number;
   rematchRequestedBy?: number;
+
+  // Disconnect info
+  p1Disconnected?: boolean;
+  p2Disconnected?: boolean;
+  disconnectDeadline?: number;
 
   settings: RoomSettings;
   timeP1: number;

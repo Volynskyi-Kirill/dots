@@ -112,7 +112,9 @@
     "winReasonTimeout": "Час вийшов",
     "score": "Рахунок",
     "matchScore": "Рахунок серії",
-    "scoreCaptured": "Захоплено точок"
+    "scoreCaptured": "Захоплено точок",
+    "winReasonDisconnect": "Суперник відключився",
+    "playerDisconnected": "Відключено"
   },
   "Theme": {
     "light": "Світла",

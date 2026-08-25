@@ -112,7 +112,9 @@
     "winReasonTimeout": "Время вышло",
     "score": "Счёт",
     "matchScore": "Счёт в серии",
-    "scoreCaptured": "Захвачено точек"
+    "scoreCaptured": "Захвачено точек",
+    "winReasonDisconnect": "Противник отключился",
+    "playerDisconnected": "Отключен"
   },
   "Theme": {
     "light": "Светлая",
