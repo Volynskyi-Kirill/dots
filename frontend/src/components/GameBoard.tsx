@@ -14,6 +14,7 @@ export interface GameState {
   polygonsP2: Point[][];
   status: string;
   lastMove?: Point;
+  undoRequestedBy?: number;
 }
 
 interface GameBoardProps {

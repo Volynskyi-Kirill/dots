@@ -11,6 +11,7 @@ import (
 
 type Logic interface {
 	MakeMove(state *domain.GameState, playerID int, x, y int) error
+	RebuildState(state *domain.GameState)
 }
 
 type gameLogic struct {
@@ -232,4 +233,29 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 			}
 		}
 	}
+}
+
+func (l *gameLogic) RebuildState(state *domain.GameState) {
+	// Clear board
+	for y := 0; y < l.height; y++ {
+		for x := 0; x < l.width; x++ {
+			state.Board[y][x] = constants.Empty
+		}
+	}
+	// Clear slices
+	state.CapturedP1 = nil
+	state.CapturedP2 = nil
+	state.PolygonsP1 = nil
+	state.PolygonsP2 = nil
+	state.CurrentTurn = constants.Player1
+	state.LastMove = nil
+
+	// Replay history
+	history := state.MovesHistory
+	state.MovesHistory = nil // Not strictly necessary since MakeMove doesn't modify it, but good practice
+	for _, p := range history {
+		// Ignore errors during replay since they were already validated
+		_ = l.MakeMove(state, state.CurrentTurn, p.X, p.Y)
+	}
+	state.MovesHistory = history
 }

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { wsService } from './services/websocket'
 import { GameBoard, GameState } from './components/GameBoard'
 import { cn } from './lib/utils'
-import { Copy, Check, Share2, LogOut, Menu } from 'lucide-react'
+import { Copy, Check, Share2, LogOut, Menu, RotateCcw } from 'lucide-react'
 
 function App() {
   const [roomId, setRoomId] = useState('')
@@ -11,6 +11,7 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [myPlayerId, setMyPlayerId] = useState<number | null>(null)
 
   const joinRoomById = useCallback((id: string) => {
     const cleanId = id.trim()
@@ -36,8 +37,13 @@ function App() {
       setTimeout(() => setError(null), 3000)
     }
 
+    const onWelcome = (data: { playerId: number }) => {
+      setMyPlayerId(data.playerId)
+    }
+
     wsService.on('state', onState)
     wsService.on('error', onError)
+    wsService.on('welcome', onWelcome)
 
     // Check if room is present in URL
     const params = new URLSearchParams(window.location.search)
@@ -51,6 +57,7 @@ function App() {
     return () => {
       wsService.off('state', onState)
       wsService.off('error', onError)
+      wsService.off('welcome', onWelcome)
     }
   }, [joinRoomById])
 
@@ -177,6 +184,44 @@ function App() {
                   <span className="font-mono font-bold text-sm">{p2Score}</span>
                   <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]"></div>
                 </div>
+              </div>
+            )}
+
+            {/* Undo UI (Visible on both mobile and desktop) */}
+            {gameState && gameState.status === 'playing' && myPlayerId && (
+              <div className="flex items-center">
+                {gameState.undoRequestedBy === 0 && gameState.currentTurn !== myPlayerId && gameState.lastMove && (
+                  <button 
+                    onClick={() => wsService.send('request_undo', {})}
+                    className="flex items-center gap-1 px-2.5 py-1 bg-secondary/80 hover:bg-secondary rounded-md text-[10px] sm:text-xs font-medium border shadow-sm transition-colors text-muted-foreground hover:text-foreground"
+                    title="Undo Move"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Undo</span>
+                  </button>
+                )}
+                {gameState.undoRequestedBy === myPlayerId && (
+                  <span className="text-[10px] sm:text-xs text-muted-foreground animate-pulse border px-2 py-1 rounded-md bg-secondary/30">
+                    Wait<span className="hidden sm:inline">ing...</span>
+                  </span>
+                )}
+                {gameState.undoRequestedBy !== 0 && gameState.undoRequestedBy !== myPlayerId && (
+                  <div className="flex items-center gap-1 animate-in fade-in zoom-in duration-200">
+                    <span className="text-[10px] sm:text-xs font-bold text-destructive mr-0.5">Undo?</span>
+                    <button 
+                      onClick={() => wsService.send('answer_undo', { accept: true })}
+                      className="px-2 py-1 bg-green-500/20 text-green-500 hover:bg-green-500/30 rounded-md text-[10px] sm:text-xs font-bold transition-colors border border-green-500/30"
+                    >
+                      Yes
+                    </button>
+                    <button 
+                      onClick={() => wsService.send('answer_undo', { accept: false })}
+                      className="px-2 py-1 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-md text-[10px] sm:text-xs font-bold transition-colors border border-red-500/30"
+                    >
+                      No
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 

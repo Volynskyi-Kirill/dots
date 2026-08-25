@@ -7,10 +7,13 @@ const (
 )
 
 const (
-	MessageChat       = "chat"
-	MessageMove       = "move"
-	MessageState      = "state"
-	MessageJoin       = "join"
-	MessageError      = "error"
-	MessageDisconnect = "disconnect"
+	MessageChat        = "chat"
+	MessageMove        = "move"
+	MessageState       = "state"
+	MessageJoin        = "join"
+	MessageError       = "error"
+	MessageDisconnect  = "disconnect"
+	MessageWelcome     = "welcome"
+	MessageUndoRequest = "request_undo"
+	MessageUndoAnswer  = "answer_undo"
 )

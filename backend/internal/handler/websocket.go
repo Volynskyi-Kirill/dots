@@ -108,6 +108,13 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 							state.Status = "playing"
 						}
 
+						// Send welcome message to the newly joined client
+						welcomeBytes, _ := json.Marshal(domain.Message{
+							Type:    constants.MessageWelcome,
+							Payload: marshalWelcome(playerID),
+						})
+						client.Send(welcomeBytes)
+
 						// Send current state
 						stateBytes, _ := json.Marshal(domain.Message{
 							Type:    constants.MessageState,
@@ -122,6 +129,10 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 					if err := json.Unmarshal(msg.Payload, &payload); err == nil {
 						state := gameStates[currentRoom.ID]
 						if err := logic.MakeMove(state, playerID, payload.X, payload.Y); err == nil {
+							// Update history and reset undo state
+							state.MovesHistory = append(state.MovesHistory, domain.Point{X: payload.X, Y: payload.Y})
+							state.UndoRequestedBy = 0
+
 							stateBytes, _ := json.Marshal(domain.Message{
 								Type:    constants.MessageState,
 								Payload: marshalState(state),
@@ -137,6 +148,45 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 						}
 					}
 				}
+			case constants.MessageUndoRequest:
+				if currentRoom != nil {
+					state := gameStates[currentRoom.ID]
+					// Only the player who made the last move can request undo
+					if state.Status == "playing" && len(state.MovesHistory) > 0 {
+						// The person who made the last move is the one whose turn it is NOT
+						if state.CurrentTurn != playerID {
+							state.UndoRequestedBy = playerID
+							stateBytes, _ := json.Marshal(domain.Message{
+								Type:    constants.MessageState,
+								Payload: marshalState(state),
+							})
+							currentRoom.Broadcast <- stateBytes
+						}
+					}
+				}
+			case constants.MessageUndoAnswer:
+				if currentRoom != nil {
+					var payload domain.UndoAnswerPayload
+					if err := json.Unmarshal(msg.Payload, &payload); err == nil {
+						state := gameStates[currentRoom.ID]
+						if state.UndoRequestedBy != 0 && state.UndoRequestedBy != playerID {
+							if payload.Accept {
+								// Revert the last move
+								if len(state.MovesHistory) > 0 {
+									state.MovesHistory = state.MovesHistory[:len(state.MovesHistory)-1]
+									logic.RebuildState(state)
+								}
+							}
+							state.UndoRequestedBy = 0
+
+							stateBytes, _ := json.Marshal(domain.Message{
+								Type:    constants.MessageState,
+								Payload: marshalState(state),
+							})
+							currentRoom.Broadcast <- stateBytes
+						}
+					}
+				}
 			}
 		}
 	}
@@ -144,5 +194,11 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 
 func marshalState(state *domain.GameState) []byte {
 	b, _ := json.Marshal(state)
+	return b
+}
+
+func marshalWelcome(playerID int) []byte {
+	payload := domain.WelcomePayload{PlayerID: playerID}
+	b, _ := json.Marshal(payload)
 	return b
 }
