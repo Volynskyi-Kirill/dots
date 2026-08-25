@@ -61,32 +61,7 @@ Because reversing flood-fills and un-capturing territories is mathematically com
     *   **Board Full**: Triggered automatically when all 1521 intersections are occupied. The system counts captured points to determine the winner.
 *   **Rematch & Series Tracking**: After a game concludes, players can agree to a rematch. The backend tracks the Series Score, clears the board, and automatically swaps the `StartingPlayer` so the loser (or whoever went second) gets to open the next match.
 
----
-
-## 4. Frontend Rendering (`GameBoard.tsx`)
-
-### Canvas Interactions & Camera
-*   **Desktop**: The board centers automatically. Users can pan using mouse drag (or touch) and zoom via scroll wheel (or pinch).
-*   **Mobile**: 
-    *   Native multi-touch pinch-to-zoom is supported using pinch centroid math.
-    *   Panning is constrained with margins so the board cannot be dragged off-screen.
-
-### Mobile & Touch UX (Control Schemes)
-To solve the classic "fat finger" problem on large grids (39x39), the game offers three UX control schemes (stored in `localStorage: dots_control_scheme`):
-1. **Classic (Direct Tap)**: Default mode. Single tap instantly places a dot. 1-finger pans the board.
-2. **Smart Aim (Drag & Release)**: Touch and drag creates a glowing ghost dot offset 40px *above* the finger. The dot magnetically snaps to grid intersections, allowing pixel-perfect precision without zooming in. Releasing the finger places the dot. 2-fingers are used for panning. On desktop, this mode attaches a hover-reticle to the mouse cursor.
-3. **Double Tap (Confirm)**: Tapping an intersection selects it (showing a yellow marker) and brings up a "Confirm Move" button. Tapping the same spot again or clicking the button finalizes the move.
-
-*Note: In `Smart Aim` and `Double Tap` modes, the aiming visuals and inputs are strictly disabled during the opponent's turn to prevent UI clutter and invalid actions.*
-
-### Visuals & HUD
-*   **Theme**: Dark mode, minimal aesthetics, glowing neon accents.
-*   **Last Move Indicator**: The very last dot placed has a distinct white core and a stronger neon drop-shadow.
-*   **HUD**: The header contains live score tracking, timers, and Undo handshake UI. Mobile users have a burger menu containing settings, share links, and the series score.
-
----
-
-## 5. File Structure Map
+## 4. File Structure Map
 
 ```text
 ├── Makefile                     # Dev/Prod docker commands
@@ -100,12 +75,5 @@ To solve the classic "fat finger" problem on large grids (39x39), the game offer
 │   │   ├── game/logic.go        # The "Brain" (BFS, Polygons, Replay)
 │   │   ├── handler/websocket.go # WS Router, Undo Handshakes
 │   │   └── service/room_manager.go # Session routing, Room creation
-├── tochky/                      # Next.js Frontend
-│   ├── app/[locale]/            # Next-intl localized App Router pages
-│   ├── components/game/         # GameBoard, Timer, GameRoom
-│   ├── components/lobby/        # LobbyForms
-│   ├── components/ui/           # shadcn components
-│   ├── i18n/                    # next-intl configuration
-│   ├── messages/                # JSON translation files
-│   └── lib/websocket.ts         # WS Client, reconnects, localStorage ID
+├── tochky/                      # Next.js Frontend (See tochky/docs/README.md)
 ```
