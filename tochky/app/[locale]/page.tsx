@@ -7,11 +7,46 @@ import { getTranslations } from "next-intl/server"
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Metadata' });
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://dots-game.com';
+  
+  const title = t('title');
+  const description = t('description');
 
   return {
-    title: t('title'),
-    description: t('description'),
+    title,
+    description,
     keywords: ['Dots game online', 'play tochka', 'точка игра', 'точка онлайн', 'dots strategy game'],
+    alternates: {
+      canonical: `${baseUrl}/${locale}`,
+      languages: {
+        'en': `${baseUrl}/en`,
+        'ru': `${baseUrl}/ru`,
+        'uk': `${baseUrl}/uk`,
+        'pl': `${baseUrl}/pl`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${baseUrl}/${locale}`,
+      siteName: 'Dots Game',
+      images: [
+        {
+          url: `${baseUrl}/og-image.jpg`,
+          width: 1200,
+          height: 630,
+          alt: 'Dots Game Preview',
+        },
+      ],
+      locale,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [`${baseUrl}/og-image.jpg`],
+    },
   };
 }
 
