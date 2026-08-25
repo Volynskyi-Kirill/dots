@@ -260,8 +260,19 @@ func (l *gameLogic) InitState(state *domain.GameState) {
 	state.CapturedP2 = nil
 	state.PolygonsP1 = nil
 	state.PolygonsP2 = nil
-	state.CurrentTurn = constants.Player1
+
+	if state.StartingPlayer == 0 {
+		state.StartingPlayer = constants.Player1
+	}
+	state.CurrentTurn = state.StartingPlayer
 	state.LastMove = nil
+
+	// Timer reset
+	if state.Settings.TimerEnabled {
+		state.TimeP1 = state.Settings.InitialTime
+		state.TimeP2 = state.Settings.InitialTime
+		// LastMoveTime will be set on the first move
+	}
 }
 
 func (l *gameLogic) RebuildState(state *domain.GameState) {
@@ -276,4 +287,11 @@ func (l *gameLogic) RebuildState(state *domain.GameState) {
 		_ = l.MakeMove(state, state.CurrentTurn, p.X, p.Y)
 	}
 	state.MovesHistory = history
+
+	// Restore exact timer state from the last move (if timers enabled)
+	if state.Settings.TimerEnabled && len(history) > 0 {
+		lastMove := history[len(history)-1]
+		state.TimeP1 = lastMove.TimeP1
+		state.TimeP2 = lastMove.TimeP2
+	}
 }

@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { wsService } from './services/websocket'
 import { GameBoard, GameState } from './components/GameBoard'
 import { cn } from './lib/utils'
-import { Copy, Check, Share2, LogOut, Menu, RotateCcw } from 'lucide-react'
-
+import { Copy, Check, Share2, LogOut, Menu, RotateCcw, Flag, Swords } from 'lucide-react'
+import { Timer } from './components/Timer'
 function App() {
   const [roomId, setRoomId] = useState('')
   const [joinedRoom, setJoinedRoom] = useState<string | null>(null)
@@ -13,7 +13,11 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [myPlayerId, setMyPlayerId] = useState<number | null>(null)
 
-  const joinRoomById = useCallback((id: string) => {
+  const [timerEnabled, setTimerEnabled] = useState(false)
+  const [initialTimeMins, setInitialTimeMins] = useState(5)
+  const [incrementSecs, setIncrementSecs] = useState(3)
+
+  const joinRoomById = useCallback((id: string, settings?: any) => {
     const cleanId = id.trim()
     if (!cleanId) return
     setJoinedRoom(cleanId)
@@ -21,7 +25,7 @@ function App() {
     const url = new URL(window.location.href)
     url.searchParams.set('room', cleanId)
     window.history.pushState({}, '', url.toString())
-    wsService.send('join', { roomId: cleanId })
+    wsService.send('join', { roomId: cleanId, settings })
   }, [])
 
   useEffect(() => {
@@ -63,7 +67,11 @@ function App() {
 
   const handleCreateRoom = () => {
     const newRoomId = Math.random().toString(36).substring(2, 8)
-    joinRoomById(newRoomId)
+    joinRoomById(newRoomId, {
+      timerEnabled,
+      initialTime: initialTimeMins * 60 * 1000,
+      increment: incrementSecs * 1000
+    })
   }
 
   const handleJoinRoom = () => {
@@ -173,23 +181,37 @@ function App() {
           </div>
           
           <div className="flex items-center gap-3 sm:gap-4">
-            {gameState && gameState.status === 'playing' && (
-              <div className="flex items-center gap-3 bg-secondary/30 px-3 py-1 rounded-full border shadow-inner">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]"></div>
-                  <span className="font-mono font-bold text-sm">{p1Score}</span>
+            {gameState && (
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+                {/* Match Score */}
+                <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 bg-secondary/20 rounded-md border text-xs">
+                  <Swords className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="font-mono font-bold text-blue-500">{gameState.matchScoreP1 || 0}</span>
+                  <span className="text-muted-foreground">-</span>
+                  <span className="font-mono font-bold text-red-500">{gameState.matchScoreP2 || 0}</span>
                 </div>
-                <div className="w-px h-4 bg-border"></div>
-                <div className="flex items-center gap-1.5">
-                  <span className="font-mono font-bold text-sm">{p2Score}</span>
-                  <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]"></div>
-                </div>
+
+                {gameState.status === 'playing' && (
+                  <div className="flex items-center gap-3 bg-secondary/30 px-3 py-1 rounded-full border shadow-inner">
+                    {gameState.settings?.timerEnabled && <Timer gameState={gameState} player={1} />}
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]"></div>
+                      <span className="font-mono font-bold text-sm">{p1Score}</span>
+                    </div>
+                    <div className="w-px h-4 bg-border"></div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-mono font-bold text-sm">{p2Score}</span>
+                      <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]"></div>
+                    </div>
+                    {gameState.settings?.timerEnabled && <Timer gameState={gameState} player={2} />}
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Undo UI (Visible on both mobile and desktop) */}
+            {/* Undo & Surrender UI (Visible on both mobile and desktop) */}
             {gameState && gameState.status === 'playing' && myPlayerId && (
-              <div className="flex items-center">
+              <div className="flex items-center gap-1">
                 {(!gameState.undoRequestedBy || gameState.undoRequestedBy === 0) && gameState.currentTurn !== myPlayerId && gameState.lastMove && (
                   <button 
                     onClick={() => wsService.send('request_undo', {})}
@@ -222,13 +244,21 @@ function App() {
                     </button>
                   </div>
                 )}
+                
+                <button 
+                  onClick={() => { if(confirm('Are you sure you want to surrender?')) wsService.send('surrender', {}) }}
+                  className="flex items-center gap-1 px-2.5 py-1 bg-secondary/80 hover:bg-destructive/20 hover:text-destructive rounded-md text-[10px] sm:text-xs font-medium border shadow-sm transition-colors text-muted-foreground"
+                  title="Surrender"
+                >
+                  <Flag className="w-3.5 h-3.5" />
+                </button>
               </div>
             )}
 
             {/* Desktop-only: Turn & Leave */}
             <div className="hidden sm:flex items-center gap-4">
               {gameState && (
-                <div className="text-sm font-medium">
+                <div className="text-sm font-medium flex items-center gap-2">
                   {gameState.status === 'playing' ? (
                     <span className={cn(
                       "px-2.5 py-1 rounded-full border shadow-sm inline-block",
@@ -238,6 +268,22 @@ function App() {
                     )}>
                       Player {gameState.currentTurn}'s Turn
                     </span>
+                  ) : gameState.status === 'finished' ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground font-bold">Game Over</span>
+                      {!gameState.rematchRequestedBy && (
+                         <button onClick={() => wsService.send('request_rematch', {})} className="px-2 py-1 bg-primary text-primary-foreground rounded text-xs hover:bg-primary/80">Rematch</button>
+                      )}
+                      {gameState.rematchRequestedBy === myPlayerId && (
+                         <span className="text-xs text-muted-foreground animate-pulse">Waiting for opponent...</span>
+                      )}
+                      {!!gameState.rematchRequestedBy && gameState.rematchRequestedBy !== myPlayerId && (
+                         <div className="flex gap-1">
+                           <button onClick={() => wsService.send('answer_rematch', { accept: true })} className="px-2 py-1 bg-green-500/20 text-green-500 border border-green-500/30 hover:bg-green-500/30 rounded text-xs font-bold">Accept</button>
+                           <button onClick={() => wsService.send('answer_rematch', { accept: false })} className="px-2 py-1 bg-red-500/20 text-red-500 border border-red-500/30 hover:bg-red-500/30 rounded text-xs font-bold">Decline</button>
+                         </div>
+                      )}
+                    </div>
                   ) : (
                     <span className="text-muted-foreground animate-pulse">
                       Waiting for opponent...
@@ -328,6 +374,46 @@ function App() {
       </div>
       
       <div className="flex flex-col gap-5 max-w-sm w-full p-6 sm:p-8 bg-card rounded-2xl shadow-xl border">
+        
+        <div className="flex flex-col gap-3 p-4 bg-secondary/20 rounded-xl border">
+          <label className="flex items-center gap-2 text-sm font-medium">
+            <input 
+              type="checkbox" 
+              checked={timerEnabled} 
+              onChange={e => setTimerEnabled(e.target.checked)}
+              className="rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            Enable Timer
+          </label>
+          
+          {timerEnabled && (
+            <div className="flex gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+              <label className="flex flex-col gap-1 text-xs text-muted-foreground w-1/2">
+                Time (minutes)
+                <input 
+                  type="number" 
+                  min="1" 
+                  max="60"
+                  value={initialTimeMins} 
+                  onChange={e => setInitialTimeMins(parseInt(e.target.value) || 1)}
+                  className="px-2 py-1.5 rounded border bg-background text-foreground"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-xs text-muted-foreground w-1/2">
+                Increment (seconds)
+                <input 
+                  type="number" 
+                  min="0" 
+                  max="60"
+                  value={incrementSecs} 
+                  onChange={e => setIncrementSecs(parseInt(e.target.value) || 0)}
+                  className="px-2 py-1.5 rounded border bg-background text-foreground"
+                />
+              </label>
+            </div>
+          )}
+        </div>
+
         <button 
           onClick={handleCreateRoom}
           className="w-full px-4 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 font-medium transition-all shadow-md active:scale-[0.98]"
