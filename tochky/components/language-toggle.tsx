@@ -24,12 +24,9 @@ export function LanguageToggle() {
 
   return (
     <DropdownMenu>
-      {/* @ts-expect-error React 19 / Radix UI type mismatch for asChild */}
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Globe className="h-[1.2rem] w-[1.2rem]" />
-          <span className="sr-only">Toggle language</span>
-        </Button>
+      <DropdownMenuTrigger className="inline-flex shrink-0 items-center justify-center rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground size-9">
+        <Globe className="h-[1.2rem] w-[1.2rem]" />
+        <span className="sr-only">Toggle language</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setLocale("en")} className={locale === "en" ? "font-bold" : ""}>
