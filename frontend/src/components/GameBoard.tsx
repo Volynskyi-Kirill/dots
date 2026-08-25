@@ -344,7 +344,12 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (e.pointerType === 'mouse') return; // Disable mouse dragging
+    if (e.pointerType === 'mouse') {
+      if (controlScheme === 'drag') {
+        updateGhostDot(e.clientX, e.clientY); // No offset for mouse
+      }
+      return; // Disable mouse dragging
+    }
     if (!activeTouches.current.has(e.pointerId)) return;
 
     const prevPos = activeTouches.current.get(e.pointerId)!;
@@ -477,6 +482,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
+        onPointerLeave={(e) => e.pointerType === 'mouse' && setGhostDot(null)}
         onClick={handleClick}
         // onWheel is intentionally removed so desktop users can't zoom with mouse wheel
         className="w-full h-full touch-none cursor-crosshair"
