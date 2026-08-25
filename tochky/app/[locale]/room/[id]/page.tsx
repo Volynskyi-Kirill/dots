@@ -1,14 +1,18 @@
 import { GameRoom } from '@/components/game/GameRoom';
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+import { getTranslations } from "next-intl/server"
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string, locale: string }> }) {
+  const { id, locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+
   return {
-    title: `Room ${id} | Dots Game`,
-    description: `Join room ${id} to play Dots online.`,
+    title: t('roomTitle', { id }),
+    description: t('roomDescription', { id }),
   };
 }
 
-export default async function RoomPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function RoomPage({ params }: { params: Promise<{ id: string, locale: string }> }) {
   const { id } = await params;
   return <GameRoom roomId={id} />;
 }

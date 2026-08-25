@@ -2,10 +2,17 @@ import { useTranslations } from "next-intl"
 import { LanguageToggle } from "@/components/language-toggle"
 import { LobbyForms } from "@/components/lobby/LobbyForms"
 
-export const metadata = {
-  title: 'Dots Game Online | Play Tochka',
-  description: 'Play the classic Dots (Tochka) game online with friends. Capture territory, block opponents, and win the match!',
-  keywords: ['Dots game online', 'play tochka', 'точка игра', 'точка онлайн', 'dots strategy game'],
+import { getTranslations } from "next-intl/server"
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+
+  return {
+    title: t('title'),
+    description: t('description'),
+    keywords: ['Dots game online', 'play tochka', 'точка игра', 'точка онлайн', 'dots strategy game'],
+  };
 }
 
 export default function Page() {

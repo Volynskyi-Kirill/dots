@@ -5,5 +5,11 @@
     "buttonAdded": "Dodaliśmy już dla ciebie komponent przycisku.",
     "buttonText": "Przycisk",
     "darkModeHint": "(Naciśnij d, aby przełączyć tryb ciemny)"
+  },
+  "Metadata": {
+    "title": "Gra Kropki Online | Graj z przyjaciółmi",
+    "description": "Graj w klasyczną grę Kropki online z przyjaciółmi. Przejmuj terytorium, blokuj przeciwników i wygrywaj!",
+    "roomTitle": "Pokój {id} | Gra Kropki",
+    "roomDescription": "Dołącz do pokoju {id}, aby grać w Kropki online."
   }
 }

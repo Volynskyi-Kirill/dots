@@ -5,5 +5,11 @@
     "buttonAdded": "We've already added the button component for you.",
     "buttonText": "Button",
     "darkModeHint": "(Press d to toggle dark mode)"
+  },
+  "Metadata": {
+    "title": "Dots Game Online | Play Tochka",
+    "description": "Play the classic Dots (Tochka) game online with friends. Capture territory, block opponents, and win the match!",
+    "roomTitle": "Room {id} | Dots Game",
+    "roomDescription": "Join room {id} to play Dots online."
   }
 }
