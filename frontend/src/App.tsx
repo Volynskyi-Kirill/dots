@@ -190,7 +190,7 @@ function App() {
             {/* Undo UI (Visible on both mobile and desktop) */}
             {gameState && gameState.status === 'playing' && myPlayerId && (
               <div className="flex items-center">
-                {gameState.undoRequestedBy === 0 && gameState.currentTurn !== myPlayerId && gameState.lastMove && (
+                {(!gameState.undoRequestedBy || gameState.undoRequestedBy === 0) && gameState.currentTurn !== myPlayerId && gameState.lastMove && (
                   <button 
                     onClick={() => wsService.send('request_undo', {})}
                     className="flex items-center gap-1 px-2.5 py-1 bg-secondary/80 hover:bg-secondary rounded-md text-[10px] sm:text-xs font-medium border shadow-sm transition-colors text-muted-foreground hover:text-foreground"
@@ -205,7 +205,7 @@ function App() {
                     Wait<span className="hidden sm:inline">ing...</span>
                   </span>
                 )}
-                {gameState.undoRequestedBy !== 0 && gameState.undoRequestedBy !== myPlayerId && (
+                {!!gameState.undoRequestedBy && gameState.undoRequestedBy !== myPlayerId && (
                   <div className="flex items-center gap-1 animate-in fade-in zoom-in duration-200">
                     <span className="text-[10px] sm:text-xs font-bold text-destructive mr-0.5">Undo?</span>
                     <button 

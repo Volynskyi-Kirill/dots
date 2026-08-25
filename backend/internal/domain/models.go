@@ -21,7 +21,7 @@ type GameState struct {
 	PolygonsP2  [][]Point `json:"polygonsP2"`
 	Status          string    `json:"status"`      // "waiting", "playing", "finished"
 	LastMove        *Point    `json:"lastMove,omitempty"`
-	UndoRequestedBy int       `json:"undoRequestedBy,omitempty"`
+	UndoRequestedBy int       `json:"undoRequestedBy"`
 	MovesHistory    []Point   `json:"-"`
 }
 
