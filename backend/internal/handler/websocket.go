@@ -96,11 +96,12 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 							for i := range board {
 								board[i] = make([]int, width)
 							}
-							gameStates[room.ID] = &domain.GameState{
-								Board:       board,
-								CurrentTurn: constants.Player1,
-								Status:      "waiting",
+							state := &domain.GameState{
+								Board: board,
 							}
+							logic.InitState(state)
+							state.Status = "waiting"
+							gameStates[room.ID] = state
 						}
 						
 						state := gameStates[room.ID]

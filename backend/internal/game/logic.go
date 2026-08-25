@@ -12,6 +12,7 @@ import (
 type Logic interface {
 	MakeMove(state *domain.GameState, playerID int, x, y int) error
 	RebuildState(state *domain.GameState)
+	InitState(state *domain.GameState)
 }
 
 type gameLogic struct {
@@ -235,13 +236,25 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 	}
 }
 
-func (l *gameLogic) RebuildState(state *domain.GameState) {
+func (l *gameLogic) InitState(state *domain.GameState) {
 	// Clear board
 	for y := 0; y < l.height; y++ {
 		for x := 0; x < l.width; x++ {
 			state.Board[y][x] = constants.Empty
 		}
 	}
+	
+	// Add starting 2x2 diagonal cross near the center
+	cx := l.width / 2
+	cy := l.height / 2
+	
+	// Top-left: Player 1, Top-right: Player 2
+	// Bottom-left: Player 2, Bottom-right: Player 1
+	state.Board[cy][cx] = constants.Player1
+	state.Board[cy][cx+1] = constants.Player2
+	state.Board[cy+1][cx] = constants.Player2
+	state.Board[cy+1][cx+1] = constants.Player1
+
 	// Clear slices
 	state.CapturedP1 = nil
 	state.CapturedP2 = nil
@@ -249,6 +262,11 @@ func (l *gameLogic) RebuildState(state *domain.GameState) {
 	state.PolygonsP2 = nil
 	state.CurrentTurn = constants.Player1
 	state.LastMove = nil
+}
+
+func (l *gameLogic) RebuildState(state *domain.GameState) {
+	// Reset board to initial cross
+	l.InitState(state)
 
 	// Replay history
 	history := state.MovesHistory

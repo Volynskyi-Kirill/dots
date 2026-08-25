@@ -209,6 +209,34 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     }
 
     ctx.restore();
+
+    // Draw Grid Coordinates (1 to N on the left and bottom) using absolute screen coordinates
+    // This prevents browser minimum font size issues that occur when scaling the canvas context
+    ctx.save();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    const fontSize = Math.max(8, scale * 0.45); 
+    ctx.font = `${fontSize}px monospace`;
+    
+    // Left edge (y coordinates, starting from 1 at the bottom)
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    for (let y = 0; y < height; y++) {
+      const screenY = offset.y + y * scale;
+      if (screenY >= -20 && screenY <= canvas.height + 20) {
+        ctx.fillText((height - y).toString(), offset.x - (scale * 0.4), screenY);
+      }
+    }
+
+    // Bottom edge (x coordinates, starting from 1 at the left)
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    for (let x = 0; x < width; x++) {
+      const screenX = offset.x + x * scale;
+      if (screenX >= -20 && screenX <= canvas.width + 20) {
+        ctx.fillText((x + 1).toString(), screenX, offset.y + (height - 1) * scale + (scale * 0.4));
+      }
+    }
+    ctx.restore();
   }, [state, offset, scale, width, height]);
 
   useEffect(() => {
