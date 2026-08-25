@@ -34,7 +34,7 @@ To run the project, you only need **Docker** and **Docker Compose** installed.
 
 - `make up` — start all containers in the background
 - `make down` — stop and remove containers
-- `make rebuild-tochky` — rebuild the Next.js frontend container
+- `make rebuild-frontend` — rebuild the Next.js frontend container
 - `make logs` — view frontend and backend logs in real-time
 - `make test` — run unit tests for the game logic algorithm (Go)
 

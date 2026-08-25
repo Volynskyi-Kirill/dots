@@ -1,4 +1,4 @@
-.PHONY: up down restart logs test build prod-up prod-down prod-logs prod-build rebuild-tochky
+.PHONY: up down restart logs test build prod-up prod-down prod-logs prod-build rebuild-frontend
 
 # ----- Development Commands -----
 up:
@@ -16,10 +16,10 @@ logs:
 build:
 	docker-compose build
 
-rebuild-tochky:
-	docker-compose rm -f -s -v tochky
-	docker-compose build tochky
-	docker-compose up -d tochky
+rebuild-frontend:
+	docker-compose rm -f -s -v frontend
+	docker-compose build frontend
+	docker-compose up -d frontend
 
 test:
 	cd backend && go test -v ./...
