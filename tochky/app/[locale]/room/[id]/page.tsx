@@ -1,5 +1,5 @@
 import { GameRoom } from '@/components/game/GameRoom';
-
+import { SoundProvider } from '@/components/sound-provider';
 import { getTranslations } from "next-intl/server"
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string, locale: string }> }) {
@@ -44,5 +44,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function RoomPage({ params }: { params: Promise<{ id: string, locale: string }> }) {
   const { id } = await params;
-  return <GameRoom roomId={id} />;
+  return (
+    <SoundProvider>
+      <GameRoom roomId={id} />
+    </SoundProvider>
+  );
 }

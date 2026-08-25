@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { GameState } from '@/lib/types';
+import { useSound } from '@/components/sound-provider';
 
 interface TimerProps {
   gameState: GameState;
@@ -11,6 +12,8 @@ interface TimerProps {
 export function Timer({ gameState, player }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const rafRef = useRef<number | null>(null);
+  const lastTickRef = useRef<number>(-1);
+  const { playSound } = useSound();
 
   useEffect(() => {
     if (!gameState.settings?.timerEnabled) return;
@@ -21,17 +24,28 @@ export function Timer({ gameState, player }: TimerProps) {
     if (gameState.status !== 'playing' || gameState.currentTurn !== player) {
       setTimeLeft(targetTime);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      lastTickRef.current = -1; // Reset tick
       return;
     }
 
     // Otherwise animate countdown
-    // The server sends `lastMoveTime` as Unix timestamp in ms
     const updateTimer = () => {
       const now = Date.now();
       const passed = now - gameState.lastMoveTime;
       const current = Math.max(0, targetTime - passed);
       
       setTimeLeft(current);
+      
+      // Play tick sound when less than 10 seconds remain, once per second
+      if (current > 0 && current < 10500) {
+        const currentSecond = Math.floor(current / 1000);
+        if (currentSecond !== lastTickRef.current) {
+          lastTickRef.current = currentSecond;
+          playSound('timer_tick');
+        }
+      } else {
+        lastTickRef.current = -1;
+      }
       
       if (current > 0) {
         rafRef.current = requestAnimationFrame(updateTimer);
@@ -43,7 +57,7 @@ export function Timer({ gameState, player }: TimerProps) {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [gameState, player, gameState.timeP1, gameState.timeP2, gameState.lastMoveTime, gameState.status, gameState.currentTurn]);
+  }, [gameState, player, gameState.timeP1, gameState.timeP2, gameState.lastMoveTime, gameState.status, gameState.currentTurn, playSound]);
 
   if (!gameState.settings?.timerEnabled) return null;
 

@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { Copy, Check, Share2, LogOut, Menu, RotateCcw, Flag, Settings, X, Swords, Globe, Moon } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LanguageToggle } from '@/components/language-toggle';
+import { useSound } from '@/components/sound-provider';
 
 export function GameRoom({ roomId }: { roomId: string }) {
   const t = useTranslations('GameRoom');
@@ -26,6 +27,60 @@ export function GameRoom({ roomId }: { roomId: string }) {
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
   const [surrenderConfirmOpen, setSurrenderConfirmOpen] = useState(false);
   const [controlScheme, setControlScheme] = useState<'direct' | 'drag' | 'confirm'>('direct');
+  
+  const { settings: soundSettings, updateSettings: updateSoundSettings, playSound } = useSound();
+  const prevGameStateRef = useRef<GameState | null>(null);
+
+  useEffect(() => {
+    if (!gameState || !prevGameStateRef.current) {
+      if (gameState && !prevGameStateRef.current) {
+        prevGameStateRef.current = gameState;
+      }
+      return;
+    }
+
+    const prev = prevGameStateRef.current;
+
+    // Moves
+    if (gameState.lastMove && prev.lastMove && (gameState.lastMove.x !== prev.lastMove.x || gameState.lastMove.y !== prev.lastMove.y) || (!prev.lastMove && gameState.lastMove)) {
+      if (gameState.currentTurn === myPlayerId) {
+        playSound('move_opponent'); // It became my turn, so opponent moved
+      } else {
+        playSound('move_self');
+      }
+    }
+
+    // Capture (check if either player's polygon count increased)
+    const currentP1Poly = gameState.polygonsP1?.length || 0;
+    const prevP1Poly = prev.polygonsP1?.length || 0;
+    const currentP2Poly = gameState.polygonsP2?.length || 0;
+    const prevP2Poly = prev.polygonsP2?.length || 0;
+    
+    if (currentP1Poly > prevP1Poly || currentP2Poly > prevP2Poly) {
+      playSound('capture');
+    }
+
+    // Win/Lose/Draw
+    if (gameState.status === 'finished' && prev.status !== 'finished') {
+       if (gameState.winner === myPlayerId) playSound('win');
+       else if (gameState.winner === 0) playSound('draw');
+       else playSound('lose');
+    }
+
+    // Undo requested
+    if (gameState.undoRequestedBy && gameState.undoRequestedBy !== prev.undoRequestedBy) {
+       if (gameState.undoRequestedBy !== myPlayerId && gameState.undoRequestedBy !== 0) {
+          playSound('undo_req');
+       }
+    }
+    
+    // Undo accepted (undoRequestedBy goes from a player ID to 0)
+    if (prev.undoRequestedBy && prev.undoRequestedBy !== 0 && (!gameState.undoRequestedBy || gameState.undoRequestedBy === 0)) {
+       playSound('undo_acc');
+    }
+
+    prevGameStateRef.current = gameState;
+  }, [gameState, myPlayerId, playSound]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -297,16 +352,53 @@ export function GameRoom({ roomId }: { roomId: string }) {
               </div>
             </div>
 
-            <div className="mb-2 border-t pt-4">
-              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">{t('preferences')}</h3>
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">{t('theme')}</span>
-                  <ThemeToggle />
+            <div className="mb-2 border-t pt-4 space-y-4">
+              <div>
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">{t('preferences')}</h3>
+                <div className="flex items-center gap-4">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-muted-foreground">{t('theme')}</span>
+                    <ThemeToggle />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-muted-foreground">{t('language')}</span>
+                    <LanguageToggle />
+                  </div>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">{t('language')}</span>
-                  <LanguageToggle />
+              </div>
+              
+              <div className="pt-2 border-t">
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">Audio</h3>
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between p-2 border rounded-md cursor-pointer hover:bg-secondary/50">
+                    <span className="text-sm font-medium">Master Sound</span>
+                    <input 
+                      type="checkbox" 
+                      className="accent-primary" 
+                      checked={soundSettings.masterEnabled} 
+                      onChange={(e) => updateSoundSettings({ masterEnabled: e.target.checked })} 
+                    />
+                  </label>
+                  <label className="flex items-center justify-between p-2 border rounded-md cursor-pointer hover:bg-secondary/50">
+                    <span className="text-sm font-medium">Music</span>
+                    <input 
+                      type="checkbox" 
+                      className="accent-primary" 
+                      checked={soundSettings.musicEnabled} 
+                      onChange={(e) => updateSoundSettings({ musicEnabled: e.target.checked })} 
+                      disabled={!soundSettings.masterEnabled}
+                    />
+                  </label>
+                  <label className="flex items-center justify-between p-2 border rounded-md cursor-pointer hover:bg-secondary/50">
+                    <span className="text-sm font-medium">Sound Effects</span>
+                    <input 
+                      type="checkbox" 
+                      className="accent-primary" 
+                      checked={soundSettings.sfxEnabled} 
+                      onChange={(e) => updateSoundSettings({ sfxEnabled: e.target.checked })} 
+                      disabled={!soundSettings.masterEnabled}
+                    />
+                  </label>
                 </div>
               </div>
             </div>
