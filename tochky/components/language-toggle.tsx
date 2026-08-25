@@ -24,6 +24,7 @@ export function LanguageToggle() {
 
   return (
     <DropdownMenu>
+      {/* @ts-expect-error React 19 / Radix UI type mismatch for asChild */}
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
           <Globe className="h-[1.2rem] w-[1.2rem]" />
