@@ -1,0 +1,9 @@
+{
+  "Index": {
+    "title": "Project ready!",
+    "description": "You may now add components and start building.",
+    "buttonAdded": "We've already added the button component for you.",
+    "buttonText": "Button",
+    "darkModeHint": "(Press d to toggle dark mode)"
+  }
+}
