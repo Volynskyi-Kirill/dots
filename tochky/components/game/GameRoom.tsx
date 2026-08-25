@@ -8,7 +8,9 @@ import { GameBoard } from './GameBoard';
 import { Timer } from './Timer';
 import { GameState } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { Copy, Check, Share2, LogOut, Menu, RotateCcw, Flag, Settings, X, Swords } from 'lucide-react';
+import { Copy, Check, Share2, LogOut, Menu, RotateCcw, Flag, Settings, X, Swords, Globe, Moon } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { LanguageToggle } from '@/components/language-toggle';
 
 export function GameRoom({ roomId }: { roomId: string }) {
   const t = useTranslations('GameRoom');
@@ -136,7 +138,7 @@ export function GameRoom({ roomId }: { roomId: string }) {
   }
 
   return (
-    <div className="flex flex-col w-screen h-screen bg-background text-foreground dark overflow-hidden">
+    <div className="flex flex-col w-screen h-screen bg-background text-foreground overflow-hidden">
       {/* Top UI Bar */}
       <div className="w-full px-4 py-3 flex justify-between items-center bg-background z-10 border-b shadow-sm flex-none">
         <div className="flex items-center gap-3">

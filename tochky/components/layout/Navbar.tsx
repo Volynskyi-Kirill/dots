@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl"
 import { Link } from "@/i18n/routing"
 import { LanguageToggle } from "@/components/language-toggle"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export function Navbar() {
   const t = useTranslations('Navbar');
@@ -27,7 +28,10 @@ export function Navbar() {
             </Link>
           </nav>
         </div>
-        <LanguageToggle />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <LanguageToggle />
+        </div>
       </div>
       {/* Mobile nav */}
       <div className="sm:hidden px-4 pb-3 flex gap-4 overflow-x-auto">

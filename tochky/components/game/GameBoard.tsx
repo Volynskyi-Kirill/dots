@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { GameState, Point, RoomSettings } from '@/lib/types';
+import { useTheme } from 'next-themes';
 
 interface GameBoardProps {
   state: GameState | null;
@@ -16,6 +17,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
+  const { resolvedTheme } = useTheme();
+
   // Camera state
   const [{ scale, offset }, setCamera] = useState({ scale: 24, offset: { x: 0, y: 0 } });
   const [initializedCenter, setInitializedCenter] = useState(false);
@@ -88,7 +91,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     ctx.scale(scale, scale);
 
     // Draw Grid background bounding box / subtle grid
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.strokeStyle = resolvedTheme === 'light' ? 'rgba(0, 0, 0, 0.12)' : 'rgba(255, 255, 255, 0.12)';
     ctx.lineWidth = 1 / scale;
     ctx.beginPath();
     for (let x = 0; x < width; x++) {
@@ -102,7 +105,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     ctx.stroke();
 
     // Draw Board boundary frame
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.strokeStyle = resolvedTheme === 'light' ? 'rgba(0, 0, 0, 0.25)' : 'rgba(255, 255, 255, 0.25)';
     ctx.lineWidth = 2 / scale;
     ctx.strokeRect(0, 0, width - 1, height - 1);
 
@@ -200,8 +203,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     // Draw Ghost Dot (before restoring context so it uses grid scaling)
     if (ghostDot && (controlScheme === 'drag' || controlScheme === 'confirm') && state?.currentTurn === myPlayerId) {
       ctx.save();
-      ctx.fillStyle = controlScheme === 'drag' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(234, 179, 8, 0.8)';
-      ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
+      ctx.fillStyle = controlScheme === 'drag' ? (resolvedTheme === 'light' ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.7)') : 'rgba(234, 179, 8, 0.8)';
+      ctx.shadowColor = resolvedTheme === 'light' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.9)';
       ctx.shadowBlur = 12;
       ctx.beginPath();
       ctx.arc(ghostDot.x, ghostDot.y, 0.35, 0, Math.PI * 2);
@@ -217,7 +220,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     // Draw Grid Coordinates (1 to N on the left and bottom) using absolute screen coordinates
     // This prevents browser minimum font size issues that occur when scaling the canvas context
     ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.fillStyle = resolvedTheme === 'light' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.3)';
     const fontSize = Math.max(8, scale * 0.45); 
     ctx.font = `${fontSize}px monospace`;
     
@@ -241,7 +244,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
       }
     }
     ctx.restore();
-  }, [state, offset, scale, width, height, ghostDot, controlScheme]);
+  }, [state, offset, scale, width, height, ghostDot, controlScheme, resolvedTheme, myPlayerId]);
 
   useEffect(() => {
     draw();
@@ -446,7 +449,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
       {controlScheme === 'confirm' && ghostDot && state?.currentTurn === myPlayerId && (
         <button
           onClick={(e) => { e.stopPropagation(); onMove(ghostDot.x, ghostDot.y); setGhostDot(null); }}
-          className="absolute bottom-20 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full shadow-[0_0_25px_rgba(255,255,255,0.2)] border border-primary/50 z-20 text-sm sm:text-base animate-in slide-in-from-bottom-5 duration-200"
+          className="absolute bottom-20 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full shadow-xl border border-primary/50 z-20 text-sm sm:text-base animate-in slide-in-from-bottom-5 duration-200"
         >
           ✓ Confirm Move
         </button>

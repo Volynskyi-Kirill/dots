@@ -95,5 +95,10 @@
     "dragRelease": "Drag & Release",
     "dragReleaseDesc": "Touch and hold to aim, release to place. Avoids fat-fingering.",
     "connecting": "Connecting to server..."
+  },
+  "Theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
   }
 }
