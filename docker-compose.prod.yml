@@ -30,6 +30,19 @@ services:
     networks:
       - dots-network
 
+  tochky:
+    image: dots-game-tochky-prod
+    build:
+      context: ./tochky
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - dots-network
+
 networks:
   dots-network:
     driver: bridge

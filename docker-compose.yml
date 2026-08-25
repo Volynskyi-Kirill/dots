@@ -25,3 +25,13 @@ services:
       - /app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
+
+  tochky:
+    build:
+      context: ./tochky
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./tochky:/app
+      - /app/node_modules
