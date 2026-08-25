@@ -1,16 +1,17 @@
-import { notFound } from "next/navigation"
 import { NextIntlClientProvider } from "next-intl"
 import { getMessages } from "next-intl/server"
 import { routing } from "@/i18n/routing"
+import { notFound } from "next/navigation"
+import { Navbar } from "@/components/layout/Navbar"
 
 export default async function LocaleLayout({
   children,
   params,
-}: {
+}: Readonly<{
   children: React.ReactNode
   params: Promise<{ locale: string }>
-}) {
-  const { locale } = await params
+}>) {
+  const { locale } = await params;
   if (!routing.locales.includes(locale as any)) {
     notFound()
   }
@@ -19,6 +20,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
+      <Navbar />
       {children}
     </NextIntlClientProvider>
   )

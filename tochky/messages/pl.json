@@ -1,14 +1,28 @@
 {
   "Metadata": {
-    "title": "Gra Kropki Online | Graj z przyjaciółmi",
+    "title": "Gra Kropki Online | Graj w Kropki",
     "description": "Graj w klasyczną grę Kropki online z przyjaciółmi. Przejmuj terytorium, blokuj przeciwników i wygrywaj!",
     "roomTitle": "Pokój {id} | Gra Kropki",
-    "roomDescription": "Dołącz do pokoju {id}, aby grać w Kropki online."
+    "roomDescription": "Dołącz do pokoju {id}, aby grać w Kropki online.",
+    "rulesTitle": "Zasady - Jak grać w Kropki",
+    "rulesDescription": "Poznaj zasady klasycznej gry strategicznej Kropki.",
+    "faqTitle": "FAQ - Gra Kropki",
+    "faqDescription": "Najczęściej zadawane pytania dotyczące gry Kropki.",
+    "guideTitle": "Poradnik po interfejsie i sterowaniu - Gra Kropki",
+    "guideDescription": "Dowiedz się, jak korzystać z interfejsu, włączać zegary i sterować grą na urządzeniach mobilnych."
+  },
+  "Navbar": {
+    "play": "Graj",
+    "rules": "Zasady",
+    "guide": "Poradnik",
+    "faq": "FAQ"
   },
   "Index": {
     "title": "Graj w Kropki Online",
-    "subtitle": "Klasyczna strategiczna gra terytorialna. Otaczaj kropki przeciwnika, aby je przejąć. Graj ze znajomymi natychmiast — bez konieczności rejestracji.",
-    "howToPlay": "Jak grać w Kropki (Zasady)",
+    "subtitle": "Klasyczna strategiczna gra terytorialna. Otaczaj kropki przeciwnika, aby je przejąć. Graj ze znajomymi natychmiast — bez konieczności rejestracji."
+  },
+  "Rules": {
+    "title": "Jak grać w Kropki (Zasady)",
     "objectiveTitle": "Cel gry:",
     "objectiveText": "Celem gry jest zdobycie większej liczby kropek niż przeciwnik. Przejmujesz kropki przeciwnika, otaczając je ciągłą, zamkniętą linią własnych kropek.",
     "placementTitle": "Wykonywanie ruchu:",
@@ -16,8 +30,10 @@
     "capturingTitle": "Przejmowanie (otaczanie):",
     "capturingText": "Aby przejąć kropki, musisz utworzyć zamknięty wielokąt (pętlę) ze swoich kropek, który całkowicie otacza co najmniej jedną kropkę przeciwnika. Pętla nie może zawierać wyłącznie pustych pól — aby przejęcie było ważne, musi otaczać co najmniej jedną kropkę przeciwnika. Po przejęciu te kropki należą do Ciebie.",
     "winningTitle": "Zwycięstwo w grze:",
-    "winningText": "Gra kończy się, gdy plansza jest całkowicie zapełniona, nie ma już możliwych ruchów lub obaj gracze zgodzą się zakończyć partię. Wygrywa gracz, który zdobył najwięcej kropek przeciwnika.",
-    "faqTitle": "Najczęściej zadawane pytania (FAQ)",
+    "winningText": "Gra kończy się, gdy plansza jest całkowicie zapełniona, nie ma już możliwych ruchów lub obaj gracze zgodzą się zakończyć partię. Wygrywa gracz, który zdobył najwięcej kropek przeciwnika."
+  },
+  "FAQ": {
+    "title": "Najczęściej zadawane pytania (FAQ)",
     "faq1Q": "Czy mogę grać na telefonie?",
     "faq1A": "Tak! Gra jest w pełni responsywna i obsługuje sterowanie dotykowe. W ustawieniach możesz wybrać „Bezpośrednie dotknięcie” lub „Przeciągnij i upuść”, aby uzyskać większą precyzję na mniejszych ekranach.",
     "faq2Q": "Czy gra jest darmowa?",
@@ -26,6 +42,19 @@
     "faq3A": "Rejestracja nie jest wymagana. Możesz błyskawicznie utworzyć pokój i udostępnić link znajomemu, aby od razu zacząć grać.",
     "faq4Q": "Czy jest limit czasu?",
     "faq4A": "Podczas tworzenia pokoju możesz włączyć zegar (np. 5 minut na gracza z dodawaniem 3 sekund na ruch), tak jak w szachach."
+  },
+  "Guide": {
+    "title": "Poradnik po interfejsie i sterowaniu",
+    "lobbySection": "Lobby i tworzenie gry",
+    "lobbyDesc": "Na stronie głównej możesz utworzyć nowy pokój lub dołączyć do istniejącego za pomocą 6-znakowego ID pokoju.",
+    "timerSettings": "Ustawienia zegara: Podczas tworzenia pokoju możesz włączyć zegar szachowy. Ustaw «Czas początkowy» (minuty dla każdego gracza) oraz «Dodatkowy czas na ruch» (sekundy dodawane do zegara po każdym ruchu).",
+    "inGameSection": "Interfejs w grze",
+    "inviteFriend": "Zapraszanie znajomego: Kliknij przycisk «Kopiuj link z zaproszeniem» u góry pokoju, aby udostępnić link przeciwnikowi.",
+    "undoMove": "Cofnięcie ruchu: Jeśli popełnisz błąd, kliknij «Cofnij ruch». Twój przeciwnik musi zaakceptować prośbę o cofnięcie.",
+    "surrenderRematch": "Poddanie się i rewanż: Możesz zakończyć grę przedwcześnie, klikając «Poddaj się». Po zakończeniu gry kliknij «Rewanż», aby rozpocząć nową partię w tym samym pokoju.",
+    "mobileControls": "Sterowanie dotykowe na urządzeniach mobilnych",
+    "directTouch": "Bezpośrednie dotknięcie: Dotknij bezpośrednio przecięcia linii siatki, aby postawić kropkę. Najlepsze na tabletach.",
+    "dragRelease": "Przeciągnij i upuść: Dotknij ekranu w dowolnym miejscu i przeciągnij, aby przesunąć wirtualny kursor. Puść palec, aby postawić kropkę. Wysoce zalecane na małych ekranach telefonów, aby uniknąć przypadkowych kliknięć."
   },
   "Lobby": {
     "joinRoom": "Dołącz do pokoju",

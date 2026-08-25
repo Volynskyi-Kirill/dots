@@ -3,12 +3,26 @@
     "title": "Dots Game Online | Play Tochka",
     "description": "Play the classic Dots (Tochka) game online with friends. Capture territory, block opponents, and win the match!",
     "roomTitle": "Room {id} | Dots Game",
-    "roomDescription": "Join room {id} to play Dots online."
+    "roomDescription": "Join room {id} to play Dots online.",
+    "rulesTitle": "Rules - How to Play Dots",
+    "rulesDescription": "Learn the rules of the classic Dots strategy game.",
+    "faqTitle": "FAQ - Dots Game",
+    "faqDescription": "Frequently asked questions about the Dots Game.",
+    "guideTitle": "UI & Controls Guide - Dots Game",
+    "guideDescription": "Learn how to use the interface, enable timers, and control the game on mobile."
+  },
+  "Navbar": {
+    "play": "Play",
+    "rules": "Rules",
+    "guide": "Guide",
+    "faq": "FAQ"
   },
   "Index": {
     "title": "Play Dots Online",
-    "subtitle": "The classic territorial strategy game. Enclose your opponent's dots to capture them. Play with friends instantly—no sign up required.",
-    "howToPlay": "How to Play Dots (Rules)",
+    "subtitle": "The classic territorial strategy game. Enclose your opponent's dots to capture them. Play with friends instantly—no sign up required."
+  },
+  "Rules": {
+    "title": "How to Play Dots (Rules)",
     "objectiveTitle": "Objective:",
     "objectiveText": "The goal of the game is to capture more dots than your opponent. You capture enemy dots by surrounding them with a continuous, closed line of your own dots.",
     "placementTitle": "Making a Move:",
@@ -16,8 +30,10 @@
     "capturingTitle": "Capturing (Enclosing):",
     "capturingText": "To capture, you must form a closed polygon (a loop) of your dots that completely encloses at least one enemy dot. The loop cannot contain only empty spaces—it must surround at least one opponent's dot to be valid. Once captured, those enemy dots belong to you.",
     "winningTitle": "Winning the Game:",
-    "winningText": "The game ends when the board is completely full, no more valid moves can be made, or both players agree to stop. The player who has captured the most enemy dots wins the match.",
-    "faqTitle": "Frequently Asked Questions (FAQ)",
+    "winningText": "The game ends when the board is completely full, no more valid moves can be made, or both players agree to stop. The player who has captured the most enemy dots wins the match."
+  },
+  "FAQ": {
+    "title": "Frequently Asked Questions (FAQ)",
     "faq1Q": "Can I play on my mobile phone?",
     "faq1A": "Yes! The game is fully responsive and supports touch controls. You can use 'Direct Touch' or 'Drag & Release' in the settings for better precision on smaller screens.",
     "faq2Q": "Is it free to play?",
@@ -26,6 +42,19 @@
     "faq3A": "No registration is required. You can instantly create a room and share the link with your friend to start playing immediately.",
     "faq4Q": "Is there a time limit?",
     "faq4A": "You have the option to enable a timer when creating a room (e.g., 5 minutes per player with a 3-second increment per move), just like in chess."
+  },
+  "Guide": {
+    "title": "UI & Controls Guide",
+    "lobbySection": "Lobby & Game Creation",
+    "lobbyDesc": "On the main page, you can either create a new room or join an existing one using a 6-character Room ID.",
+    "timerSettings": "Timer Settings: When creating a room, you can enable a chess clock. Set the 'Initial Time' (minutes each player gets) and 'Increment' (seconds added to your clock after every move).",
+    "inGameSection": "In-Game Interface",
+    "inviteFriend": "Inviting a Friend: Click the 'Copy Invite Link' button at the top of the room to share the URL with your opponent.",
+    "undoMove": "Undo Move: If you make a mistake, click 'Undo'. Your opponent must approve the undo request.",
+    "surrenderRematch": "Surrender & Rematch: You can concede the game early by clicking 'Surrender'. After a game ends, click 'Rematch' to start a new round in the same room.",
+    "mobileControls": "Mobile Touch Controls",
+    "directTouch": "Direct Touch: Tap directly on a grid intersection to place a dot. Best for tablets.",
+    "dragRelease": "Drag & Release: Touch the screen anywhere and drag to move a virtual cursor. Release your finger to place the dot. Highly recommended for small phone screens to prevent misclicks."
   },
   "Lobby": {
     "joinRoom": "Join Room",
