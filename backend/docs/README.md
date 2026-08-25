@@ -19,7 +19,7 @@ Because reversing flood-fills and un-capturing territories is mathematically com
 *   The backend maintains a chronological `MovesHistory` array of all placed dots.
 *   When an Undo is approved, the backend pops the last move.
 *   It then completely wipes the board state to zero and replays `MakeMove()` sequentially for all remaining moves in the history.
-*   *Performance*: 1500 iterations of a Go function take fractions of a millisecond, guaranteeing a 100% bug-free state restoration.
+*   *Performance*: We use `sync.Pool` with flat `[]bool` arrays in the flood-fill BFS. This reduces GC allocations to zero during the rebuild. 1500 iterations of a Go function take fractions of a millisecond, guaranteeing a fast and 100% bug-free state restoration.
 
 ### Game Flow, Timers & Series
 *   **Blitz Mode (Timers)**: When creating a room, users can enable chess-style timers (Initial Time + Increment per move).
@@ -28,8 +28,14 @@ Because reversing flood-fills and un-capturing territories is mathematically com
 *   **Game Over Conditions**:
     *   **Timeout**: Governed by the backend goroutine.
     *   **Surrender**: Player manually concedes via UI.
-    *   **Board Full**: Triggered automatically when all 1521 intersections are occupied. The system counts captured points to determine the winner.
+    *   **Board Full**: Triggered automatically when all intersections (`width * height`) are occupied. The system counts captured points to determine the winner.
 *   **Rematch & Series Tracking**: After a game concludes, players can agree to a rematch. The backend tracks the Series Score, clears the board, and automatically swaps the `StartingPlayer` so the loser (or whoever went second) gets to open the next match.
+
+## Concurrency & State Management
+*   **Encapsulation**: Game state (`GameState`) is bound to the `Room` structure. When a room is destroyed (all clients disconnect), the state is automatically garbage collected, preventing memory leaks.
+*   **Race Conditions**: All read/write accesses to a room's state (from WS handlers or the timer goroutine) are protected by a dedicated `sync.RWMutex` (`StateMutex`).
+*   **Goroutine Lifecycle**: Background tasks like the timer loop and broadcast pump are tied to a `Quit` channel. Closing a room gracefully shuts down these goroutines without leaking resources.
+*   **Routing**: Incoming WebSocket messages are routed using a `wsSession` struct which acts as a Controller for extracting handlers.
 
 ## File Structure Map (Backend)
 

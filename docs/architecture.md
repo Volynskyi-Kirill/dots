@@ -40,7 +40,14 @@ Detailed architecture for specific domains can be found here:
 
 ---
 
-## 4. Root File Structure Map
+## 4. Security & Protections
+*   **CORS**: Restricted via `ALLOWED_ORIGIN` environment variable.
+*   **Payload Limits**: WebSocket connections enforce a strict 8KB read limit to prevent memory exhaustion attacks.
+*   **Authoritative Validation**: All moves, undo requests, and timers are strictly validated on the backend.
+
+---
+
+## 5. Root File Structure Map
 
 ```text
 ├── Makefile                     # Dev/Prod docker commands
