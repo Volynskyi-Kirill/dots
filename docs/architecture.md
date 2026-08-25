@@ -6,9 +6,10 @@ This document serves as the master reference for the game's architecture, busine
 *   **Backend**: Go (Golang)
     *   WebSocket handling via `gorilla/websocket`.
     *   No persistent database (in-memory state).
-*   **Frontend**: React 18, TypeScript, Vite.
-    *   Styling: Tailwind CSS, `shadcn/ui` concepts.
+*   **Frontend**: Next.js (App Router), React 19, TypeScript
+    *   Styling: Tailwind CSS v4, `shadcn/ui` components.
     *   Rendering: HTML5 Canvas (`<canvas>`) inside a React component (`GameBoard.tsx`).
+    *   Internationalization: `next-intl`.
 *   **DevOps / Infrastructure**:
     *   See the detailed infrastructure breakdown in [infrastructure.md](./infrastructure.md).
 
@@ -99,11 +100,12 @@ To solve the classic "fat finger" problem on large grids (39x39), the game offer
 │   │   ├── game/logic.go        # The "Brain" (BFS, Polygons, Replay)
 │   │   ├── handler/websocket.go # WS Router, Undo Handshakes
 │   │   └── service/room_manager.go # Session routing, Room creation
-├── frontend/
-│   ├── src/
-│   │   ├── App.tsx              # Main UI layout, Modals, State wiring
-│   │   ├── components/
-│   │   │   └── GameBoard.tsx    # Canvas rendering, touch math
-│   │   └── services/
-│   │       └── websocket.ts     # WS Client, reconnects, localStorage ID
+├── tochky/                      # Next.js Frontend
+│   ├── app/[locale]/            # Next-intl localized App Router pages
+│   ├── components/game/         # GameBoard, Timer, GameRoom
+│   ├── components/lobby/        # LobbyForms
+│   ├── components/ui/           # shadcn components
+│   ├── i18n/                    # next-intl configuration
+│   ├── messages/                # JSON translation files
+│   └── lib/websocket.ts         # WS Client, reconnects, localStorage ID
 ```

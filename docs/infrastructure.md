@@ -18,10 +18,10 @@ This split exists because the requirements for writing code are fundamentally op
 
 Used when you are actively writing code. All services are wrapped in Docker for OS-level isolation.
 
-### Frontend Container (Node.js + Vite)
-*   Runs the `Vite` dev server.
-*   Code changes trigger HMR (Hot Module Replacement) instantly reloading the browser.
-*   **Proxying**: Vite acts as a reverse proxy. Any API or WebSocket request starting with `/ws` is caught by Vite and forwarded to the backend container. This simulates a single-origin environment and prevents CORS issues.
+### Frontend Container (Node.js + Next.js)
+*   Runs the `next dev` server for the `tochky/` application.
+*   Code changes trigger React Fast Refresh instantly reloading the browser.
+*   **Proxying**: Next.js uses `rewrites()` in `next.config.ts`. Any API or WebSocket request starting with `/ws` is caught and forwarded to the backend container. This simulates a single-origin environment and prevents CORS issues.
 
 ### Backend Container (Go + Air)
 *   Uses `air` to watch `.go` files for changes and automatically rebuild the binary on save.
@@ -35,29 +35,27 @@ Used when you are actively writing code. All services are wrapped in Docker for 
 
 To play a local game with a friend over the internet, we bypass NAT and router configurations using **Ngrok**.
 
-1.  **The Tunnel**: `ngrok http 5173` creates a secure tunnel from a public `ngrok-free.app` URL directly to the local Vite container.
-2.  **Routing**: When your friend opens the Ngrok link, their browser fetches the frontend from Vite. When the frontend attempts to open a WebSocket connection, the request travels through Ngrok to Vite, which proxies it to the Go backend.
-3.  **Vite Security**: To allow Ngrok domains, Vite is configured with `allowedHosts: true` to bypass DNS rebinding protections.
+1.  **The Tunnel**: `ngrok http 3000` creates a secure tunnel from a public `ngrok-free.app` URL directly to the local Next.js container.
+2.  **Routing**: When your friend opens the Ngrok link, their browser fetches the frontend from Next.js. When the frontend attempts to open a WebSocket connection, the request travels through Ngrok to Next.js, which proxies it to the Go backend.
 
 ---
 
 ## 4. Production Environment
 
-*Files: `docker-compose.prod.yml`, `frontend/Dockerfile.prod`, `backend/Dockerfile.prod`*
+*Files: `docker-compose.prod.yml`, `tochky/Dockerfile.prod`, `backend/Dockerfile.prod`*
 
 Used for deploying the final game to a real server (e.g., VPS on DigitalOcean/AWS).
 
 ### The Build Process
 1.  **Go Backend**: Multi-stage build compiles the Go code into a single, highly optimized, standalone binary based on `alpine`.
-2.  **React Frontend**: Multi-stage build runs `npm run build`. TypeScript is stripped, React is bundled, and the output is a folder (`/dist`) of raw, static HTML/JS/CSS.
+2.  **React Frontend**: Multi-stage build runs `next build`. Next.js output is set to `standalone`, creating a minimal Node.js server that only contains the strictly necessary files and dependencies to run the app.
 
-### Nginx (The Production Web Server)
-In production, Vite is completely removed. It is replaced by **Nginx**, an industry-standard, ultra-fast web server.
-
-Nginx performs three critical jobs:
-1.  **Static File Serving**: Instantly serves the bundled React `.js` and `.css` files.
-2.  **SPA Routing**: Uses `try_files $uri /index.html` to ensure React Router works correctly when a user directly refreshes a room URL (e.g., `/room/123`).
-3.  **WebSocket Proxy**: Nginx takes over Vite's job as the proxy. It catches requests to `/ws`, adds the HTTP `Upgrade` headers, and maintains the persistent WebSocket connection with the Go backend container.
+### Next.js Standalone Server
+In production, the Next.js `standalone` server replaces external web servers like Nginx for frontend serving.
+It performs three critical jobs:
+1.  **Static File Serving**: Instantly serves the bundled React `.js`, `.css`, and public assets.
+2.  **SSR & Routing**: Handles server-side rendering for SEO and dynamic routing (e.g., `/en/room/123`).
+3.  **WebSocket Proxy**: It catches requests to `/ws`, adds the HTTP `Upgrade` headers, and proxies the persistent WebSocket connection to the Go backend container using the `BACKEND_URL` environment variable.
 
 ### Ports and Security
-In production, only Nginx (port 80/443) is exposed to the internet. The Go backend (port 8080) is hidden securely inside the Docker bridge network (`dots-network`).
+In production, only the Next.js container (port 3000) might be exposed to the internet, or placed behind an ingress. The Go backend (port 8080) is hidden securely inside the Docker bridge network.
