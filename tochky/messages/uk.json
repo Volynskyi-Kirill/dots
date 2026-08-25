@@ -120,7 +120,8 @@
     "winReasonDisconnectWin": "Суперник відключився",
     "winReasonDisconnectLose": "Ви відключилися",
     "winReasonTimeoutWin": "У суперника вийшов час",
-    "winReasonTimeoutLose": "У вас вийшов час"
+    "winReasonTimeoutLose": "У вас вийшов час",
+    "shareInstruction": "Поділіться цим посиланням із суперником, щоб почати гру"
   },
   "Theme": {
     "light": "Світла",

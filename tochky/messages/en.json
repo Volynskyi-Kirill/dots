@@ -120,7 +120,8 @@
     "winReasonDisconnectWin": "Opponent disconnected",
     "winReasonDisconnectLose": "You disconnected",
     "winReasonTimeoutWin": "Opponent ran out of time",
-    "winReasonTimeoutLose": "You ran out of time"
+    "winReasonTimeoutLose": "You ran out of time",
+    "shareInstruction": "Share this link with your opponent to start the game"
   },
   "Theme": {
     "light": "Light",

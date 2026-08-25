@@ -120,7 +120,8 @@
     "winReasonDisconnectWin": "Przeciwnik rozłączony",
     "winReasonDisconnectLose": "Zostałeś rozłączony",
     "winReasonTimeoutWin": "Przeciwnikowi skończył się czas",
-    "winReasonTimeoutLose": "Skończył ci się czas"
+    "winReasonTimeoutLose": "Skończył ci się czas",
+    "shareInstruction": "Udostępnij ten link przeciwnikowi, aby rozpocząć grę"
   },
   "Theme": {
     "light": "Jasny",

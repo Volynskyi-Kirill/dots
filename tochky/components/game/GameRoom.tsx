@@ -152,33 +152,6 @@ export function GameRoom({ roomId }: { roomId: string }) {
           <h1 className="text-lg font-bold tracking-tight bg-gradient-to-r from-blue-400 to-red-400 bg-clip-text text-transparent cursor-pointer" onClick={handleLeaveClick}>
             Dots
           </h1>
-          <div className="hidden sm:flex items-center gap-1.5 bg-secondary/80 px-2.5 py-1 rounded-md border text-xs font-mono">
-            <span>{t("roomPrefix")} <strong>{roomId}</strong></span>
-            <button
-              onClick={handleCopyLink}
-              title={t("copyInviteLink")}
-              className="ml-1 p-1 hover:bg-background/80 rounded transition-colors text-muted-foreground hover:text-foreground flex items-center gap-1"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-green-500" />
-                  <span className="text-[10px] text-green-500 font-sans font-medium">{t("copied")}</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-sans">{t("copyLink")}</span>
-                </>
-              )}
-            </button>
-            <button
-              onClick={handleShare}
-              title={t("shareLink")}
-              className="p-1 hover:bg-background/80 rounded transition-colors text-muted-foreground hover:text-foreground"
-            >
-              <Share2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
         </div>
         
         <div className="flex items-center gap-3 sm:gap-4">
@@ -446,6 +419,46 @@ export function GameRoom({ roomId }: { roomId: string }) {
                   <DisconnectCountdown deadline={gameState.disconnectDeadline} />
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Waiting Overlay */}
+        {gameState?.status === 'waiting' && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-10 p-4">
+            <div className="bg-card border shadow-2xl rounded-2xl p-8 max-w-sm w-full text-center animate-in zoom-in-95 duration-300">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+              <h2 className="text-2xl font-bold mb-2 text-foreground">{t("waiting")}</h2>
+              <p className="text-sm text-muted-foreground mb-8">
+                {t("shareInstruction")}
+              </p>
+              
+              <div className="flex items-center justify-between bg-secondary/30 p-3 rounded-lg border mb-6">
+                <div className="flex flex-col items-start overflow-hidden mr-3">
+                  <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-1">{t("roomPrefix")}</span>
+                  <span className="font-mono font-bold text-lg text-primary truncate max-w-[150px]">{roomId}</span>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleCopyLink}
+                    title={t("copyInviteLink")}
+                    className="p-2.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-md transition-colors flex items-center gap-2"
+                  >
+                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    title={t("shareLink")}
+                    className="p-2.5 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md transition-colors"
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              
+              <button onClick={doLeaveRoom} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                {t("cancel")}
+              </button>
             </div>
           </div>
         )}

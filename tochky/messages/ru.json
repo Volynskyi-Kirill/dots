@@ -120,7 +120,8 @@
     "winReasonDisconnectWin": "Противник отключился",
     "winReasonDisconnectLose": "Вы отключились",
     "winReasonTimeoutWin": "У противника вышло время",
-    "winReasonTimeoutLose": "У вас вышло время"
+    "winReasonTimeoutLose": "У вас вышло время",
+    "shareInstruction": "Поделитесь этой ссылкой с соперником, чтобы начать игру"
   },
   "Theme": {
     "light": "Светлая",
