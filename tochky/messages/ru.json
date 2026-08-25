@@ -97,7 +97,11 @@
     "connecting": "Подключение к серверу...",
     "preferences": "Настройки",
     "theme": "Тема",
-    "language": "Язык"
+    "language": "Язык",
+    "leaveConfirmTitle": "Выйти из игры?",
+    "leaveConfirmDesc": "Вы уверены, что хотите выйти из комнаты? Вы не сможете вернуться в текущую игру.",
+    "cancel": "Отмена",
+    "confirmLeave": "Да, выйти"
   },
   "Theme": {
     "light": "Светлая",

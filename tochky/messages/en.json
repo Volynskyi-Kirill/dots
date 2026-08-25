@@ -97,7 +97,11 @@
     "connecting": "Connecting to server...",
     "preferences": "Preferences",
     "theme": "Theme",
-    "language": "Language"
+    "language": "Language",
+    "leaveConfirmTitle": "Leave Game?",
+    "leaveConfirmDesc": "Are you sure you want to leave this game room? You will not be able to return.",
+    "cancel": "Cancel",
+    "confirmLeave": "Yes, leave"
   },
   "Theme": {
     "light": "Light",

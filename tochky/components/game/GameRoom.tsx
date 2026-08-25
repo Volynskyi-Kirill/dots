@@ -23,6 +23,7 @@ export function GameRoom({ roomId }: { roomId: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [myPlayerId, setMyPlayerId] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
   const [controlScheme, setControlScheme] = useState<'direct' | 'drag' | 'confirm'>('direct');
 
   useEffect(() => {
@@ -119,9 +120,14 @@ export function GameRoom({ roomId }: { roomId: string }) {
     }
   };
 
-  const handleLeaveRoom = () => {
+
+  const doLeaveRoom = () => {
     wsService.disconnect();
     router.push('/');
+  };
+
+  const handleLeaveClick = () => {
+    setLeaveConfirmOpen(true);
   };
 
   const handleMove = (x: number, y: number) => {
@@ -142,7 +148,7 @@ export function GameRoom({ roomId }: { roomId: string }) {
       {/* Top UI Bar */}
       <div className="w-full px-4 py-3 flex justify-between items-center bg-background z-10 border-b shadow-sm flex-none">
         <div className="flex items-center gap-3">
-          <h1 className="text-lg font-bold tracking-tight bg-gradient-to-r from-blue-400 to-red-400 bg-clip-text text-transparent cursor-pointer" onClick={handleLeaveRoom}>
+          <h1 className="text-lg font-bold tracking-tight bg-gradient-to-r from-blue-400 to-red-400 bg-clip-text text-transparent cursor-pointer" onClick={handleLeaveClick}>
             Dots
           </h1>
           <div className="hidden sm:flex items-center gap-1.5 bg-secondary/80 px-2.5 py-1 rounded-md border text-xs font-mono">
@@ -292,7 +298,7 @@ export function GameRoom({ roomId }: { roomId: string }) {
               </div>
             )}
             <button 
-              onClick={handleLeaveRoom}
+              onClick={handleLeaveClick}
               className="flex items-center gap-1 px-3 py-1 bg-destructive/90 hover:bg-destructive text-destructive-foreground rounded-md text-xs font-medium transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -355,6 +361,37 @@ export function GameRoom({ roomId }: { roomId: string }) {
                   <LanguageToggle />
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      
+      {leaveConfirmOpen && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-card border shadow-xl rounded-xl w-full max-w-sm p-6 relative animate-in zoom-in-95 duration-200">
+            <button onClick={() => setLeaveConfirmOpen(false)} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-xl font-bold mb-3 flex items-center gap-2 text-destructive">
+              <LogOut className="w-5 h-5" /> {t("leaveConfirmTitle")}
+            </h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              {t("leaveConfirmDesc")}
+            </p>
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setLeaveConfirmOpen(false)}
+                className="px-4 py-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md text-sm font-medium transition-colors"
+              >
+                {t("cancel")}
+              </button>
+              <button 
+                onClick={doLeaveRoom}
+                className="px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-md text-sm font-medium transition-colors shadow-sm"
+              >
+                {t("confirmLeave")}
+              </button>
             </div>
           </div>
         </div>

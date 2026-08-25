@@ -97,7 +97,11 @@
     "connecting": "Łączenie z serwerem...",
     "preferences": "Preferencje",
     "theme": "Motyw",
-    "language": "Język"
+    "language": "Język",
+    "leaveConfirmTitle": "Opuścić grę?",
+    "leaveConfirmDesc": "Czy na pewno chcesz opuścić ten pokój? Nie będziesz mógł wrócić do bieżącej gry.",
+    "cancel": "Anuluj",
+    "confirmLeave": "Tak, opuść"
   },
   "Theme": {
     "light": "Jasny",
