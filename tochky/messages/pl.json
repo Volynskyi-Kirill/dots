@@ -111,7 +111,8 @@
     "winReasonBoardFull": "Plansza pełna",
     "winReasonTimeout": "Czas minął",
     "score": "Wynik",
-    "matchScore": "Wynik meczu"
+    "matchScore": "Wynik meczu",
+    "scoreCaptured": "Zdobyte punkty"
   },
   "Theme": {
     "light": "Jasny",

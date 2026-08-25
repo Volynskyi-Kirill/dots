@@ -111,7 +111,8 @@
     "winReasonBoardFull": "Поле заполнено",
     "winReasonTimeout": "Время вышло",
     "score": "Счёт",
-    "matchScore": "Счёт в серии"
+    "matchScore": "Счёт в серии",
+    "scoreCaptured": "Захвачено точек"
   },
   "Theme": {
     "light": "Светлая",

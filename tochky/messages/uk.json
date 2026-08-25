@@ -111,7 +111,8 @@
     "winReasonBoardFull": "Поле заповнене",
     "winReasonTimeout": "Час вийшов",
     "score": "Рахунок",
-    "matchScore": "Рахунок серії"
+    "matchScore": "Рахунок серії",
+    "scoreCaptured": "Захоплено точок"
   },
   "Theme": {
     "light": "Світла",

@@ -111,7 +111,8 @@
     "winReasonBoardFull": "Board is full",
     "winReasonTimeout": "Time ran out",
     "score": "Score",
-    "matchScore": "Match Score"
+    "matchScore": "Match Score",
+    "scoreCaptured": "Captured dots"
   },
   "Theme": {
     "light": "Light",

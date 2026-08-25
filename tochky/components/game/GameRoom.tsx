@@ -254,22 +254,6 @@ export function GameRoom({ roomId }: { roomId: string }) {
                     <Flag className="w-3.5 h-3.5" />
                   </button>
                 </>
-              ) : gameState.status === 'finished' ? (
-                <div className="flex items-center gap-2">
-                  {!gameState.rematchRequestedBy && (
-                     <button onClick={() => wsService.send('request_rematch', {})} className="px-2.5 py-1 bg-primary text-primary-foreground rounded-md text-[10px] sm:text-xs font-medium border shadow-sm hover:bg-primary/80 transition-colors">{t("rematch")}</button>
-                  )}
-                  {gameState.rematchRequestedBy === myPlayerId && (
-                     <span className="text-[10px] sm:text-xs text-muted-foreground animate-pulse border px-2 py-1 rounded-md bg-secondary/30">Waiting...</span>
-                  )}
-                  {!!gameState.rematchRequestedBy && gameState.rematchRequestedBy !== myPlayerId && (
-                     <div className="flex items-center gap-1">
-                       <span className="text-[10px] sm:text-xs font-bold text-primary mr-0.5">{t("rematchQuestion")}</span>
-                       <button onClick={() => wsService.send('answer_rematch', { accept: true })} className="px-2 py-1 bg-green-500/20 text-green-500 border border-green-500/30 rounded-md text-[10px] sm:text-xs font-bold">{t("yes")}</button>
-                       <button onClick={() => wsService.send('answer_rematch', { accept: false })} className="px-2 py-1 bg-red-500/20 text-red-500 border border-red-500/30 rounded-md text-[10px] sm:text-xs font-bold">{t("no")}</button>
-                     </div>
-                  )}
-                </div>
               ) : null}
             </div>
           )}
@@ -506,30 +490,33 @@ function GameOverOverlay({
   return (
     <div className="absolute inset-0 bg-background/85 backdrop-blur-sm z-20 flex items-center justify-center p-4 animate-in fade-in duration-300">
       <div className="bg-card border shadow-2xl rounded-2xl w-full max-w-sm p-8 text-center animate-in zoom-in-90 duration-300">
-        {/* Title */}
+        {/* Title + Reason */}
         <h2 className={`text-3xl font-black mb-1 ${iWon ? 'text-yellow-400' : isTie ? 'text-muted-foreground' : 'text-destructive'}`}>
           {title}
         </h2>
         <p className="text-xs text-muted-foreground mb-6">{t(reasonKey)}</p>
 
-        {/* Round Score */}
-        <div className="flex items-center justify-center gap-4 mb-3">
-          <div className="text-center">
-            <div className="text-xs text-muted-foreground mb-1">{t('score')}</div>
-            <div className="flex items-center gap-3">
-              <span className={`text-4xl font-black ${myPlayerId === 1 ? 'text-blue-400' : 'text-muted-foreground'}`}>{p1Score}</span>
-              <span className="text-2xl text-muted-foreground">:</span>
-              <span className={`text-4xl font-black ${myPlayerId === 2 ? 'text-red-400' : 'text-muted-foreground'}`}>{p2Score}</span>
-            </div>
+        {/* Round Score — captured dots */}
+        <div className="mb-4">
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">{t('scoreCaptured')}</div>
+          <div className="flex items-center justify-center gap-4">
+            <span className={`text-5xl font-black tabular-nums ${myPlayerId === 1 ? 'text-blue-400' : 'text-muted-foreground/50'}`}>{p1Score}</span>
+            <span className="text-3xl font-light text-muted-foreground">:</span>
+            <span className={`text-5xl font-black tabular-nums ${myPlayerId === 2 ? 'text-red-400' : 'text-muted-foreground/50'}`}>{p2Score}</span>
           </div>
         </div>
 
+        {/* Divider */}
+        <div className="w-full h-px bg-border my-4" />
+
         {/* Match Score */}
-        <div className="flex items-center justify-center gap-2 mb-8 bg-secondary/40 rounded-lg px-4 py-2">
-          <span className="text-xs text-muted-foreground">{t('matchScore')}:</span>
-          <span className="font-mono font-bold text-blue-400">{gameState.matchScoreP1 ?? 0}</span>
-          <span className="text-muted-foreground text-xs">—</span>
-          <span className="font-mono font-bold text-red-400">{gameState.matchScoreP2 ?? 0}</span>
+        <div className="mb-6">
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">{t('matchScore')}</div>
+          <div className="flex items-center justify-center gap-4">
+            <span className="text-5xl font-black text-blue-400 tabular-nums">{gameState.matchScoreP1 ?? 0}</span>
+            <span className="text-3xl font-light text-muted-foreground">:</span>
+            <span className="text-5xl font-black text-red-400 tabular-nums">{gameState.matchScoreP2 ?? 0}</span>
+          </div>
         </div>
 
         {/* Actions */}
