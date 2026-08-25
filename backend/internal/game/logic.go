@@ -28,7 +28,7 @@ func NewGameLogic(width, height int) Logic {
 }
 
 func (l *gameLogic) MakeMove(state *domain.GameState, playerID int, x, y int) error {
-	if state.Status != "playing" {
+	if state.Status != constants.StatusPlaying {
 		return errors.New("game is not in playing state")
 	}
 	if state.CurrentTurn != playerID {

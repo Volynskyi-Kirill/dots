@@ -17,7 +17,12 @@ import (
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		return true // Allow all origins for development
+		allowedOrigin := os.Getenv("ALLOWED_ORIGIN")
+		if allowedOrigin == "" {
+			return true // Fallback for local development
+		}
+		origin := r.Header.Get("Origin")
+		return origin == allowedOrigin || origin == "http://localhost:3000" || origin == "http://localhost:5173"
 	},
 }
 
@@ -61,6 +66,8 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 			log.Println("upgrade error:", err)
 			return
 		}
+
+		conn.SetReadLimit(8192) // 8KB max message size
 
 		client := &wsClient{
 			conn: conn,
@@ -123,7 +130,7 @@ func (s *wsSession) cleanup() {
 					state.P2Disconnected = true
 				}
 
-				if state.Status == "playing" {
+				if state.Status == constants.StatusPlaying {
 					timeoutStr := os.Getenv("DISCONNECT_TIMEOUT")
 					timeout := int64(15)
 					if timeoutStr != "" {
@@ -177,8 +184,8 @@ func (s *wsSession) handleJoin(msg domain.Message) {
 	clientsCount := len(s.room.Clients)
 	s.room.Mutex.Unlock()
 
-	if clientsCount == 2 && state.Status == "waiting" {
-		state.Status = "playing"
+	if clientsCount == 2 && state.Status == constants.StatusWaiting {
+		state.Status = constants.StatusPlaying
 		if state.Settings.TimerEnabled && state.LastMoveTime == 0 {
 			state.LastMoveTime = time.Now().UnixMilli()
 		}
@@ -209,7 +216,7 @@ func (s *wsSession) initState(settings domain.RoomSettings) {
 		Settings: settings,
 	}
 	s.logic.InitState(state)
-	state.Status = "waiting"
+	state.Status = constants.StatusWaiting
 	s.room.State = state
 
 	go startTimerLoop(s.room)
@@ -230,11 +237,11 @@ func startTimerLoop(r *service.Room) {
 				return
 			}
 
-			if state.Status == "playing" {
+			if state.Status == constants.StatusPlaying {
 				if (state.P1Disconnected || state.P2Disconnected) && state.DisconnectDeadline > 0 {
 					if time.Now().UnixMilli() > state.DisconnectDeadline {
-						state.Status = "finished"
-						state.WinReason = "disconnect"
+						state.Status = constants.StatusFinished
+						state.WinReason = constants.ReasonDisconnect
 						if state.P1Disconnected {
 							state.Winner = 2
 							state.MatchScoreP2++
@@ -271,8 +278,8 @@ func startTimerLoop(r *service.Room) {
 						}
 					}
 					if timeout {
-						state.Status = "finished"
-						state.WinReason = "timeout"
+						state.Status = constants.StatusFinished
+						state.WinReason = constants.ReasonTimeout
 						if state.Winner == constants.Player1 {
 							state.MatchScoreP1++
 						} else if state.Winner == constants.Player2 {
@@ -346,8 +353,8 @@ func (s *wsSession) handleMove(msg domain.Message) {
 		state.UndoRequestedBy = 0
 
 		if len(state.MovesHistory)+4 >= (s.width * s.height) {
-			state.Status = "finished"
-			state.WinReason = "board_full"
+			state.Status = constants.StatusFinished
+			state.WinReason = constants.ReasonBoardFull
 			if len(state.CapturedP1) > len(state.CapturedP2) {
 				state.Winner = constants.Player1
 				state.MatchScoreP1++
@@ -381,9 +388,9 @@ func (s *wsSession) handleSurrender(msg domain.Message) {
 	defer s.room.StateMutex.Unlock()
 
 	state := s.room.State
-	if state != nil && state.Status == "playing" {
-		state.Status = "finished"
-		state.WinReason = "surrender"
+	if state != nil && state.Status == constants.StatusPlaying {
+		state.Status = constants.StatusFinished
+		state.WinReason = constants.ReasonSurrender
 		if s.playerID == constants.Player1 {
 			state.Winner = constants.Player2
 			state.MatchScoreP2++
@@ -407,7 +414,7 @@ func (s *wsSession) handleRematchRequest(msg domain.Message) {
 	defer s.room.StateMutex.Unlock()
 
 	state := s.room.State
-	if state != nil && state.Status == "finished" {
+	if state != nil && state.Status == constants.StatusFinished {
 		state.RematchRequestedBy = s.playerID
 		stateBytes, _ := json.Marshal(domain.Message{
 			Type:    constants.MessageState,
@@ -430,7 +437,7 @@ func (s *wsSession) handleRematchAnswer(msg domain.Message) {
 	defer s.room.StateMutex.Unlock()
 
 	state := s.room.State
-	if state != nil && state.Status == "finished" && state.RematchRequestedBy != 0 && state.RematchRequestedBy != s.playerID {
+	if state != nil && state.Status == constants.StatusFinished && state.RematchRequestedBy != 0 && state.RematchRequestedBy != s.playerID {
 		if payload.Accept {
 			if state.StartingPlayer == constants.Player1 {
 				state.StartingPlayer = constants.Player2
@@ -445,12 +452,12 @@ func (s *wsSession) handleRematchAnswer(msg domain.Message) {
 			s.room.Mutex.Unlock()
 
 			if clientsCount == 2 {
-				state.Status = "playing"
+				state.Status = constants.StatusPlaying
 				if state.Settings.TimerEnabled {
 					state.LastMoveTime = time.Now().UnixMilli()
 				}
 			} else {
-				state.Status = "waiting"
+				state.Status = constants.StatusWaiting
 			}
 		}
 		state.RematchRequestedBy = 0
@@ -471,7 +478,7 @@ func (s *wsSession) handleUndoRequest(msg domain.Message) {
 	defer s.room.StateMutex.Unlock()
 
 	state := s.room.State
-	if state != nil && state.Status == "playing" && len(state.MovesHistory) > 0 {
+	if state != nil && state.Status == constants.StatusPlaying && len(state.MovesHistory) > 0 {
 		if state.CurrentTurn != s.playerID {
 			state.UndoRequestedBy = s.playerID
 			stateBytes, _ := json.Marshal(domain.Message{

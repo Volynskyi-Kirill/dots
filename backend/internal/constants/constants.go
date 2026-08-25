@@ -7,12 +7,12 @@ const (
 )
 
 const (
-	MessageChat        = "chat"
-	MessageMove        = "move"
-	MessageState       = "state"
-	MessageJoin        = "join"
-	MessageError       = "error"
-	MessageDisconnect  = "disconnect"
+	MessageChat           = "chat"
+	MessageMove           = "move"
+	MessageState          = "state"
+	MessageJoin           = "join"
+	MessageError          = "error"
+	MessageDisconnect     = "disconnect"
 	MessageWelcome        = "welcome"
 	MessageUndoRequest    = "request_undo"
 	MessageUndoAnswer     = "answer_undo"
@@ -20,4 +20,21 @@ const (
 	MessageRematchRequest = "request_rematch"
 	MessageRematchAnswer  = "answer_rematch"
 	MessageTimeout        = "timeout"
+)
+
+type GameStatus string
+
+const (
+	StatusWaiting  GameStatus = "waiting"
+	StatusPlaying  GameStatus = "playing"
+	StatusFinished GameStatus = "finished"
+)
+
+type WinReason string
+
+const (
+	ReasonSurrender  WinReason = "surrender"
+	ReasonTimeout    WinReason = "timeout"
+	ReasonDisconnect WinReason = "disconnect"
+	ReasonBoardFull  WinReason = "board_full"
 )

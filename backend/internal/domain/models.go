@@ -1,6 +1,10 @@
 package domain
 
-import "encoding/json"
+import (
+	"encoding/json"
+	
+	"github.com/dots-game/backend/internal/constants"
+)
 
 type Point struct {
 	X int `json:"x"`
@@ -32,9 +36,9 @@ type GameState struct {
 	CapturedP2      []Point      `json:"capturedP2"`
 	PolygonsP1      [][]Point    `json:"polygonsP1"` // Array of polygons for drawing
 	PolygonsP2      [][]Point    `json:"polygonsP2"`
-	Status          string       `json:"status"`      // "waiting", "playing", "finished"
+	Status          constants.GameStatus       `json:"status"`      // "waiting", "playing", "finished"
 	Winner          int          `json:"winner,omitempty"` // 1, 2, or 0 (tie)
-	WinReason       string       `json:"winReason,omitempty"` // "timeout", "surrender", "board_full"
+	WinReason       constants.WinReason       `json:"winReason,omitempty"` // "timeout", "surrender", "board_full"
 
 	LastMove        *Point       `json:"lastMove,omitempty"`
 	UndoRequestedBy int          `json:"undoRequestedBy,omitempty"`

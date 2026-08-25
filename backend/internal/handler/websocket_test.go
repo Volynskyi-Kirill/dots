@@ -80,7 +80,7 @@ func TestWebSocket_IntegrationFlow(t *testing.T) {
 	}
 	var state domain.GameState
 	json.Unmarshal(msg.Payload, &state)
-	if state.Status != "waiting" {
+	if state.Status != constants.StatusWaiting {
 		t.Fatalf("expected status waiting, got %s", state.Status)
 	}
 
@@ -114,7 +114,7 @@ func TestWebSocket_IntegrationFlow(t *testing.T) {
 	msgC2 := readWithTimeout(t, c2)
 
 	json.Unmarshal(msgC2.Payload, &state)
-	if state.Status != "playing" {
+	if state.Status != constants.StatusPlaying {
 		t.Fatalf("expected status playing, got %s", state.Status)
 	}
 
@@ -155,10 +155,10 @@ func TestWebSocket_IntegrationFlow(t *testing.T) {
 	msgC2 = readWithTimeout(t, c2)
 
 	json.Unmarshal(msgC1.Payload, &state)
-	if state.Status != "finished" {
+	if state.Status != constants.StatusFinished {
 		t.Fatalf("expected status finished, got %s", state.Status)
 	}
-	if state.WinReason != "surrender" {
+	if state.WinReason != constants.ReasonSurrender {
 		t.Fatalf("expected winReason surrender, got %s", state.WinReason)
 	}
 }

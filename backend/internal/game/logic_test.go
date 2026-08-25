@@ -94,6 +94,6 @@ func createEmptyState(w, h int) *domain.GameState {
 	return &domain.GameState{
 		Board:       board,
 		CurrentTurn: constants.Player1,
-		Status:      "playing",
+		Status:      constants.StatusPlaying,
 	}
 }
