@@ -40,9 +40,10 @@ interface GameBoardProps {
   onMove: (x: number, y: number) => void;
   width?: number;
   height?: number;
+  controlScheme?: 'direct' | 'drag' | 'confirm';
 }
 
-export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39, height = 39 }) => {
+export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39, height = 39, controlScheme = "direct" }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -55,6 +56,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
   const lastTouchDist = useRef<number | null>(null);
   const lastTouchCenter = useRef<Point | null>(null);
   const hasDragged = useRef(false);
+  const [ghostDot, setGhostDot] = useState<Point | null>(null);
 
   // Helper to center the board on screen
   const centerBoard = useCallback(() => {
@@ -226,6 +228,21 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
       drawDots(2, '#f87171', 'rgba(248, 113, 113, 0.6)');
     }
 
+    // Draw Ghost Dot (before restoring context so it uses grid scaling)
+    if (ghostDot && (controlScheme === 'drag' || controlScheme === 'confirm')) {
+      ctx.save();
+      ctx.fillStyle = controlScheme === 'drag' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(234, 179, 8, 0.8)';
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.arc(ghostDot.x, ghostDot.y, 0.35, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 0.05;
+      ctx.stroke();
+      ctx.restore();
+    }
+
     ctx.restore();
 
     // Draw Grid Coordinates (1 to N on the left and bottom) using absolute screen coordinates
@@ -255,7 +272,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
       }
     }
     ctx.restore();
-  }, [state, offset, scale, width, height]);
+  }, [state, offset, scale, width, height, ghostDot, controlScheme]);
 
   useEffect(() => {
     draw();
@@ -267,6 +284,30 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     activeTouches.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     hasDragged.current = false;
     canvasRef.current?.setPointerCapture(e.pointerId);
+
+    if (controlScheme === 'drag' && activeTouches.current.size === 1) {
+      updateGhostDot(e.clientX, e.clientY - 40);
+    }
+  };
+
+  const updateGhostDot = (clientX: number, clientY: number) => {
+    const rect = canvasRef.current!.getBoundingClientRect();
+    
+    // Calculate based on the latest state values (closure)
+    const mouseX = clientX - rect.left;
+    const mouseY = clientY - rect.top;
+
+    const gridX = Math.round((mouseX - offset.x) / scale);
+    const gridY = Math.round((mouseY - offset.y) / scale);
+
+    if (gridX >= 0 && gridX < width && gridY >= 0 && gridY < height) {
+      setGhostDot(prev => {
+        if (prev?.x === gridX && prev?.y === gridY) return prev;
+        return { x: gridX, y: gridY };
+      });
+    } else {
+      setGhostDot(null);
+    }
   };
 
   const clampOffset = (x: number, y: number, currentScale: number) => {
@@ -316,6 +357,15 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     
     activeTouches.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
+    if (controlScheme === 'drag') {
+      if (activeTouches.current.size === 1) {
+        updateGhostDot(e.clientX, e.clientY - 40);
+        return; // Do NOT pan with 1 finger in drag mode
+      } else if (activeTouches.current.size === 2) {
+        setGhostDot(null); // Cancel ghost dot if zooming/panning with 2 fingers
+      }
+    }
+
     if (activeTouches.current.size === 1) {
       // Panning
       setCamera(prev => ({
@@ -362,10 +412,22 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
 
   const handlePointerUp = (e: React.PointerEvent) => {
     if (e.pointerType === 'mouse') return;
+
+    if (controlScheme === 'drag' && activeTouches.current.size === 1 && hasDragged.current) {
+       setGhostDot(currentGhost => {
+           if (currentGhost) {
+               onMove(currentGhost.x, currentGhost.y);
+           }
+           return null;
+       });
+    }
     activeTouches.current.delete(e.pointerId);
     if (activeTouches.current.size < 2) {
       lastTouchDist.current = null;
       lastTouchCenter.current = null;
+    }
+    if (controlScheme === 'drag' && activeTouches.current.size === 0) {
+      setGhostDot(null);
     }
     canvasRef.current?.releasePointerCapture(e.pointerId);
   };
@@ -385,12 +447,30 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     const gridY = Math.round((mouseY - offset.y) / scale);
 
     if (gridX >= 0 && gridX < width && gridY >= 0 && gridY < height) {
-      onMove(gridX, gridY);
+      if (controlScheme === 'confirm') {
+         setGhostDot(prev => {
+             if (prev?.x === gridX && prev?.y === gridY) {
+                 onMove(gridX, gridY);
+                 return null;
+             }
+             return { x: gridX, y: gridY };
+         });
+      } else {
+         onMove(gridX, gridY);
+      }
     }
   };
 
   return (
     <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-background">
+      {controlScheme === 'confirm' && ghostDot && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onMove(ghostDot.x, ghostDot.y); setGhostDot(null); }}
+          className="absolute bottom-20 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full shadow-[0_0_25px_rgba(255,255,255,0.2)] border border-primary/50 z-20 text-sm sm:text-base animate-in slide-in-from-bottom-5 duration-200"
+        >
+          ✓ Confirm Move
+        </button>
+      )}
       <canvas
         ref={canvasRef}
         onPointerDown={handlePointerDown}

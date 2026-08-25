@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { wsService } from './services/websocket'
 import { GameBoard, GameState } from './components/GameBoard'
 import { cn } from './lib/utils'
-import { Copy, Check, Share2, LogOut, Menu, RotateCcw, Flag, Swords } from 'lucide-react'
+import { Copy, Check, Share2, LogOut, Menu, RotateCcw, Flag, Swords, Settings, X } from 'lucide-react'
 import { Timer } from './components/Timer'
 function App() {
   const [roomId, setRoomId] = useState('')
@@ -12,6 +12,15 @@ function App() {
   const [copied, setCopied] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [myPlayerId, setMyPlayerId] = useState<number | null>(null)
+  
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [controlScheme, setControlScheme] = useState<'direct' | 'drag' | 'confirm'>(() => {
+    return (localStorage.getItem('dots_control_scheme') as 'direct' | 'drag' | 'confirm') || 'direct'
+  })
+
+  useEffect(() => {
+    localStorage.setItem('dots_control_scheme', controlScheme)
+  }, [controlScheme])
 
   const [timerEnabled, setTimerEnabled] = useState(false)
   const [initialTimeMins, setInitialTimeMins] = useState(5)
@@ -278,6 +287,9 @@ function App() {
 
             {/* Desktop-only: Turn & Leave */}
             <div className="hidden sm:flex items-center gap-4">
+              <button onClick={() => setSettingsOpen(true)} className="p-2 mr-2 text-muted-foreground hover:text-foreground hidden sm:block">
+                <Settings className="w-5 h-5" />
+              </button>
               {gameState && (
                 <div className="text-sm font-medium flex items-center gap-2">
                   {gameState.status === 'playing' ? (
@@ -355,6 +367,9 @@ function App() {
                     <button onClick={() => { handleShare(); setMenuOpen(false); }} className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted text-left">
                       <Share2 className="w-4 h-4" /> Share Link
                     </button>
+                    <button onClick={() => { setSettingsOpen(true); setMenuOpen(false); }} className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted text-left mt-1 border-t pt-2">
+                      <Settings className="w-4 h-4" /> Settings
+                    </button>
                     <button onClick={handleLeaveRoom} className="flex items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-destructive/10 text-left mt-1 border-t pt-2">
                       <LogOut className="w-4 h-4" /> Leave Game
                     </button>
@@ -370,10 +385,52 @@ function App() {
             {error}
           </div>
         )}
+        
+        {settingsOpen && (
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in">
+            <div className="bg-card border shadow-xl rounded-xl w-full max-w-sm p-6 relative">
+              <button onClick={() => setSettingsOpen(false)} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground">
+                <X className="w-5 h-5" />
+              </button>
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Settings className="w-5 h-5" /> Settings</h2>
+              
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold mb-3">Controls (Mobile / Touch)</h3>
+                <div className="space-y-3">
+                  <label className="flex items-start gap-3 p-3 border rounded-lg cursor-pointer hover:bg-secondary/50">
+                    <input type="radio" name="controls" value="direct" checked={controlScheme === 'direct'} onChange={() => setControlScheme('direct')} className="mt-1" />
+                    <div>
+                      <div className="font-medium text-sm text-foreground">Classic (Direct Tap)</div>
+                      <div className="text-xs text-muted-foreground">Tap anywhere to instantly place a dot. One finger to pan.</div>
+                    </div>
+                  </label>
+                  <label className="flex items-start gap-3 p-3 border rounded-lg cursor-pointer hover:bg-secondary/50">
+                    <input type="radio" name="controls" value="drag" checked={controlScheme === 'drag'} onChange={() => setControlScheme('drag')} className="mt-1" />
+                    <div>
+                      <div className="font-medium text-sm text-foreground">Smart Aim (Drag & Release)</div>
+                      <div className="text-xs text-muted-foreground">Drag to aim perfectly, release to place. Use two fingers to pan.</div>
+                    </div>
+                  </label>
+                  <label className="flex items-start gap-3 p-3 border rounded-lg cursor-pointer hover:bg-secondary/50">
+                    <input type="radio" name="controls" value="confirm" checked={controlScheme === 'confirm'} onChange={() => setControlScheme('confirm')} className="mt-1" />
+                    <div>
+                      <div className="font-medium text-sm text-foreground">Double Tap (Confirm)</div>
+                      <div className="text-xs text-muted-foreground">Tap to select a spot, tap again to confirm. One finger to pan.</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+              
+              <button onClick={() => setSettingsOpen(false)} className="w-full py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90">
+                Done
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Game Canvas */}
         <div className="flex-1 w-full min-h-0 relative">
-          <GameBoard state={gameState} onMove={handleMove} />
+          <GameBoard state={gameState} onMove={handleMove} controlScheme={controlScheme} />
         </div>
       </div>
     )

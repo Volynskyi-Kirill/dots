@@ -49,6 +49,17 @@ Because reversing flood-fills and un-capturing territories is mathematically com
 *   It then completely wipes the board state to zero and replays `MakeMove()` sequentially for all remaining moves in the history.
 *   *Performance*: 1500 iterations of a Go function take fractions of a millisecond, guaranteeing a 100% bug-free state restoration.
 
+### Game Flow, Timers & Series
+*   **Blitz Mode (Timers)**: When creating a room, users can enable chess-style timers (Initial Time + Increment per move).
+    *   The frontend uses `requestAnimationFrame` for a smooth local countdown.
+    *   The backend governs the absolute truth using `LastMoveTime` and a background goroutine in `websocket.go` that constantly monitors for timeouts.
+    *   During an `Undo`, the timer states (`TimeP1` and `TimeP2`) are flawlessly restored to the exact millisecond using snapshots stored inside `MovesHistory`.
+*   **Game Over Conditions**:
+    *   **Timeout**: Governed by the backend goroutine.
+    *   **Surrender**: Player manually concedes via UI.
+    *   **Board Full**: Triggered automatically when all 1521 intersections are occupied. The system counts captured points to determine the winner.
+*   **Rematch & Series Tracking**: After a game concludes, players can agree to a rematch. The backend tracks the Series Score, clears the board, and automatically swaps the `StartingPlayer` so the loser (or whoever went second) gets to open the next match.
+
 ---
 
 ## 4. Frontend Rendering (`GameBoard.tsx`)
