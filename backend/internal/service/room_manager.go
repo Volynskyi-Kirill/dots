@@ -3,6 +3,8 @@ package service
 import (
 	"log"
 	"sync"
+
+	"github.com/dots-game/backend/internal/domain"
 )
 
 type Client interface {
@@ -17,6 +19,10 @@ type Room struct {
 	Player2Session string
 	Mutex          sync.Mutex
 	Broadcast      chan []byte
+	Quit           chan struct{}
+
+	State      *domain.GameState
+	StateMutex sync.RWMutex
 }
 
 type RoomManager interface {
@@ -45,16 +51,22 @@ func (rm *roomManager) CreateRoom(roomID string) *Room {
 		ID:        roomID,
 		Clients:   make(map[Client]int),
 		Broadcast: make(chan []byte),
+		Quit:      make(chan struct{}),
 	}
 	rm.rooms[roomID] = room
 
 	go func() {
-		for msg := range room.Broadcast {
-			room.Mutex.Lock()
-			for client := range room.Clients {
-				client.Send(msg)
+		for {
+			select {
+			case msg := <-room.Broadcast:
+				room.Mutex.Lock()
+				for client := range room.Clients {
+					client.Send(msg)
+				}
+				room.Mutex.Unlock()
+			case <-room.Quit:
+				return
 			}
-			room.Mutex.Unlock()
 		}
 	}()
 
@@ -124,6 +136,7 @@ func (rm *roomManager) LeaveRoom(roomID string, client Client) {
 			rm.mutex.Lock()
 			delete(rm.rooms, roomID)
 			rm.mutex.Unlock()
+			close(room.Quit)
 			log.Printf("Room %s destroyed", roomID)
 		}
 	}

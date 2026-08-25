@@ -44,10 +44,6 @@ func writePump(c *wsClient) {
 	}
 }
 
-// In-memory state for simplicity in this example.
-// A real app might store this in Room struct or a GameState service.
-var gameStates = make(map[string]*domain.GameState)
-
 func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
@@ -70,8 +66,9 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 			if currentRoom != nil {
 				rm.LeaveRoom(currentRoom.ID, client)
 				if playerID > 0 {
-					state, exists := gameStates[currentRoom.ID]
-					if exists {
+					currentRoom.StateMutex.Lock()
+					state := currentRoom.State
+					if state != nil {
 						if playerID == 1 {
 							state.P1Disconnected = true
 						} else if playerID == 2 {
@@ -96,6 +93,7 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 						})
 						currentRoom.Broadcast <- stateBytes
 					}
+					currentRoom.StateMutex.Unlock()
 				}
 			}
 			conn.Close()
@@ -121,8 +119,9 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 						currentRoom = room
 						playerID = pid
 
+						currentRoom.StateMutex.Lock()
 						// Initialize game state if it doesn't exist
-						if _, exists := gameStates[room.ID]; !exists {
+						if currentRoom.State == nil {
 							board := make([][]int, height)
 							for i := range board {
 								board[i] = make([]int, width)
@@ -133,83 +132,89 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 							}
 							logic.InitState(state)
 							state.Status = "waiting"
-							gameStates[room.ID] = state
+							currentRoom.State = state
 
 							// Timer loop
-							go func(rID string) {
+							go func(r *service.Room) {
+								ticker := time.NewTicker(200 * time.Millisecond)
+								defer ticker.Stop()
 								for {
-									time.Sleep(200 * time.Millisecond)
-									state, exists := gameStates[rID]
-									if !exists {
+									select {
+									case <-r.Quit:
 										return
-									}
-									if state.Status == "playing" {
-										// Disconnect timeout check
-										if (state.P1Disconnected || state.P2Disconnected) && state.DisconnectDeadline > 0 {
-											if time.Now().UnixMilli() > state.DisconnectDeadline {
-												state.Status = "finished"
-												state.WinReason = "disconnect"
-												if state.P1Disconnected {
-													state.Winner = 2
-													state.MatchScoreP2++
-												} else {
-													state.Winner = 1
-													state.MatchScoreP1++
-												}
-												state.DisconnectDeadline = 0 // clear
-												
-												room := rm.GetRoom(rID)
-												if room != nil {
+									case <-ticker.C:
+										r.StateMutex.Lock()
+										state := r.State
+										if state == nil {
+											r.StateMutex.Unlock()
+											return
+										}
+										
+										if state.Status == "playing" {
+											// Disconnect timeout check
+											if (state.P1Disconnected || state.P2Disconnected) && state.DisconnectDeadline > 0 {
+												if time.Now().UnixMilli() > state.DisconnectDeadline {
+													state.Status = "finished"
+													state.WinReason = "disconnect"
+													if state.P1Disconnected {
+														state.Winner = 2
+														state.MatchScoreP2++
+													} else {
+														state.Winner = 1
+														state.MatchScoreP1++
+													}
+													state.DisconnectDeadline = 0 // clear
+													
 													stateBytes, _ := json.Marshal(domain.Message{
 														Type:    "state",
 														Payload: marshalState(state),
 													})
-													room.Broadcast <- stateBytes
+													r.Broadcast <- stateBytes
+													r.StateMutex.Unlock()
+													continue
 												}
-												continue
 											}
-										}
 
-										if state.Settings.TimerEnabled && state.LastMoveTime > 0 && !state.P1Disconnected && !state.P2Disconnected {
-										elapsed := time.Now().UnixMilli() - state.LastMoveTime
-										var timeout bool
-										if state.CurrentTurn == 1 { // Player1
-											if state.TimeP1-elapsed <= 0 {
-												state.TimeP1 = 0
-												timeout = true
-												state.Winner = 2
-											}
-										} else {
-											if state.TimeP2-elapsed <= 0 {
-												state.TimeP2 = 0
-												timeout = true
-												state.Winner = 1
+											if state.Settings.TimerEnabled && state.LastMoveTime > 0 && !state.P1Disconnected && !state.P2Disconnected {
+												elapsed := time.Now().UnixMilli() - state.LastMoveTime
+												var timeout bool
+												if state.CurrentTurn == 1 { // Player1
+													if state.TimeP1-elapsed <= 0 {
+														state.TimeP1 = 0
+														timeout = true
+														state.Winner = 2
+													}
+												} else {
+													if state.TimeP2-elapsed <= 0 {
+														state.TimeP2 = 0
+														timeout = true
+														state.Winner = 1
+													}
+												}
+												if timeout {
+													state.Status = "finished"
+													state.WinReason = "timeout"
+													if state.Winner == constants.Player1 {
+														state.MatchScoreP1++
+													} else if state.Winner == constants.Player2 {
+														state.MatchScoreP2++
+													}
+													
+													stateBytes, _ := json.Marshal(domain.Message{
+														Type:    "state", // constants.MessageState
+														Payload: marshalState(state),
+													})
+													r.Broadcast <- stateBytes
+												}
 											}
 										}
-										if timeout {
-											state.Status = "finished"
-											state.WinReason = "timeout"
-											if state.Winner == constants.Player1 {
-												state.MatchScoreP1++
-											} else if state.Winner == constants.Player2 {
-												state.MatchScoreP2++
-											}
-											room := rm.GetRoom(rID)
-											if room != nil {
-												stateBytes, _ := json.Marshal(domain.Message{
-													Type:    "state", // constants.MessageState
-													Payload: marshalState(state),
-												})
-												room.Broadcast <- stateBytes
-											}
-										}
-										}
+										r.StateMutex.Unlock()
 									}
 								}
-							}(room.ID)
+							}(currentRoom)
 						}
 
-						state := gameStates[room.ID]
+						state := currentRoom.State
 						
 						// Clear disconnect flag for the joining player
 						if playerID == 1 {
@@ -218,7 +223,11 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 							state.P2Disconnected = false
 						}
 						
-						if len(room.Clients) == 2 && state.Status == "waiting" {
+						currentRoom.Mutex.Lock()
+						clientsCount := len(currentRoom.Clients)
+						currentRoom.Mutex.Unlock()
+
+						if clientsCount == 2 && state.Status == "waiting" {
 							state.Status = "playing"
 							if state.Settings.TimerEnabled && state.LastMoveTime == 0 {
 								state.LastMoveTime = time.Now().UnixMilli()
@@ -237,86 +246,93 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 							Type:    constants.MessageState,
 							Payload: marshalState(state),
 						})
-						room.Broadcast <- stateBytes
+						currentRoom.Broadcast <- stateBytes
+						
+						currentRoom.StateMutex.Unlock()
 					}
 				}
 			case constants.MessageMove:
 				if currentRoom != nil {
 					var payload domain.MovePayload
 					if err := json.Unmarshal(msg.Payload, &payload); err == nil {
-						state := gameStates[currentRoom.ID]
-						if state.Settings.TimerEnabled && state.LastMoveTime > 0 {
-							elapsed := time.Now().UnixMilli() - state.LastMoveTime
-							if state.CurrentTurn == constants.Player1 {
-								state.TimeP1 -= elapsed
-								if state.TimeP1 < 0 {
-									state.TimeP1 = 0
-								}
-							} else {
-								state.TimeP2 -= elapsed
-								if state.TimeP2 < 0 {
-									state.TimeP2 = 0
-								}
-							}
-						}
-
-						if err := logic.MakeMove(state, playerID, payload.X, payload.Y); err == nil {
-							// Apply increment
+						currentRoom.StateMutex.Lock()
+						state := currentRoom.State
+						if state != nil {
 							if state.Settings.TimerEnabled && state.LastMoveTime > 0 {
-								if playerID == constants.Player1 {
-									state.TimeP1 += state.Settings.Increment
+								elapsed := time.Now().UnixMilli() - state.LastMoveTime
+								if state.CurrentTurn == constants.Player1 {
+									state.TimeP1 -= elapsed
+									if state.TimeP1 < 0 {
+										state.TimeP1 = 0
+									}
 								} else {
-									state.TimeP2 += state.Settings.Increment
-								}
-							}
-							if state.Settings.TimerEnabled {
-								state.LastMoveTime = time.Now().UnixMilli()
-							}
-
-							// Update history and reset undo state
-							record := domain.MoveRecord{
-								X: payload.X,
-								Y: payload.Y,
-								TimeP1: state.TimeP1,
-								TimeP2: state.TimeP2,
-							}
-							state.MovesHistory = append(state.MovesHistory, record)
-							state.UndoRequestedBy = 0
-
-							// Board full check (39x39 = 1521)
-							if len(state.MovesHistory) + 4 >= 1521 {
-								state.Status = "finished"
-								state.WinReason = "board_full"
-								if len(state.CapturedP1) > len(state.CapturedP2) {
-									state.Winner = constants.Player1
-									state.MatchScoreP1++
-								} else if len(state.CapturedP2) > len(state.CapturedP1) {
-									state.Winner = constants.Player2
-									state.MatchScoreP2++
-								} else {
-									state.Winner = 0
+									state.TimeP2 -= elapsed
+									if state.TimeP2 < 0 {
+										state.TimeP2 = 0
+									}
 								}
 							}
 
-							stateBytes, _ := json.Marshal(domain.Message{
-								Type:    constants.MessageState,
-								Payload: marshalState(state),
-							})
-							currentRoom.Broadcast <- stateBytes
-						} else {
-							// Send error to specific client
-							errBytes, _ := json.Marshal(domain.Message{
-								Type:    constants.MessageError,
-								Payload: []byte(`"` + err.Error() + `"`),
-							})
-							client.Send(errBytes)
+							if err := logic.MakeMove(state, playerID, payload.X, payload.Y); err == nil {
+								// Apply increment
+								if state.Settings.TimerEnabled && state.LastMoveTime > 0 {
+									if playerID == constants.Player1 {
+										state.TimeP1 += state.Settings.Increment
+									} else {
+										state.TimeP2 += state.Settings.Increment
+									}
+								}
+								if state.Settings.TimerEnabled {
+									state.LastMoveTime = time.Now().UnixMilli()
+								}
+
+								// Update history and reset undo state
+								record := domain.MoveRecord{
+									X: payload.X,
+									Y: payload.Y,
+									TimeP1: state.TimeP1,
+									TimeP2: state.TimeP2,
+								}
+								state.MovesHistory = append(state.MovesHistory, record)
+								state.UndoRequestedBy = 0
+
+								// Board full check (39x39 = 1521)
+								if len(state.MovesHistory) + 4 >= 1521 {
+									state.Status = "finished"
+									state.WinReason = "board_full"
+									if len(state.CapturedP1) > len(state.CapturedP2) {
+										state.Winner = constants.Player1
+										state.MatchScoreP1++
+									} else if len(state.CapturedP2) > len(state.CapturedP1) {
+										state.Winner = constants.Player2
+										state.MatchScoreP2++
+									} else {
+										state.Winner = 0
+									}
+								}
+
+								stateBytes, _ := json.Marshal(domain.Message{
+									Type:    constants.MessageState,
+									Payload: marshalState(state),
+								})
+								currentRoom.Broadcast <- stateBytes
+							} else {
+								// Send error to specific client
+								errBytes, _ := json.Marshal(domain.Message{
+									Type:    constants.MessageError,
+									Payload: []byte(`"` + err.Error() + `"`),
+								})
+								client.Send(errBytes)
+							}
 						}
+						currentRoom.StateMutex.Unlock()
 					}
 				}
 			case constants.MessageSurrender:
 				if currentRoom != nil {
-					state := gameStates[currentRoom.ID]
-					if state.Status == "playing" {
+					currentRoom.StateMutex.Lock()
+					state := currentRoom.State
+					if state != nil && state.Status == "playing" {
 						state.Status = "finished"
 						state.WinReason = "surrender"
 						if playerID == constants.Player1 {
@@ -332,11 +348,13 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 						})
 						currentRoom.Broadcast <- stateBytes
 					}
+					currentRoom.StateMutex.Unlock()
 				}
 			case constants.MessageRematchRequest:
 				if currentRoom != nil {
-					state := gameStates[currentRoom.ID]
-					if state.Status == "finished" {
+					currentRoom.StateMutex.Lock()
+					state := currentRoom.State
+					if state != nil && state.Status == "finished" {
 						state.RematchRequestedBy = playerID
 						stateBytes, _ := json.Marshal(domain.Message{
 							Type:    constants.MessageState,
@@ -344,13 +362,15 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 						})
 						currentRoom.Broadcast <- stateBytes
 					}
+					currentRoom.StateMutex.Unlock()
 				}
 			case constants.MessageRematchAnswer:
 				if currentRoom != nil {
 					var payload domain.UndoAnswerPayload // reusing struct since it has `accept` bool
 					if err := json.Unmarshal(msg.Payload, &payload); err == nil {
-						state := gameStates[currentRoom.ID]
-						if state.Status == "finished" && state.RematchRequestedBy != 0 && state.RematchRequestedBy != playerID {
+						currentRoom.StateMutex.Lock()
+						state := currentRoom.State
+						if state != nil && state.Status == "finished" && state.RematchRequestedBy != 0 && state.RematchRequestedBy != playerID {
 							if payload.Accept {
 								// Start rematch
 								if state.StartingPlayer == constants.Player1 {
@@ -361,7 +381,11 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 								
 								logic.InitState(state)
 								
-								if len(currentRoom.Clients) == 2 {
+								currentRoom.Mutex.Lock()
+								clientsCount := len(currentRoom.Clients)
+								currentRoom.Mutex.Unlock()
+
+								if clientsCount == 2 {
 									state.Status = "playing"
 									if state.Settings.TimerEnabled {
 										state.LastMoveTime = time.Now().UnixMilli()
@@ -378,13 +402,15 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 							})
 							currentRoom.Broadcast <- stateBytes
 						}
+						currentRoom.StateMutex.Unlock()
 					}
 				}
 			case constants.MessageUndoRequest:
 				if currentRoom != nil {
-					state := gameStates[currentRoom.ID]
+					currentRoom.StateMutex.Lock()
+					state := currentRoom.State
 					// Only the player who made the last move can request undo
-					if state.Status == "playing" && len(state.MovesHistory) > 0 {
+					if state != nil && state.Status == "playing" && len(state.MovesHistory) > 0 {
 						// The person who made the last move is the one whose turn it is NOT
 						if state.CurrentTurn != playerID {
 							state.UndoRequestedBy = playerID
@@ -395,13 +421,15 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 							currentRoom.Broadcast <- stateBytes
 						}
 					}
+					currentRoom.StateMutex.Unlock()
 				}
 			case constants.MessageUndoAnswer:
 				if currentRoom != nil {
 					var payload domain.UndoAnswerPayload
 					if err := json.Unmarshal(msg.Payload, &payload); err == nil {
-						state := gameStates[currentRoom.ID]
-						if state.UndoRequestedBy != 0 && state.UndoRequestedBy != playerID {
+						currentRoom.StateMutex.Lock()
+						state := currentRoom.State
+						if state != nil && state.UndoRequestedBy != 0 && state.UndoRequestedBy != playerID {
 							if payload.Accept {
 								// Revert the last move
 								if len(state.MovesHistory) > 0 {
@@ -417,6 +445,7 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 							})
 							currentRoom.Broadcast <- stateBytes
 						}
+						currentRoom.StateMutex.Unlock()
 					}
 				}
 			}
