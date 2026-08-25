@@ -101,7 +101,17 @@
     "leaveConfirmTitle": "Выйти из игры?",
     "leaveConfirmDesc": "Вы уверены, что хотите выйти из комнаты? Вы не сможете вернуться в текущую игру.",
     "cancel": "Отмена",
-    "confirmLeave": "Да, выйти"
+    "confirmLeave": "Да, выйти",
+    "surrenderConfirmTitle": "Сдаться?",
+    "surrenderConfirmDesc": "Вы уверены, что хотите сдаться? Ваш противник выиграет этот раунд.",
+    "winTitle": "Вы победили! 🎉",
+    "loseTitle": "Вы проиграли",
+    "tieTitle": "Ничья",
+    "winReasonSurrender": "Противник сдался",
+    "winReasonBoardFull": "Поле заполнено",
+    "winReasonTimeout": "Время вышло",
+    "score": "Счёт",
+    "matchScore": "Счёт в серии"
   },
   "Theme": {
     "light": "Светлая",

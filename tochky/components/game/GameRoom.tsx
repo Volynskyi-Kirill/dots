@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { wsService } from '@/lib/websocket';
@@ -24,6 +24,7 @@ export function GameRoom({ roomId }: { roomId: string }) {
   const [myPlayerId, setMyPlayerId] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
+  const [surrenderConfirmOpen, setSurrenderConfirmOpen] = useState(false);
   const [controlScheme, setControlScheme] = useState<'direct' | 'drag' | 'confirm'>('direct');
 
   useEffect(() => {
@@ -246,7 +247,7 @@ export function GameRoom({ roomId }: { roomId: string }) {
                   </div>
                   
                   <button 
-                    onClick={() => { if(window.confirm(t('surrenderConfirm'))) wsService.send('surrender', {}) }}
+                    onClick={() => setSurrenderConfirmOpen(true)}
                     className="flex items-center justify-center px-2.5 py-1 bg-secondary/80 hover:bg-destructive/20 hover:text-destructive rounded-md text-[10px] sm:text-xs font-medium border shadow-sm transition-colors text-muted-foreground"
                     title={t("surrender")}
                   >
@@ -367,6 +368,36 @@ export function GameRoom({ roomId }: { roomId: string }) {
       )}
 
       
+      {surrenderConfirmOpen && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-card border shadow-xl rounded-xl w-full max-w-sm p-6 relative animate-in zoom-in-95 duration-200">
+            <button onClick={() => setSurrenderConfirmOpen(false)} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-xl font-bold mb-3 flex items-center gap-2 text-yellow-500">
+              <Flag className="w-5 h-5" /> {t("surrenderConfirmTitle")}
+            </h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              {t("surrenderConfirmDesc")}
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setSurrenderConfirmOpen(false)}
+                className="px-4 py-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md text-sm font-medium transition-colors"
+              >
+                {t("cancel")}
+              </button>
+              <button
+                onClick={() => { wsService.send('surrender', {}); setSurrenderConfirmOpen(false); }}
+                className="px-4 py-2 bg-yellow-500 text-white hover:bg-yellow-600 rounded-md text-sm font-medium transition-colors shadow-sm"
+              >
+                {t("surrender")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {leaveConfirmOpen && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-card border shadow-xl rounded-xl w-full max-w-sm p-6 relative animate-in zoom-in-95 duration-200">
@@ -380,13 +411,13 @@ export function GameRoom({ roomId }: { roomId: string }) {
               {t("leaveConfirmDesc")}
             </p>
             <div className="flex justify-end gap-3">
-              <button 
+              <button
                 onClick={() => setLeaveConfirmOpen(false)}
                 className="px-4 py-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md text-sm font-medium transition-colors"
               >
                 {t("cancel")}
               </button>
-              <button 
+              <button
                 onClick={doLeaveRoom}
                 className="px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-md text-sm font-medium transition-colors shadow-sm"
               >
@@ -398,13 +429,26 @@ export function GameRoom({ roomId }: { roomId: string }) {
       )}
 
       <div className="flex-1 relative z-0">
-        <GameBoard 
-          state={gameState} 
-          onMove={handleMove} 
-          controlScheme={controlScheme} 
+        <GameBoard
+          state={gameState}
+          onMove={handleMove}
+          controlScheme={controlScheme}
           myPlayerId={myPlayerId}
         />
-        
+
+        {/* Game Over Overlay */}
+        {gameState?.status === 'finished' && myPlayerId && (
+          <GameOverOverlay
+            gameState={gameState}
+            myPlayerId={myPlayerId}
+            t={t}
+            p1Score={p1Score}
+            p2Score={p2Score}
+            onRematch={() => wsService.send('request_rematch', {})}
+            onLeave={doLeaveRoom}
+          />
+        )}
+
         {/* Connection Overlay */}
         {!gameState && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-10">
@@ -414,6 +458,111 @@ export function GameRoom({ roomId }: { roomId: string }) {
             </div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Game Over Overlay Component ────────────────────────────────────────────
+
+function GameOverOverlay({
+  gameState, myPlayerId, t, p1Score, p2Score, onRematch, onLeave
+}: {
+  gameState: import('@/lib/types').GameState;
+  myPlayerId: number;
+  t: (key: string) => string;
+  p1Score: number;
+  p2Score: number;
+  onRematch: () => void;
+  onLeave: () => void;
+}) {
+  const iWon = gameState.winner === myPlayerId;
+  const isTie = gameState.winner === 0;
+  const confettiRan = useRef(false);
+
+  useEffect(() => {
+    if (iWon && !confettiRan.current) {
+      confettiRan.current = true;
+      import('canvas-confetti').then(({ default: confetti }) => {
+        const end = Date.now() + 2000;
+        const colors = ['#60a5fa', '#f87171', '#fbbf24', '#34d399'];
+        (function frame() {
+          confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors });
+          confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors });
+          if (Date.now() < end) requestAnimationFrame(frame);
+        })();
+      });
+    }
+  }, [iWon]);
+
+  const title = isTie ? t('tieTitle') : iWon ? t('winTitle') : t('loseTitle');
+
+  const reasonKey = gameState.winReason === 'surrender'
+    ? 'winReasonSurrender'
+    : gameState.winReason === 'timeout'
+    ? 'winReasonTimeout'
+    : 'winReasonBoardFull';
+
+  return (
+    <div className="absolute inset-0 bg-background/85 backdrop-blur-sm z-20 flex items-center justify-center p-4 animate-in fade-in duration-300">
+      <div className="bg-card border shadow-2xl rounded-2xl w-full max-w-sm p-8 text-center animate-in zoom-in-90 duration-300">
+        {/* Title */}
+        <h2 className={`text-3xl font-black mb-1 ${iWon ? 'text-yellow-400' : isTie ? 'text-muted-foreground' : 'text-destructive'}`}>
+          {title}
+        </h2>
+        <p className="text-xs text-muted-foreground mb-6">{t(reasonKey)}</p>
+
+        {/* Round Score */}
+        <div className="flex items-center justify-center gap-4 mb-3">
+          <div className="text-center">
+            <div className="text-xs text-muted-foreground mb-1">{t('score')}</div>
+            <div className="flex items-center gap-3">
+              <span className={`text-4xl font-black ${myPlayerId === 1 ? 'text-blue-400' : 'text-muted-foreground'}`}>{p1Score}</span>
+              <span className="text-2xl text-muted-foreground">:</span>
+              <span className={`text-4xl font-black ${myPlayerId === 2 ? 'text-red-400' : 'text-muted-foreground'}`}>{p2Score}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Match Score */}
+        <div className="flex items-center justify-center gap-2 mb-8 bg-secondary/40 rounded-lg px-4 py-2">
+          <span className="text-xs text-muted-foreground">{t('matchScore')}:</span>
+          <span className="font-mono font-bold text-blue-400">{gameState.matchScoreP1 ?? 0}</span>
+          <span className="text-muted-foreground text-xs">—</span>
+          <span className="font-mono font-bold text-red-400">{gameState.matchScoreP2 ?? 0}</span>
+        </div>
+
+        {/* Actions */}
+        <div className="flex flex-col gap-3">
+          {!gameState.rematchRequestedBy && (
+            <button
+              onClick={onRematch}
+              className="w-full px-6 py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl font-bold text-base transition-colors shadow-sm"
+            >
+              🔄 {t('rematch')}
+            </button>
+          )}
+          {gameState.rematchRequestedBy === myPlayerId && (
+            <span className="text-sm text-muted-foreground animate-pulse border px-4 py-3 rounded-xl bg-secondary/30">
+              {t('waiting')}
+            </span>
+          )}
+          {!!gameState.rematchRequestedBy && gameState.rematchRequestedBy !== myPlayerId && (
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-bold text-primary">{t('rematchQuestion')}</p>
+              <div className="flex gap-3">
+                <button onClick={() => wsService.send('answer_rematch', { accept: true })} className="flex-1 px-4 py-2 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg text-sm font-bold hover:bg-green-500/30 transition-colors">{t('yes')}</button>
+                <button onClick={() => wsService.send('answer_rematch', { accept: false })} className="flex-1 px-4 py-2 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-sm font-bold hover:bg-red-500/30 transition-colors">{t('no')}</button>
+              </div>
+            </div>
+          )}
+          <button
+            onClick={onLeave}
+            className="w-full px-6 py-2 text-muted-foreground hover:text-foreground text-sm transition-colors"
+          >
+            {t('leave')}
+          </button>
+        </div>
       </div>
     </div>
   );

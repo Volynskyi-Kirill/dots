@@ -132,6 +132,11 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 										if timeout {
 											state.Status = "finished"
 											state.WinReason = "timeout"
+											if state.Winner == constants.Player1 {
+												state.MatchScoreP1++
+											} else if state.Winner == constants.Player2 {
+												state.MatchScoreP2++
+											}
 											room := rm.GetRoom(rID)
 											if room != nil {
 												stateBytes, _ := json.Marshal(domain.Message{
@@ -218,8 +223,10 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 								state.WinReason = "board_full"
 								if len(state.CapturedP1) > len(state.CapturedP2) {
 									state.Winner = constants.Player1
+									state.MatchScoreP1++
 								} else if len(state.CapturedP2) > len(state.CapturedP1) {
 									state.Winner = constants.Player2
+									state.MatchScoreP2++
 								} else {
 									state.Winner = 0
 								}
@@ -248,8 +255,10 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 						state.WinReason = "surrender"
 						if playerID == constants.Player1 {
 							state.Winner = constants.Player2
+							state.MatchScoreP2++
 						} else {
 							state.Winner = constants.Player1
+							state.MatchScoreP1++
 						}
 						stateBytes, _ := json.Marshal(domain.Message{
 							Type:    constants.MessageState,
@@ -278,12 +287,6 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 						if state.Status == "finished" && state.RematchRequestedBy != 0 && state.RematchRequestedBy != playerID {
 							if payload.Accept {
 								// Start rematch
-								if state.Winner == constants.Player1 {
-									state.MatchScoreP1++
-								} else if state.Winner == constants.Player2 {
-									state.MatchScoreP2++
-								}
-								
 								if state.StartingPlayer == constants.Player1 {
 									state.StartingPlayer = constants.Player2
 								} else {

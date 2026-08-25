@@ -101,7 +101,17 @@
     "leaveConfirmTitle": "Opuścić grę?",
     "leaveConfirmDesc": "Czy na pewno chcesz opuścić ten pokój? Nie będziesz mógł wrócić do bieżącej gry.",
     "cancel": "Anuluj",
-    "confirmLeave": "Tak, opuść"
+    "confirmLeave": "Tak, opuść",
+    "surrenderConfirmTitle": "Poddać się?",
+    "surrenderConfirmDesc": "Czy na pewno chcesz się poddać? Twój przeciwnik wygra tę rundę.",
+    "winTitle": "Wygrałeś! 🎉",
+    "loseTitle": "Przegrałeś",
+    "tieTitle": "Remis",
+    "winReasonSurrender": "Przeciwnik się poddał",
+    "winReasonBoardFull": "Plansza pełna",
+    "winReasonTimeout": "Czas minął",
+    "score": "Wynik",
+    "matchScore": "Wynik meczu"
   },
   "Theme": {
     "light": "Jasny",
