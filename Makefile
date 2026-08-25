@@ -38,7 +38,7 @@ prod-logs:
 	docker-compose -f docker-compose.prod.yml logs -f
 
 share:
-	ngrok http 5173
+	ngrok http 3000
 
 share-prod:
 	ngrok http 80

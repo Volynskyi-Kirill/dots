@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { wsService } from '@/lib/websocket';
 import { GameBoard } from './GameBoard';
@@ -10,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { Copy, Check, Share2, LogOut, Menu, RotateCcw, Flag, Settings, X, Swords } from 'lucide-react';
 
 export function GameRoom({ roomId }: { roomId: string }) {
+  const t = useTranslations('GameRoom');
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -142,27 +144,27 @@ export function GameRoom({ roomId }: { roomId: string }) {
             Dots
           </h1>
           <div className="hidden sm:flex items-center gap-1.5 bg-secondary/80 px-2.5 py-1 rounded-md border text-xs font-mono">
-            <span>Room: <strong>{roomId}</strong></span>
+            <span>{t("roomPrefix")} <strong>{roomId}</strong></span>
             <button
               onClick={handleCopyLink}
-              title="Copy Invite Link"
+              title={t("copyInviteLink")}
               className="ml-1 p-1 hover:bg-background/80 rounded transition-colors text-muted-foreground hover:text-foreground flex items-center gap-1"
             >
               {copied ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-green-500" />
-                  <span className="text-[10px] text-green-500 font-sans font-medium">Copied!</span>
+                  <span className="text-[10px] text-green-500 font-sans font-medium">{t("copied")}</span>
                 </>
               ) : (
                 <>
                   <Copy className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-sans">Copy Link</span>
+                  <span className="text-[10px] font-sans">{t("copyLink")}</span>
                 </>
               )}
             </button>
             <button
               onClick={handleShare}
-              title="Share Link"
+              title={t("shareLink")}
               className="p-1 hover:bg-background/80 rounded transition-colors text-muted-foreground hover:text-foreground"
             >
               <Share2 className="w-3.5 h-3.5" />
@@ -210,15 +212,15 @@ export function GameRoom({ roomId }: { roomId: string }) {
                         className="disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1 px-2.5 py-1 bg-secondary/80 hover:bg-secondary rounded-md text-[10px] sm:text-xs font-medium border shadow-sm transition-colors text-muted-foreground hover:text-foreground w-full justify-center"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">Undo</span>
+                        <span className="hidden sm:inline">{t("undo")}</span>
                       </button>
                     ) : gameState.undoRequestedBy === myPlayerId ? (
                       <span className="text-[10px] sm:text-xs text-muted-foreground animate-pulse border px-2 py-1 rounded-md bg-secondary/30 w-full text-center">
-                        Wait<span className="hidden sm:inline">ing...</span>
+                        {t("waiting")}
                       </span>
                     ) : !!gameState.undoRequestedBy && gameState.undoRequestedBy !== myPlayerId ? (
                       <div className="flex items-center gap-1">
-                        <span className="text-[10px] sm:text-xs font-bold text-destructive mr-0.5">Undo?</span>
+                        <span className="text-[10px] sm:text-xs font-bold text-destructive mr-0.5">{t("undoQuestion")}</span>
                         <button 
                           onClick={() => wsService.send('answer_undo', { accept: true })}
                           className="px-2 py-1 bg-green-500/20 text-green-500 hover:bg-green-500/30 rounded-md text-[10px] sm:text-xs font-bold border border-green-500/30"
@@ -236,9 +238,9 @@ export function GameRoom({ roomId }: { roomId: string }) {
                   </div>
                   
                   <button 
-                    onClick={() => { if(window.confirm('Are you sure you want to surrender?')) wsService.send('surrender', {}) }}
+                    onClick={() => { if(window.confirm(t('surrenderConfirm'))) wsService.send('surrender', {}) }}
                     className="flex items-center justify-center px-2.5 py-1 bg-secondary/80 hover:bg-destructive/20 hover:text-destructive rounded-md text-[10px] sm:text-xs font-medium border shadow-sm transition-colors text-muted-foreground"
-                    title="Surrender"
+                    title={t("surrender")}
                   >
                     <Flag className="w-3.5 h-3.5" />
                   </button>
@@ -246,16 +248,16 @@ export function GameRoom({ roomId }: { roomId: string }) {
               ) : gameState.status === 'finished' ? (
                 <div className="flex items-center gap-2">
                   {!gameState.rematchRequestedBy && (
-                     <button onClick={() => wsService.send('request_rematch', {})} className="px-2.5 py-1 bg-primary text-primary-foreground rounded-md text-[10px] sm:text-xs font-medium border shadow-sm hover:bg-primary/80 transition-colors">Rematch</button>
+                     <button onClick={() => wsService.send('request_rematch', {})} className="px-2.5 py-1 bg-primary text-primary-foreground rounded-md text-[10px] sm:text-xs font-medium border shadow-sm hover:bg-primary/80 transition-colors">{t("rematch")}</button>
                   )}
                   {gameState.rematchRequestedBy === myPlayerId && (
                      <span className="text-[10px] sm:text-xs text-muted-foreground animate-pulse border px-2 py-1 rounded-md bg-secondary/30">Waiting...</span>
                   )}
                   {!!gameState.rematchRequestedBy && gameState.rematchRequestedBy !== myPlayerId && (
                      <div className="flex items-center gap-1">
-                       <span className="text-[10px] sm:text-xs font-bold text-primary mr-0.5">Rematch?</span>
-                       <button onClick={() => wsService.send('answer_rematch', { accept: true })} className="px-2 py-1 bg-green-500/20 text-green-500 border border-green-500/30 rounded-md text-[10px] sm:text-xs font-bold">Yes</button>
-                       <button onClick={() => wsService.send('answer_rematch', { accept: false })} className="px-2 py-1 bg-red-500/20 text-red-500 border border-red-500/30 rounded-md text-[10px] sm:text-xs font-bold">No</button>
+                       <span className="text-[10px] sm:text-xs font-bold text-primary mr-0.5">{t("rematchQuestion")}</span>
+                       <button onClick={() => wsService.send('answer_rematch', { accept: true })} className="px-2 py-1 bg-green-500/20 text-green-500 border border-green-500/30 rounded-md text-[10px] sm:text-xs font-bold">{t("yes")}</button>
+                       <button onClick={() => wsService.send('answer_rematch', { accept: false })} className="px-2 py-1 bg-red-500/20 text-red-500 border border-red-500/30 rounded-md text-[10px] sm:text-xs font-bold">{t("no")}</button>
                      </div>
                   )}
                 </div>
@@ -276,10 +278,10 @@ export function GameRoom({ roomId }: { roomId: string }) {
                       ? "bg-blue-500/10 text-blue-400 border-blue-500/30" 
                       : "bg-red-500/10 text-red-400 border-red-500/30"
                   )}>
-                    Player {gameState.currentTurn}&apos;s Turn
+                    {t('playerTurn', { turn: gameState.currentTurn })}
                   </span>
                 ) : gameState.status === 'finished' ? (
-                  <span className="text-muted-foreground font-bold">Game Over</span>
+                  <span className="text-muted-foreground font-bold">{t("gameOver")}</span>
                 ) : (
                   <span className="text-muted-foreground animate-pulse">
                     Waiting for opponent...
@@ -292,7 +294,7 @@ export function GameRoom({ roomId }: { roomId: string }) {
               className="flex items-center gap-1 px-3 py-1 bg-destructive/90 hover:bg-destructive text-destructive-foreground rounded-md text-xs font-medium transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Leave</span>
+              <span>{t("leave")}</span>
             </button>
           </div>
 
@@ -317,23 +319,23 @@ export function GameRoom({ roomId }: { roomId: string }) {
             <button onClick={() => setSettingsOpen(false)} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground">
               <X className="w-5 h-5" />
             </button>
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Settings className="w-5 h-5" /> Settings</h2>
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Settings className="w-5 h-5" /> {t("settings")}</h2>
             
             <div className="mb-6">
-              <h3 className="text-sm font-semibold mb-3">Controls (Mobile / Touch)</h3>
+              <h3 className="text-sm font-semibold mb-3">{t("controlsMobile")}</h3>
               <div className="space-y-3">
                 <label className="flex items-start gap-3 p-3 border rounded-lg cursor-pointer hover:bg-secondary/50">
                   <input type="radio" name="controlScheme" value="direct" checked={controlScheme === 'direct'} onChange={(e) => setControlScheme(e.target.value as any)} className="mt-1" />
                   <div>
-                    <div className="font-medium text-sm">Direct Touch</div>
-                    <div className="text-xs text-muted-foreground">Tap directly on intersections to place dots. (Default)</div>
+                    <div className="font-medium text-sm">{t("directTouch")}</div>
+                    <div className="text-xs text-muted-foreground">{t("directTouchDesc")}</div>
                   </div>
                 </label>
                 <label className="flex items-start gap-3 p-3 border rounded-lg cursor-pointer hover:bg-secondary/50">
                   <input type="radio" name="controlScheme" value="drag" checked={controlScheme === 'drag'} onChange={(e) => setControlScheme(e.target.value as any)} className="mt-1" />
                   <div>
-                    <div className="font-medium text-sm">Drag & Release</div>
-                    <div className="text-xs text-muted-foreground">Touch and hold to aim, release to place. Avoids fat-fingering.</div>
+                    <div className="font-medium text-sm">{t("dragRelease")}</div>
+                    <div className="text-xs text-muted-foreground">{t("dragReleaseDesc")}</div>
                   </div>
                 </label>
               </div>
@@ -355,7 +357,7 @@ export function GameRoom({ roomId }: { roomId: string }) {
           <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-10">
             <div className="flex flex-col items-center gap-3 animate-pulse">
               <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-lg font-medium text-muted-foreground">Connecting to server...</span>
+              <span className="text-lg font-medium text-muted-foreground">{t("connecting")}</span>
             </div>
           </div>
         )}

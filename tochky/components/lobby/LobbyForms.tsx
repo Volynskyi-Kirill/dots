@@ -7,8 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 
+import { useTranslations } from 'next-intl';
+
 export function LobbyForms() {
   const router = useRouter();
+  const t = useTranslations('Lobby');
   const [roomId, setRoomId] = useState('');
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [initialTimeMins, setInitialTimeMins] = useState(5);
@@ -36,22 +39,22 @@ export function LobbyForms() {
     <div className="grid gap-6 md:grid-cols-2 mt-8">
       <Card>
         <CardHeader>
-          <CardTitle>Join Room</CardTitle>
-          <CardDescription>Enter a room ID to join an existing game</CardDescription>
+          <CardTitle>{t('joinRoom')}</CardTitle>
+          <CardDescription>{t('joinDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleJoinRoom} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="room-id">Room ID</Label>
+              <Label htmlFor="room-id">{t('roomIdLabel')}</Label>
               <Input 
                 id="room-id" 
-                placeholder="e.g. 8x9q2w" 
+                placeholder={t('roomIdPlaceholder')} 
                 value={roomId} 
                 onChange={(e) => setRoomId(e.target.value)} 
               />
             </div>
             <Button type="submit" className="w-full" disabled={!roomId.trim()}>
-              Join Game
+              {t('joinGameButton')}
             </Button>
           </form>
         </CardContent>
@@ -59,8 +62,8 @@ export function LobbyForms() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Create Room</CardTitle>
-          <CardDescription>Start a new game and invite a friend</CardDescription>
+          <CardTitle>{t('createRoom')}</CardTitle>
+          <CardDescription>{t('createDescription')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center space-x-2">
@@ -71,13 +74,13 @@ export function LobbyForms() {
               checked={timerEnabled}
               onChange={(e) => setTimerEnabled(e.target.checked)}
             />
-            <Label htmlFor="timer-enabled">Enable Timer</Label>
+            <Label htmlFor="timer-enabled">{t('enableTimer')}</Label>
           </div>
           
           {timerEnabled && (
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="initial-time">Initial Time (min)</Label>
+                <Label htmlFor="initial-time">{t('initialTime')}</Label>
                 <Input 
                   id="initial-time" 
                   type="number" 
@@ -88,7 +91,7 @@ export function LobbyForms() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="increment">Increment (sec)</Label>
+                <Label htmlFor="increment">{t('increment')}</Label>
                 <Input 
                   id="increment" 
                   type="number" 
@@ -101,7 +104,7 @@ export function LobbyForms() {
             </div>
           )}
           <Button onClick={handleCreateRoom} variant="default" className="w-full">
-            Create Game
+            {t('createGameButton')}
           </Button>
         </CardContent>
       </Card>

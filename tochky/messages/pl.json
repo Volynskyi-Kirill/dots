@@ -1,15 +1,61 @@
 {
-  "Index": {
-    "title": "Projekt gotowy!",
-    "description": "Możesz teraz dodawać komponenty i rozpocząć budowanie.",
-    "buttonAdded": "Dodaliśmy już dla ciebie komponent przycisku.",
-    "buttonText": "Przycisk",
-    "darkModeHint": "(Naciśnij d, aby przełączyć tryb ciemny)"
-  },
   "Metadata": {
     "title": "Gra Kropki Online | Graj z przyjaciółmi",
     "description": "Graj w klasyczną grę Kropki online z przyjaciółmi. Przejmuj terytorium, blokuj przeciwników i wygrywaj!",
     "roomTitle": "Pokój {id} | Gra Kropki",
     "roomDescription": "Dołącz do pokoju {id}, aby grać w Kropki online."
+  },
+  "Index": {
+    "title": "Graj w Kropki Online",
+    "subtitle": "Klasyczna strategiczna gra terytorialna. Otaczaj kropki przeciwnika, aby je przejąć. Graj ze znajomymi natychmiast — bez konieczności rejestracji.",
+    "howToPlay": "Jak grać",
+    "objectiveTitle": "Cel gry:",
+    "objectiveText": "Otocz kropki przeciwnika ciągłą linią swoich kropek, aby je przejąć.",
+    "placementTitle": "Ruchy:",
+    "placementText": "Gracze na zmianę stawiają pojedynczą kropkę na wolnym przecięciu linii siatki.",
+    "capturingTitle": "Przejmowanie:",
+    "capturingText": "Aby przejąć kropki, utwórz zamknięty wielokąt ze swoich kropek, który otacza co najmniej jedną kropkę przeciwnika. Puste pola wewnątrz wielokąta są dozwolone.",
+    "winningTitle": "Zwycięstwo:",
+    "winningText": "Gra kończy się, gdy nie ma już możliwych ruchów lub gracze zgodzą się zakończyć partię. Wygrywa gracz, który zdobył najwięcej kropek przeciwnika."
+  },
+  "Lobby": {
+    "joinRoom": "Dołącz do pokoju",
+    "joinDescription": "Wprowadź identyfikator pokoju, aby dołączyć do istniejącej gry",
+    "roomIdLabel": "ID pokoju",
+    "roomIdPlaceholder": "np. 8x9q2w",
+    "joinGameButton": "Dołącz do gry",
+    "createRoom": "Utwórz pokój",
+    "createDescription": "Rozpocznij nową grę i zaproś znajomego",
+    "enableTimer": "Włącz zegar",
+    "initialTime": "Czas początkowy (min)",
+    "increment": "Dodatkowy czas na ruch (sek)",
+    "createGameButton": "Utwórz grę"
+  },
+  "GameRoom": {
+    "roomPrefix": "Pokój:",
+    "copyInviteLink": "Kopiuj link z zaproszeniem",
+    "copied": "Skopiowano!",
+    "copyLink": "Kopiuj link",
+    "shareLink": "Udostępnij link",
+    "undo": "Cofnij ruch",
+    "waiting": "Oczekiwanie...",
+    "undoQuestion": "Cofnąć ruch?",
+    "yes": "Tak",
+    "no": "Nie",
+    "surrenderConfirm": "Czy na pewno chcesz się poddać?",
+    "surrender": "Poddaj się",
+    "rematch": "Rewanż",
+    "rematchQuestion": "Rewanż?",
+    "playerTurn": "Tura gracza {turn}",
+    "gameOver": "Koniec gry",
+    "waitingOpponent": "Oczekiwanie na przeciwnika...",
+    "leave": "Wyjdź",
+    "settings": "Ustawienia",
+    "controlsMobile": "Sterowanie (dotykowe / mobilne)",
+    "directTouch": "Bezpośrednie dotknięcie",
+    "directTouchDesc": "Dotknij bezpośrednio przecięcia linii, aby postawić kropkę. (Domyślnie)",
+    "dragRelease": "Przeciągnij i upuść",
+    "dragReleaseDesc": "Dotknij i przytrzymaj, aby wycelować, puść, aby postawić kropkę. Zapobiega przypadkowym kliknięciom.",
+    "connecting": "Łączenie z serwerem..."
   }
 }

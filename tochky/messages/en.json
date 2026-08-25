@@ -1,15 +1,61 @@
 {
-  "Index": {
-    "title": "Project ready!",
-    "description": "You may now add components and start building.",
-    "buttonAdded": "We've already added the button component for you.",
-    "buttonText": "Button",
-    "darkModeHint": "(Press d to toggle dark mode)"
-  },
   "Metadata": {
     "title": "Dots Game Online | Play Tochka",
     "description": "Play the classic Dots (Tochka) game online with friends. Capture territory, block opponents, and win the match!",
     "roomTitle": "Room {id} | Dots Game",
     "roomDescription": "Join room {id} to play Dots online."
+  },
+  "Index": {
+    "title": "Play Dots Online",
+    "subtitle": "The classic territorial strategy game. Enclose your opponent's dots to capture them. Play with friends instantly—no sign up required.",
+    "howToPlay": "How to Play",
+    "objectiveTitle": "Objective:",
+    "objectiveText": "Surround enemy dots with a continuous line of your own dots to capture them.",
+    "placementTitle": "Placement:",
+    "placementText": "Players take turns placing a single dot on an empty grid intersection.",
+    "capturingTitle": "Capturing:",
+    "capturingText": "To capture, form a closed polygon of your dots that encloses at least one enemy dot. Empty spaces inside the polygon are allowed.",
+    "winningTitle": "Winning:",
+    "winningText": "The game ends when no more valid moves can be made or players agree to stop. The player with the most captured enemy dots wins."
+  },
+  "Lobby": {
+    "joinRoom": "Join Room",
+    "joinDescription": "Enter a room ID to join an existing game",
+    "roomIdLabel": "Room ID",
+    "roomIdPlaceholder": "e.g. 8x9q2w",
+    "joinGameButton": "Join Game",
+    "createRoom": "Create Room",
+    "createDescription": "Start a new game and invite a friend",
+    "enableTimer": "Enable Timer",
+    "initialTime": "Initial Time (min)",
+    "increment": "Increment (sec)",
+    "createGameButton": "Create Game"
+  },
+  "GameRoom": {
+    "roomPrefix": "Room:",
+    "copyInviteLink": "Copy Invite Link",
+    "copied": "Copied!",
+    "copyLink": "Copy Link",
+    "shareLink": "Share Link",
+    "undo": "Undo",
+    "waiting": "Waiting...",
+    "undoQuestion": "Undo?",
+    "yes": "Yes",
+    "no": "No",
+    "surrenderConfirm": "Are you sure you want to surrender?",
+    "surrender": "Surrender",
+    "rematch": "Rematch",
+    "rematchQuestion": "Rematch?",
+    "playerTurn": "Player {turn}'s Turn",
+    "gameOver": "Game Over",
+    "waitingOpponent": "Waiting for opponent...",
+    "leave": "Leave",
+    "settings": "Settings",
+    "controlsMobile": "Controls (Mobile / Touch)",
+    "directTouch": "Direct Touch",
+    "directTouchDesc": "Tap directly on intersections to place dots. (Default)",
+    "dragRelease": "Drag & Release",
+    "dragReleaseDesc": "Touch and hold to aim, release to place. Avoids fat-fingering.",
+    "connecting": "Connecting to server..."
   }
 }
