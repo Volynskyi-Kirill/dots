@@ -209,49 +209,70 @@ function App() {
               </div>
             )}
 
-            {/* Undo & Surrender UI (Visible on both mobile and desktop) */}
-            {gameState && gameState.status === 'playing' && myPlayerId && (
+            {/* Action UI (Visible on both mobile and desktop) */}
+            {gameState && myPlayerId && (
               <div className="flex items-center gap-1">
-                {(!gameState.undoRequestedBy || gameState.undoRequestedBy === 0) && gameState.currentTurn !== myPlayerId && gameState.lastMove && (
-                  <button 
-                    onClick={() => wsService.send('request_undo', {})}
-                    className="flex items-center gap-1 px-2.5 py-1 bg-secondary/80 hover:bg-secondary rounded-md text-[10px] sm:text-xs font-medium border shadow-sm transition-colors text-muted-foreground hover:text-foreground"
-                    title="Undo Move"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Undo</span>
-                  </button>
-                )}
-                {gameState.undoRequestedBy === myPlayerId && (
-                  <span className="text-[10px] sm:text-xs text-muted-foreground animate-pulse border px-2 py-1 rounded-md bg-secondary/30">
-                    Wait<span className="hidden sm:inline">ing...</span>
-                  </span>
-                )}
-                {!!gameState.undoRequestedBy && gameState.undoRequestedBy !== myPlayerId && (
-                  <div className="flex items-center gap-1 animate-in fade-in zoom-in duration-200">
-                    <span className="text-[10px] sm:text-xs font-bold text-destructive mr-0.5">Undo?</span>
+                {gameState.status === 'playing' ? (
+                  <>
+                    <div className="flex items-center justify-center min-w-[70px] sm:min-w-[90px]">
+                      {(!gameState.undoRequestedBy || gameState.undoRequestedBy === 0) ? (
+                        <button 
+                          disabled={!(gameState.currentTurn !== myPlayerId && gameState.lastMove)}
+                          onClick={() => wsService.send('request_undo', {})}
+                          className="disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1 px-2.5 py-1 bg-secondary/80 hover:bg-secondary rounded-md text-[10px] sm:text-xs font-medium border shadow-sm transition-colors text-muted-foreground hover:text-foreground w-full justify-center"
+                          title="Undo Move"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Undo</span>
+                        </button>
+                      ) : gameState.undoRequestedBy === myPlayerId ? (
+                        <span className="text-[10px] sm:text-xs text-muted-foreground animate-pulse border px-2 py-1 rounded-md bg-secondary/30 w-full text-center">
+                          Wait<span className="hidden sm:inline">ing...</span>
+                        </span>
+                      ) : !!gameState.undoRequestedBy && gameState.undoRequestedBy !== myPlayerId ? (
+                        <div className="flex items-center gap-1 animate-in fade-in zoom-in duration-200">
+                          <span className="text-[10px] sm:text-xs font-bold text-destructive mr-0.5">Undo?</span>
+                          <button 
+                            onClick={() => wsService.send('answer_undo', { accept: true })}
+                            className="px-2 py-1 bg-green-500/20 text-green-500 hover:bg-green-500/30 rounded-md text-[10px] sm:text-xs font-bold transition-colors border border-green-500/30"
+                          >
+                            Yes
+                          </button>
+                          <button 
+                            onClick={() => wsService.send('answer_undo', { accept: false })}
+                            className="px-2 py-1 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-md text-[10px] sm:text-xs font-bold transition-colors border border-red-500/30"
+                          >
+                            No
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                    
                     <button 
-                      onClick={() => wsService.send('answer_undo', { accept: true })}
-                      className="px-2 py-1 bg-green-500/20 text-green-500 hover:bg-green-500/30 rounded-md text-[10px] sm:text-xs font-bold transition-colors border border-green-500/30"
+                      onClick={() => { if(confirm('Are you sure you want to surrender?')) wsService.send('surrender', {}) }}
+                      className="flex items-center justify-center px-2.5 py-1 bg-secondary/80 hover:bg-destructive/20 hover:text-destructive rounded-md text-[10px] sm:text-xs font-medium border shadow-sm transition-colors text-muted-foreground"
+                      title="Surrender"
                     >
-                      Yes
+                      <Flag className="w-3.5 h-3.5" />
                     </button>
-                    <button 
-                      onClick={() => wsService.send('answer_undo', { accept: false })}
-                      className="px-2 py-1 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-md text-[10px] sm:text-xs font-bold transition-colors border border-red-500/30"
-                    >
-                      No
-                    </button>
+                  </>
+                ) : gameState.status === 'finished' ? (
+                  <div className="flex items-center gap-2">
+                    {!gameState.rematchRequestedBy && (
+                       <button onClick={() => wsService.send('request_rematch', {})} className="px-2.5 py-1 bg-primary text-primary-foreground rounded-md text-[10px] sm:text-xs font-medium border shadow-sm hover:bg-primary/80 transition-colors">Rematch</button>
+                    )}
+                    {gameState.rematchRequestedBy === myPlayerId && (
+                       <span className="text-[10px] sm:text-xs text-muted-foreground animate-pulse border px-2 py-1 rounded-md bg-secondary/30">Waiting...</span>
+                    )}
+                    {!!gameState.rematchRequestedBy && gameState.rematchRequestedBy !== myPlayerId && (
+                       <div className="flex items-center gap-1 animate-in fade-in zoom-in duration-200">
+                         <span className="text-[10px] sm:text-xs font-bold text-primary mr-0.5">Rematch?</span>
+                         <button onClick={() => wsService.send('answer_rematch', { accept: true })} className="px-2 py-1 bg-green-500/20 text-green-500 border border-green-500/30 hover:bg-green-500/30 rounded-md text-[10px] sm:text-xs font-bold">Yes</button>
+                         <button onClick={() => wsService.send('answer_rematch', { accept: false })} className="px-2 py-1 bg-red-500/20 text-red-500 border border-red-500/30 hover:bg-red-500/30 rounded-md text-[10px] sm:text-xs font-bold">No</button>
+                       </div>
+                    )}
                   </div>
-                )}
-                
-                <button 
-                  onClick={() => { if(confirm('Are you sure you want to surrender?')) wsService.send('surrender', {}) }}
-                  className="flex items-center gap-1 px-2.5 py-1 bg-secondary/80 hover:bg-destructive/20 hover:text-destructive rounded-md text-[10px] sm:text-xs font-medium border shadow-sm transition-colors text-muted-foreground"
-                  title="Surrender"
-                >
-                  <Flag className="w-3.5 h-3.5" />
-                </button>
+                ) : null}
               </div>
             )}
 
@@ -269,21 +290,7 @@ function App() {
                       Player {gameState.currentTurn}'s Turn
                     </span>
                   ) : gameState.status === 'finished' ? (
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground font-bold">Game Over</span>
-                      {!gameState.rematchRequestedBy && (
-                         <button onClick={() => wsService.send('request_rematch', {})} className="px-2 py-1 bg-primary text-primary-foreground rounded text-xs hover:bg-primary/80">Rematch</button>
-                      )}
-                      {gameState.rematchRequestedBy === myPlayerId && (
-                         <span className="text-xs text-muted-foreground animate-pulse">Waiting for opponent...</span>
-                      )}
-                      {!!gameState.rematchRequestedBy && gameState.rematchRequestedBy !== myPlayerId && (
-                         <div className="flex gap-1">
-                           <button onClick={() => wsService.send('answer_rematch', { accept: true })} className="px-2 py-1 bg-green-500/20 text-green-500 border border-green-500/30 hover:bg-green-500/30 rounded text-xs font-bold">Accept</button>
-                           <button onClick={() => wsService.send('answer_rematch', { accept: false })} className="px-2 py-1 bg-red-500/20 text-red-500 border border-red-500/30 hover:bg-red-500/30 rounded text-xs font-bold">Decline</button>
-                         </div>
-                      )}
-                    </div>
+                    <span className="text-muted-foreground font-bold">Game Over</span>
                   ) : (
                     <span className="text-muted-foreground animate-pulse">
                       Waiting for opponent...
@@ -328,6 +335,16 @@ function App() {
                         ) : (
                           <span className="text-xs text-muted-foreground animate-pulse">Waiting...</span>
                         )}
+                      </div>
+                    )}
+                    
+                    {gameState && (
+                      <div className="px-4 py-2 border-b">
+                        <div className="text-xs text-muted-foreground mb-1">Series Score</div>
+                        <div className="text-sm font-mono font-bold flex gap-3">
+                          <span className="text-blue-500">P1: {gameState.matchScoreP1 || 0}</span>
+                          <span className="text-red-500">P2: {gameState.matchScoreP2 || 0}</span>
+                        </div>
                       </div>
                     )}
 
