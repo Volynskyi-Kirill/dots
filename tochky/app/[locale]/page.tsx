@@ -52,8 +52,33 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default function Page() {
   const t = useTranslations('Index');
+  const tMeta = useTranslations('Metadata');
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://dots-game.com';
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'VideoGame',
+    name: 'Dots Game',
+    description: tMeta('description'),
+    url: baseUrl,
+    genre: ['Strategy', 'Board Game', 'Abstract Strategy'],
+    playMode: 'MultiPlayer',
+    applicationCategory: 'Game',
+    operatingSystem: 'Any',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    inLanguage: ['en', 'ru', 'uk', 'pl']
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <header className="w-full max-w-5xl mx-auto p-4 flex justify-between items-center border-b border-border/40">
         <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-red-400 bg-clip-text text-transparent">
           Dots
