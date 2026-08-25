@@ -16,7 +16,7 @@
 
 - **Backend:** Go (Golang), `gorilla/websocket`, кастомные BFS алгоритмы.
 - **Frontend:** Next.js (React 19), TypeScript, Tailwind CSS, shadcn/ui, HTML5 Canvas.
-- **Инфраструктура:** Docker Compose, Ngrok.
+- **Инфраструктура:** Docker Compose.
 
 ## 🚀 Как запустить локально
 
@@ -37,7 +37,7 @@
 - `make rebuild-tochky` — пересобрать фронтенд-контейнер Next.js
 - `make logs` — смотреть логи фронтенда и бэкенда в реальном времени
 - `make test` — запустить unit-тесты алгоритма игровой логики (Go)
-- `make share` — **открыть доступ к игре из интернета через Ngrok** (Проксирует через `http://localhost:3000`)
+
 
 ## 📚 Документация
 

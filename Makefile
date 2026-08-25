@@ -1,4 +1,4 @@
-.PHONY: up down restart logs test build prod-up prod-down prod-logs prod-build share rebuild-tochky
+.PHONY: up down restart logs test build prod-up prod-down prod-logs prod-build rebuild-tochky
 
 # ----- Development Commands -----
 up:
@@ -36,9 +36,3 @@ prod-build:
 
 prod-logs:
 	docker-compose -f docker-compose.prod.yml logs -f
-
-share:
-	ngrok http 3000
-
-share-prod:
-	ngrok http 80

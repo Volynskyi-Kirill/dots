@@ -16,7 +16,7 @@ A browser-based multiplayer strategic game "Dots" featuring classic rules, a mod
 
 - **Backend:** Go (Golang), `gorilla/websocket`, custom BFS algorithms.
 - **Frontend:** Next.js (React 19), TypeScript, Tailwind CSS, shadcn/ui, HTML5 Canvas.
-- **Infrastructure:** Docker Compose, Ngrok.
+- **Infrastructure:** Docker Compose.
 
 ## 🚀 How to Run Locally
 
@@ -37,7 +37,7 @@ To run the project, you only need **Docker** and **Docker Compose** installed.
 - `make rebuild-tochky` — rebuild the Next.js frontend container
 - `make logs` — view frontend and backend logs in real-time
 - `make test` — run unit tests for the game logic algorithm (Go)
-- `make share` — **expose the game to the internet using Ngrok** (Routes through `http://localhost:3000`)
+
 
 ## 📚 Documentation
 

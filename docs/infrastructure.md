@@ -29,18 +29,10 @@ Used when you are actively writing code. All services are wrapped in Docker for 
 
 ---
 
-## 3. Remote Play & Sharing (Ngrok Tunnel)
-
-*Command: `make share`*
-
-To play a local game with a friend over the internet, we bypass NAT and router configurations using **Ngrok**.
-
-1.  **The Tunnel**: `ngrok http 3000` creates a secure tunnel from a public `ngrok-free.app` URL directly to the local Next.js container.
-2.  **Routing**: When your friend opens the Ngrok link, their browser fetches the frontend from Next.js. When the frontend attempts to open a WebSocket connection, the request travels through Ngrok to Next.js, which proxies it to the Go backend.
 
 ---
 
-## 4. Production Environment
+## 3. Production Environment
 
 *Files: `docker-compose.prod.yml`, `tochky/Dockerfile.prod`, `backend/Dockerfile.prod`*
 
