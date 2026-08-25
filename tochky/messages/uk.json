@@ -121,7 +121,9 @@
     "winReasonDisconnectLose": "Ви відключилися",
     "winReasonTimeoutWin": "У суперника вийшов час",
     "winReasonTimeoutLose": "У вас вийшов час",
-    "shareInstruction": "Поділіться цим посиланням із суперником, щоб почати гру"
+    "shareInstruction": "Поділіться цим посиланням із суперником, щоб почати гру",
+    "yourTurn": "Ваш хід",
+    "opponentTurn": "Очікування суперника..."
   },
   "Theme": {
     "light": "Світла",

@@ -121,7 +121,9 @@
     "winReasonDisconnectLose": "Zostałeś rozłączony",
     "winReasonTimeoutWin": "Przeciwnikowi skończył się czas",
     "winReasonTimeoutLose": "Skończył ci się czas",
-    "shareInstruction": "Udostępnij ten link przeciwnikowi, aby rozpocząć grę"
+    "shareInstruction": "Udostępnij ten link przeciwnikowi, aby rozpocząć grę",
+    "yourTurn": "Twój ruch",
+    "opponentTurn": "Oczekiwanie na przeciwnika..."
   },
   "Theme": {
     "light": "Jasny",

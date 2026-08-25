@@ -152,6 +152,28 @@ export function GameRoom({ roomId }: { roomId: string }) {
           <h1 className="text-lg font-bold tracking-tight bg-gradient-to-r from-blue-400 to-red-400 bg-clip-text text-transparent cursor-pointer" onClick={handleLeaveClick}>
             Dots
           </h1>
+          {gameState && myPlayerId && (
+            <div className="hidden sm:flex text-sm font-medium items-center gap-2 border-l pl-3 ml-1 border-border/50 h-6">
+              {gameState.status === 'playing' ? (
+                <span className={cn(
+                  "px-3 py-1 rounded-full border shadow-sm flex items-center gap-2",
+                  gameState.currentTurn === myPlayerId
+                    ? (myPlayerId === 1 ? "bg-blue-500/10 text-blue-500 border-blue-500/30" : "bg-red-500/10 text-red-500 border-red-500/30")
+                    : "bg-secondary/30 text-muted-foreground border-transparent opacity-70"
+                )}>
+                  {gameState.currentTurn === myPlayerId && (
+                    <div className={cn(
+                      "w-2 h-2 rounded-full animate-pulse",
+                      myPlayerId === 1 ? "bg-blue-500" : "bg-red-500"
+                    )} />
+                  )}
+                  {gameState.currentTurn === myPlayerId ? t('yourTurn') : t('opponentTurn')}
+                </span>
+              ) : gameState.status === 'finished' ? (
+                <span className="text-muted-foreground font-bold">{t("gameOver")}</span>
+              ) : null}
+            </div>
+          )}
         </div>
         
         <div className="flex items-center gap-3 sm:gap-4">
@@ -166,17 +188,21 @@ export function GameRoom({ roomId }: { roomId: string }) {
 
               {gameState.status === 'playing' && (
                 <div className="flex items-center gap-3 bg-secondary/30 px-3 py-1 rounded-full border shadow-inner">
-                  {gameState.settings?.timerEnabled && <Timer gameState={gameState} player={1} />}
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]"></div>
+                  <div className={cn("transition-opacity", gameState.currentTurn === 1 ? "opacity-100" : "opacity-40")}>
+                    {gameState.settings?.timerEnabled && <Timer gameState={gameState} player={1} />}
+                  </div>
+                  <div className={cn("flex items-center gap-1.5 transition-opacity", gameState.currentTurn === 1 ? "opacity-100" : "opacity-40")}>
+                    <div className={cn("w-2 h-2 rounded-full bg-blue-500", gameState.currentTurn === 1 && "shadow-[0_0_5px_rgba(59,130,246,0.8)]")}></div>
                     <span className="font-mono font-bold text-sm">{p1Score}</span>
                   </div>
                   <div className="w-px h-4 bg-border"></div>
-                  <div className="flex items-center gap-1.5">
+                  <div className={cn("flex items-center gap-1.5 transition-opacity", gameState.currentTurn === 2 ? "opacity-100" : "opacity-40")}>
                     <span className="font-mono font-bold text-sm">{p2Score}</span>
-                    <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]"></div>
+                    <div className={cn("w-2 h-2 rounded-full bg-red-500", gameState.currentTurn === 2 && "shadow-[0_0_5px_rgba(239,68,68,0.8)]")}></div>
                   </div>
-                  {gameState.settings?.timerEnabled && <Timer gameState={gameState} player={2} />}
+                  <div className={cn("transition-opacity", gameState.currentTurn === 2 ? "opacity-100" : "opacity-40")}>
+                    {gameState.settings?.timerEnabled && <Timer gameState={gameState} player={2} />}
+                  </div>
                 </div>
               )}
             </div>
@@ -232,29 +258,9 @@ export function GameRoom({ roomId }: { roomId: string }) {
           )}
 
           <div className="hidden sm:flex items-center gap-4">
-            <button onClick={() => setSettingsOpen(true)} className="p-2 mr-2 text-muted-foreground hover:text-foreground">
+            <button onClick={() => setSettingsOpen(true)} className="p-2 text-muted-foreground hover:text-foreground">
               <Settings className="w-5 h-5" />
             </button>
-            {gameState && (
-              <div className="text-sm font-medium flex items-center gap-2">
-                {gameState.status === 'playing' ? (
-                  <span className={cn(
-                    "px-2.5 py-1 rounded-full border shadow-sm inline-block",
-                    gameState.currentTurn === 1 
-                      ? "bg-blue-500/10 text-blue-400 border-blue-500/30" 
-                      : "bg-red-500/10 text-red-400 border-red-500/30"
-                  )}>
-                    {t('playerTurn', { turn: gameState.currentTurn })}
-                  </span>
-                ) : gameState.status === 'finished' ? (
-                  <span className="text-muted-foreground font-bold">{t("gameOver")}</span>
-                ) : (
-                  <span className="text-muted-foreground animate-pulse">
-                    Waiting for opponent...
-                  </span>
-                )}
-              </div>
-            )}
             <button 
               onClick={handleLeaveClick}
               className="flex items-center gap-1 px-3 py-1 bg-destructive/90 hover:bg-destructive text-destructive-foreground rounded-md text-xs font-medium transition-colors"

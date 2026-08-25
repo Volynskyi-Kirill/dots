@@ -121,7 +121,9 @@
     "winReasonDisconnectLose": "Вы отключились",
     "winReasonTimeoutWin": "У противника вышло время",
     "winReasonTimeoutLose": "У вас вышло время",
-    "shareInstruction": "Поделитесь этой ссылкой с соперником, чтобы начать игру"
+    "shareInstruction": "Поделитесь этой ссылкой с соперником, чтобы начать игру",
+    "yourTurn": "Ваш ход",
+    "opponentTurn": "Ожидание соперника..."
   },
   "Theme": {
     "light": "Светлая",
