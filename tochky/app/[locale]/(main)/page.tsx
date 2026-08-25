@@ -73,17 +73,20 @@ export default function Page() {
   };
 
   return (
-    <main className="min-h-screen bg-background text-foreground flex flex-col items-center">
+    <main className="min-h-screen bg-background text-foreground flex flex-col items-center relative overflow-hidden">
+      {/* Subtle background glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-blue-500/10 to-indigo-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="w-full max-w-5xl mx-auto p-4 md:p-8 flex-1 flex flex-col mt-4">
-        <section className="text-center max-w-2xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+      <div className="w-full max-w-4xl mx-auto p-4 md:p-8 flex-1 flex flex-col justify-center items-center my-auto py-8 md:py-12">
+        <section className="text-center max-w-xl mx-auto mb-2">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-3 bg-gradient-to-r from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent">
             {t('title')}
-          </h2>
-          <p className="text-lg text-muted-foreground mb-8">
+          </h1>
+          <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
             {t('subtitle')}
           </p>
         </section>
