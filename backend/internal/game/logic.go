@@ -5,6 +5,8 @@ import (
 	"math"
 	"sort"
 
+	"sync"
+
 	"github.com/dots-game/backend/internal/constants"
 	"github.com/dots-game/backend/internal/domain"
 )
@@ -18,12 +20,19 @@ type Logic interface {
 type gameLogic struct {
 	width  int
 	height int
+	boolGridPool *sync.Pool
 }
 
 func NewGameLogic(width, height int) Logic {
 	return &gameLogic{
 		width:  width,
 		height: height,
+		boolGridPool: &sync.Pool{
+			New: func() interface{} {
+				b := make([]bool, width*height)
+				return &b
+			},
+		},
 	}
 }
 
@@ -126,25 +135,36 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 		opponentID = constants.Player2
 	}
 
-	// 4-way directions for flood fill escape check
 	dirs := []domain.Point{{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0}}
-
-	// 8-way directions to check all neighbors around the placed dot
 	checkDirs := []domain.Point{
 		{X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1},
 		{X: -1, Y: 0},                 {X: 1, Y: 0},
 		{X: -1, Y: 1},  {X: 0, Y: 1},  {X: 1, Y: 1},
 	}
 
-	capturedMap := make(map[domain.Point]bool)
-	for _, p := range state.CapturedP1 {
-		capturedMap[p] = true
+	getGrid := func() []bool {
+		bPtr := l.boolGridPool.Get().(*[]bool)
+		b := *bPtr
+		for i := range b {
+			b[i] = false
+		}
+		return b
 	}
-	for _, p := range state.CapturedP2 {
-		capturedMap[p] = true
+	putGrid := func(b []bool) {
+		l.boolGridPool.Put(&b)
 	}
 
-	globalVisited := make(map[domain.Point]bool)
+	capturedGrid := getGrid()
+	defer putGrid(capturedGrid)
+	for _, p := range state.CapturedP1 {
+		capturedGrid[p.Y*l.width+p.X] = true
+	}
+	for _, p := range state.CapturedP2 {
+		capturedGrid[p.Y*l.width+p.X] = true
+	}
+
+	globalVisited := getGrid()
+	defer putGrid(globalVisited)
 
 	for _, cd := range checkDirs {
 		nx, ny := startX+cd.X, startY+cd.Y
@@ -154,22 +174,24 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 			continue
 		}
 
-		if globalVisited[startPt] {
+		startIdx := ny*l.width + nx
+		if globalVisited[startIdx] {
 			continue
 		}
 
 		if state.Board[ny][nx] == playerID {
-			continue // Own boundary
-		}
-
-		if capturedMap[startPt] {
 			continue
 		}
 
-		// BFS
-		queue := []domain.Point{startPt}
-		regionVisited := make(map[domain.Point]bool)
-		boundary := make(map[domain.Point]bool)
+		if capturedGrid[startIdx] {
+			continue
+		}
+
+		queue := make([]domain.Point, 0, 128)
+		queue = append(queue, startPt)
+		
+		regionVisited := getGrid()
+		boundary := getGrid()
 		escaped := false
 		hasOpponent := false
 
@@ -182,11 +204,12 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 				continue
 			}
 
-			if regionVisited[curr] {
+			idx := curr.Y*l.width + curr.X
+			if regionVisited[idx] {
 				continue
 			}
-			regionVisited[curr] = true
-			globalVisited[curr] = true
+			regionVisited[idx] = true
+			globalVisited[idx] = true
 
 			if state.Board[curr.Y][curr.X] == opponentID {
 				hasOpponent = true
@@ -201,10 +224,11 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 					continue
 				}
 
-				if state.Board[adjY][adjX] == playerID && !capturedMap[adj] {
-					boundary[adj] = true
+				adjIdx := adjY*l.width + adjX
+				if state.Board[adjY][adjX] == playerID && !capturedGrid[adjIdx] {
+					boundary[adjIdx] = true
 				} else {
-					if !regionVisited[adj] {
+					if !regionVisited[adjIdx] {
 						queue = append(queue, adj)
 					}
 				}
@@ -212,15 +236,22 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 		}
 
 		if !escaped && hasOpponent {
-			// Valid capture
 			var capPoints []domain.Point
-			for p := range regionVisited {
-				capPoints = append(capPoints, p)
+			for y := 0; y < l.height; y++ {
+				for x := 0; x < l.width; x++ {
+					if regionVisited[y*l.width+x] {
+						capPoints = append(capPoints, domain.Point{X: x, Y: y})
+					}
+				}
 			}
 
 			var rawBoundary []domain.Point
-			for p := range boundary {
-				rawBoundary = append(rawBoundary, p)
+			for y := 0; y < l.height; y++ {
+				for x := 0; x < l.width; x++ {
+					if boundary[y*l.width+x] {
+						rawBoundary = append(rawBoundary, domain.Point{X: x, Y: y})
+					}
+				}
 			}
 
 			orderedBoundary := orderBoundaryPoints(rawBoundary)
@@ -233,6 +264,9 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 				state.PolygonsP2 = append(state.PolygonsP2, orderedBoundary)
 			}
 		}
+		
+		putGrid(regionVisited)
+		putGrid(boundary)
 	}
 }
 
