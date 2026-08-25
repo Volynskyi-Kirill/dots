@@ -344,14 +344,14 @@ export function GameRoom({ roomId }: { roomId: string }) {
             </div>
 
             <div className="mb-2 border-t pt-4">
-              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">Preferences</h3>
+              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">{t('preferences')}</h3>
               <div className="flex items-center gap-4">
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">Theme</span>
+                  <span className="text-xs text-muted-foreground">{t('theme')}</span>
                   <ThemeToggle />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">Language</span>
+                  <span className="text-xs text-muted-foreground">{t('language')}</span>
                   <LanguageToggle />
                 </div>
               </div>

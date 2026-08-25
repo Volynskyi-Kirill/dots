@@ -94,7 +94,10 @@
     "directTouchDesc": "Dotknij bezpośrednio przecięcia linii, aby postawić kropkę. (Domyślnie)",
     "dragRelease": "Przeciągnij i upuść",
     "dragReleaseDesc": "Dotknij i przytrzymaj, aby wycelować, puść, aby postawić kropkę. Zapobiega przypadkowym kliknięciom.",
-    "connecting": "Łączenie z serwerem..."
+    "connecting": "Łączenie z serwerem...",
+    "preferences": "Preferencje",
+    "theme": "Motyw",
+    "language": "Język"
   },
   "Theme": {
     "light": "Jasny",

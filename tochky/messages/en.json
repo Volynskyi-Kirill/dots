@@ -94,7 +94,10 @@
     "directTouchDesc": "Tap directly on intersections to place dots. (Default)",
     "dragRelease": "Drag & Release",
     "dragReleaseDesc": "Touch and hold to aim, release to place. Avoids fat-fingering.",
-    "connecting": "Connecting to server..."
+    "connecting": "Connecting to server...",
+    "preferences": "Preferences",
+    "theme": "Theme",
+    "language": "Language"
   },
   "Theme": {
     "light": "Light",
