@@ -473,7 +473,7 @@ func (s *wsSession) handleRematchAnswer(msg domain.Message) {
 			clientsCount := len(s.room.Clients)
 			s.room.Mutex.Unlock()
 
-			if clientsCount == 2 {
+			if clientsCount == 2 || (state.Settings.IsLocal && clientsCount == 1) {
 				state.Status = constants.StatusPlaying
 				slog.Info("Game started", "event", "game_started", "room_id", s.room.ID)
 				if state.Settings.TimerEnabled {
