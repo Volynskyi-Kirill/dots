@@ -59,20 +59,27 @@
   },
   "Lobby": {
     "onlineMode": "Онлайн",
-    "localMode": "Локально (Hotseat)",
-    "joinRoom": "Присоединиться к комнате",
-    "joinDescription": "Введите ID комнаты, чтобы войти в созданную игру",
+    "localMode": "Локально",
+    "joinRoom": "Войти в комнату",
+    "joinDescription": "Введите ID комнаты для входа в существующую игру",
     "roomIdLabel": "ID комнаты",
-    "roomIdPlaceholder": "например: 8x9q2w",
+    "roomIdPlaceholder": "напр. 8x9q2w",
     "joinGameButton": "Войти в игру",
     "createGameTitle": "Создать игру",
-    "createGameDesc": "Начните новый матч онлайн или локально",
+    "createGameDesc": "Начать новый матч онлайн или локально",
     "createRoom": "Создать комнату",
     "createDescription": "Начните новую игру и пригласите друга",
     "enableTimer": "Включить таймер",
-    "initialTime": "Время на партию (мин)",
-    "increment": "Добавление времени (сек)",
-    "createGameButton": "Создать игру"
+    "initialTime": "Начальное время (мин)",
+    "increment": "Добавление (сек)",
+    "createGameButton": "Создать игру",
+    "gameSettings": "Настройки игры",
+    "boardSize": "Размер поля",
+    "boardSizeDesc": "Выберите размеры игрового поля",
+    "playWithoutTimePressure": "Игра без ограничения времени",
+    "min": "мин",
+    "secTurn": "с / ход",
+    "orJoinWithCode": "или войти по коду"
   },
   "GameRoom": {
     "roomPrefix": "Комната:",
@@ -133,7 +140,8 @@
     "shareInstruction": "Поделитесь этой ссылкой с соперником, чтобы начать игру",
     "yourTurn": "Ваш ход",
     "opponentTurn": "Ожидание соперника...",
-    "undoDescription": "Соперник просит отменить последний ход. Разрешить?"
+    "undoDescription": "Соперник просит отменить последний ход. Разрешить?",
+    "playerLeftRoom": "Игрок {player} покинул комнату."
   },
   "Theme": {
     "light": "Светлая",

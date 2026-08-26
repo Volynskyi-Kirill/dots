@@ -86,7 +86,7 @@ export function LobbyForms() {
                   <AccordionTrigger className="hover:no-underline py-3 data-[state=open]:pb-4">
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <Settings className="size-4 text-muted-foreground" />
-                      Game Settings
+                      {t('gameSettings')}
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="space-y-4 pb-2">
@@ -110,7 +110,7 @@ export function LobbyForms() {
                         <div>
                           <div className="text-sm font-medium leading-none text-foreground">{t('enableTimer')}</div>
                           <div className="text-xs text-muted-foreground mt-1">
-                            {timerEnabled ? `${initialTimeMins} min + ${incrementSecs}s / turn` : "Play without time pressure"}
+                            {timerEnabled ? `${initialTimeMins} ${t('min')} + ${incrementSecs} ${t('secTurn')}` : t('playWithoutTimePressure')}
                           </div>
                         </div>
                       </div>
@@ -169,8 +169,8 @@ export function LobbyForms() {
                           <div className="w-4 h-4 border-2 border-current rounded-sm" />
                         </div>
                         <div>
-                          <div className="text-sm font-medium leading-none text-foreground">Board Size</div>
-                          <div className="text-xs text-muted-foreground mt-1">Select playing area dimensions</div>
+                          <div className="text-sm font-medium leading-none text-foreground">{t('boardSize')}</div>
+                          <div className="text-xs text-muted-foreground mt-1">{t('boardSizeDesc')}</div>
                         </div>
                       </div>
                       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 pt-1">
@@ -211,7 +211,7 @@ export function LobbyForms() {
       {/* Divider */}
       <div className="relative flex py-1 items-center">
         <div className="grow border-t border-border/60" />
-        <span className="shrink mx-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">or join with code</span>
+        <span className="shrink mx-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">{t('orJoinWithCode')}</span>
         <div className="grow border-t border-border/60" />
       </div>
 

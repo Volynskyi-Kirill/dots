@@ -72,7 +72,14 @@
     "enableTimer": "Увімкнути таймер",
     "initialTime": "Початковий час (хв)",
     "increment": "Додавання часу (сек)",
-    "createGameButton": "Створити гру"
+    "createGameButton": "Створити гру",
+    "gameSettings": "Налаштування гри",
+    "boardSize": "Розмір поля",
+    "boardSizeDesc": "Оберіть розміри ігрового поля",
+    "playWithoutTimePressure": "Гра без обмеження часу",
+    "min": "хв",
+    "secTurn": "с / хід",
+    "orJoinWithCode": "або увійти за кодом"
   },
   "GameRoom": {
     "roomPrefix": "Кімната:",
@@ -133,7 +140,8 @@
     "shareInstruction": "Поділіться цим посиланням із суперником, щоб почати гру",
     "yourTurn": "Ваш хід",
     "opponentTurn": "Очікування суперника...",
-    "undoDescription": "Суперник просить скасувати останній хід. Дозволити?"
+    "undoDescription": "Суперник просить скасувати останній хід. Дозволити?",
+    "playerLeftRoom": "Гравець {player} залишив кімнату."
   },
   "Theme": {
     "light": "Світла",

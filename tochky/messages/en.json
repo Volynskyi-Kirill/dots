@@ -72,7 +72,14 @@
     "enableTimer": "Enable Timer",
     "initialTime": "Initial Time (min)",
     "increment": "Increment (sec)",
-    "createGameButton": "Create Game"
+    "createGameButton": "Create Game",
+    "gameSettings": "Game Settings",
+    "boardSize": "Board Size",
+    "boardSizeDesc": "Select playing area dimensions",
+    "playWithoutTimePressure": "Play without time pressure",
+    "min": "min",
+    "secTurn": "s / turn",
+    "orJoinWithCode": "or join with code"
   },
   "GameRoom": {
     "roomPrefix": "Room:",
@@ -133,7 +140,8 @@
     "shareInstruction": "Share this link with your opponent to start the game",
     "yourTurn": "Your turn",
     "opponentTurn": "Waiting for opponent...",
-    "undoDescription": "Opponent requested to undo their last move. Do you accept?"
+    "undoDescription": "Opponent requested to undo their last move. Do you accept?",
+    "playerLeftRoom": "Player {player} has left the room."
   },
   "Theme": {
     "light": "Light",

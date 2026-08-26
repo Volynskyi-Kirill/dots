@@ -72,7 +72,14 @@
     "enableTimer": "Włącz zegar",
     "initialTime": "Czas początkowy (min)",
     "increment": "Dodatkowy czas na ruch (sek)",
-    "createGameButton": "Utwórz grę"
+    "createGameButton": "Utwórz grę",
+    "gameSettings": "Ustawienia gry",
+    "boardSize": "Rozmiar planszy",
+    "boardSizeDesc": "Wybierz wymiary planszy",
+    "playWithoutTimePressure": "Gra bez presji czasu",
+    "min": "min",
+    "secTurn": "s / ruch",
+    "orJoinWithCode": "lub dołącz za pomocą kodu"
   },
   "GameRoom": {
     "roomPrefix": "Pokój:",
@@ -133,7 +140,8 @@
     "shareInstruction": "Udostępnij ten link przeciwnikowi, aby rozpocząć grę",
     "yourTurn": "Twój ruch",
     "opponentTurn": "Oczekiwanie na przeciwnika...",
-    "undoDescription": "Przeciwnik poprosił o cofnięcie ostatniego ruchu. Zgadzasz się?"
+    "undoDescription": "Przeciwnik poprosił o cofnięcie ostatniego ruchu. Zgadzasz się?",
+    "playerLeftRoom": "Gracz {player} opuścił pokój."
   },
   "Theme": {
     "light": "Jasny",
