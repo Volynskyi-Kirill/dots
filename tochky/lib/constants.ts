@@ -18,6 +18,9 @@ export const CONTROL_SCHEME = {
 } as const;
 
 export const BOARD_SIZES = ['20x20', '30x30', '20x30', '39x32', '39x39'] as const;
+export const DEFAULT_BOARD_WIDTH = 20;
+export const DEFAULT_BOARD_HEIGHT = 20;
+export const DEFAULT_BOARD_SIZE = `${DEFAULT_BOARD_WIDTH}x${DEFAULT_BOARD_HEIGHT}` as const;
 
 export type GameStatusType = typeof GAME_STATUS[keyof typeof GAME_STATUS];
 export type WinReasonType = typeof WIN_REASON[keyof typeof WIN_REASON];

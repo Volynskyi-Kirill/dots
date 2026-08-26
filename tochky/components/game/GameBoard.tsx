@@ -1,5 +1,5 @@
 "use client";
-import { CONTROL_SCHEME, ControlSchemeType } from '@/lib/constants';
+import { CONTROL_SCHEME, ControlSchemeType, DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT } from '@/lib/constants';
 import React, { useEffect, useRef, useCallback } from 'react';
 import { GameState } from '@/lib/types';
 import { useTheme } from 'next-themes';
@@ -15,8 +15,8 @@ interface GameBoardProps {
 }
 
 export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, controlScheme = CONTROL_SCHEME.DIRECT, myPlayerId }) => {
-  const width = state?.settings?.boardWidth || 20;
-  const height = state?.settings?.boardHeight || 20;
+  const width = state?.settings?.boardWidth || DEFAULT_BOARD_WIDTH;
+  const height = state?.settings?.boardHeight || DEFAULT_BOARD_HEIGHT;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();

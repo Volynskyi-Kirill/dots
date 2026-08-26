@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { wsService } from '@/lib/websocket';
 import { GameState } from '@/lib/types';
+import { DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT } from '@/lib/constants';
 
 export function useGameRoom(roomId: string) {
   const router = useRouter();
@@ -18,8 +19,8 @@ export function useGameRoom(roomId: string) {
         timerEnabled: searchParams.get('timer') === '1',
         initialTime: parseInt(searchParams.get('time') || '300000', 10),
         increment: parseInt(searchParams.get('inc') || '3000', 10),
-        boardWidth: parseInt(searchParams.get('w') || '20', 10),
-        boardHeight: parseInt(searchParams.get('h') || '20', 10),
+        boardWidth: parseInt(searchParams.get('w') || DEFAULT_BOARD_WIDTH.toString(), 10),
+        boardHeight: parseInt(searchParams.get('h') || DEFAULT_BOARD_HEIGHT.toString(), 10),
       };
     }
 

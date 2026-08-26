@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import { Sparkles, Clock, Users, ArrowRight, PlusCircle, Settings } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import { BOARD_SIZES } from '@/lib/constants';
+import { BOARD_SIZES, DEFAULT_BOARD_SIZE } from '@/lib/constants';
 
 export function LobbyForms() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export function LobbyForms() {
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [initialTimeMins, setInitialTimeMins] = useState(5);
   const [incrementSecs, setIncrementSecs] = useState(3);
-  const [boardSize, setBoardSize] = useState('20x20');
+  const [boardSize, setBoardSize] = useState<string>(DEFAULT_BOARD_SIZE);
 
   const handleCreateRoom = () => {
     const newRoomId = Math.random().toString(36).substring(2, 8);
