@@ -49,6 +49,7 @@ export function useGameRoom(roomId: string) {
       wsService.off('state', onState);
       wsService.off('error', onError);
       wsService.off('welcome', onWelcome);
+      wsService.disconnect();
     };
   }, [roomId, searchParams]);
 

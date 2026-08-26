@@ -138,6 +138,13 @@ func (s *wsSession) handleJoin(msg domain.Message) {
 		return
 	}
 
+	if s.room != nil && s.room.ID != payload.RoomID {
+		slog.Info("Client switching rooms", "event", "client_switching_rooms", "old_room", s.room.ID, "new_room", payload.RoomID)
+		s.rm.LeaveRoom(s.room.ID, s.client)
+		s.room = nil
+		s.playerID = 0
+	}
+
 	room, pid, _ := s.rm.JoinRoom(payload.RoomID, payload.SessionID, s.client)
 	if room == nil {
 		return
