@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/layout/Navbar"
+import { Analytics } from "@vercel/analytics/react"
 
 export default function MainLayout({
   children,
@@ -11,6 +12,7 @@ export default function MainLayout({
       <div className="flex-1">
         {children}
       </div>
+      <Analytics />
     </div>
   )
 }
