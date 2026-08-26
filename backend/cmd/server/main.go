@@ -26,7 +26,7 @@ func main() {
 
 	// 3. Dependency Injection
 	gameLogic := game.NewGameLogic()
-	roomManager := service.NewRoomManager(gameLogic, cfg.RoomEmptyTimeout)
+	roomManager := service.NewRoomManager(gameLogic, cfg.RoomEmptyTimeout, cfg.DisconnectTimeout)
 
 	// 4. Routes
 	http.HandleFunc("/ws", handler.ServeWS(roomManager, cfg))

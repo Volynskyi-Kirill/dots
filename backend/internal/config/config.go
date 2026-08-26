@@ -13,6 +13,7 @@ type Config struct {
 	BoardWidth       int
 	BoardHeight      int
 	RoomEmptyTimeout int
+	DisconnectTimeout int
 	AllowedOrigin    string
 }
 
@@ -45,15 +46,23 @@ func Load() *Config {
 		}
 	}
 
+	disconnectTimeout := constants.DefaultDisconnectTimeout
+	if envVal := os.Getenv("DISCONNECT_TIMEOUT_SECONDS"); envVal != "" {
+		if parsed, err := strconv.Atoi(envVal); err == nil && parsed > 0 {
+			disconnectTimeout = parsed
+		}
+	}
+
 	allowedOrigin := os.Getenv("ALLOWED_ORIGIN")
 
-	slog.Info("Loaded config", "port", port, "boardWidth", boardWidth, "boardHeight", boardHeight, "roomEmptyTimeout", timeout, "allowedOrigin", allowedOrigin)
+	slog.Info("Loaded config", "port", port, "boardWidth", boardWidth, "boardHeight", boardHeight, "roomEmptyTimeout", timeout, "disconnectTimeout", disconnectTimeout, "allowedOrigin", allowedOrigin)
 
 	return &Config{
-		ServerPort:       port,
-		BoardWidth:       boardWidth,
-		BoardHeight:      boardHeight,
-		RoomEmptyTimeout: timeout,
-		AllowedOrigin:    allowedOrigin,
+		ServerPort:        port,
+		BoardWidth:        boardWidth,
+		BoardHeight:       boardHeight,
+		RoomEmptyTimeout:  timeout,
+		DisconnectTimeout: disconnectTimeout,
+		AllowedOrigin:     allowedOrigin,
 	}
 }

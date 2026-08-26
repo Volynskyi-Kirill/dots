@@ -20,17 +20,19 @@ type RoomManager interface {
 }
 
 type roomManager struct {
-	rooms        map[string]*Room
-	mutex        sync.Mutex
-	logic        game.Logic
-	emptyTimeout time.Duration
+	rooms             map[string]*Room
+	mutex             sync.Mutex
+	logic             game.Logic
+	emptyTimeout      time.Duration
+	disconnectTimeout time.Duration
 }
 
-func NewRoomManager(logic game.Logic, timeoutMinutes int) RoomManager {
+func NewRoomManager(logic game.Logic, timeoutMinutes int, disconnectTimeoutSeconds int) RoomManager {
 	return &roomManager{
-		rooms:        make(map[string]*Room),
-		logic:        logic,
-		emptyTimeout: time.Duration(timeoutMinutes) * time.Minute,
+		rooms:             make(map[string]*Room),
+		logic:             logic,
+		emptyTimeout:      time.Duration(timeoutMinutes) * time.Minute,
+		disconnectTimeout: time.Duration(disconnectTimeoutSeconds) * time.Second,
 	}
 }
 
@@ -39,11 +41,12 @@ func (rm *roomManager) CreateRoom(roomID string) *Room {
 	defer rm.mutex.Unlock()
 
 	room := &Room{
-		ID:        roomID,
-		Clients:   make(map[Client]int),
-		Broadcast: make(chan []byte),
-		Quit:      make(chan struct{}),
-		Logic:     rm.logic,
+		ID:                roomID,
+		Clients:           make(map[Client]int),
+		Broadcast:         make(chan []byte),
+		Quit:              make(chan struct{}),
+		Logic:             rm.logic,
+		DisconnectTimeout: rm.disconnectTimeout,
 	}
 	rm.rooms[roomID] = room
 

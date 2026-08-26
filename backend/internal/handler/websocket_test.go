@@ -17,7 +17,7 @@ import (
 
 func setupTestServer() (*httptest.Server, service.RoomManager) {
 	gameLogic := game.NewGameLogic()
-	rm := service.NewRoomManager(gameLogic, constants.DefaultRoomEmptyTimeout)
+	rm := service.NewRoomManager(gameLogic, constants.DefaultRoomEmptyTimeout, constants.DefaultDisconnectTimeout)
 	cfg := &config.Config{
 		BoardWidth: 39,
 		BoardHeight: 39,

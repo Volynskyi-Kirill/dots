@@ -41,4 +41,5 @@ const (
 
 const (
 	DefaultRoomEmptyTimeout = 3 // minutes
+	DefaultDisconnectTimeout = 15 // seconds
 )

@@ -25,7 +25,8 @@ type Room struct {
 	StateMutex sync.RWMutex
 	Logic      game.Logic
 
-	EmptyTimer *time.Timer
+	EmptyTimer        *time.Timer
+	DisconnectTimeout time.Duration
 }
 
 func (r *Room) getEffectivePlayerID(clientID int) int {
@@ -121,7 +122,7 @@ func (r *Room) HandleClientDisconnected(playerID int) {
 		}
 		
 		if r.State.Status == constants.StatusPlaying {
-			r.State.DisconnectDeadline = time.Now().UnixMilli() + 60000
+			r.State.DisconnectDeadline = time.Now().UnixMilli() + r.DisconnectTimeout.Milliseconds()
 		}
 		r.broadcastStateLocked()
 	}
