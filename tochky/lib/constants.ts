@@ -17,6 +17,8 @@ export const CONTROL_SCHEME = {
   CONFIRM: 'confirm',
 } as const;
 
+export const BOARD_SIZES = ['20x20', '30x30', '20x30', '39x32', '39x39'] as const;
+
 export type GameStatusType = typeof GAME_STATUS[keyof typeof GAME_STATUS];
 export type WinReasonType = typeof WIN_REASON[keyof typeof WIN_REASON];
 export type ControlSchemeType = typeof CONTROL_SCHEME[keyof typeof CONTROL_SCHEME];

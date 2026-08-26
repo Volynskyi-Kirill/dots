@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { Sparkles, Clock, Users, ArrowRight, PlusCircle, Settings } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { BOARD_SIZES } from '@/lib/constants';
 
 export function LobbyForms() {
   const router = useRouter();
@@ -59,116 +60,121 @@ export function LobbyForms() {
             </div>
           </CardHeader>
           <CardContent className="space-y-5">
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="settings" className="border-b-0">
-                <AccordionTrigger className="hover:no-underline py-2 data-[state=open]:pb-4">
-                  <div className="flex items-center gap-2 text-sm font-medium">
-                    <Settings className="size-4 text-muted-foreground" />
-                    Game Settings
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="space-y-5">
-                  {/* Custom Timer Toggle Card */}
-                  <div 
-                    onClick={() => setTimerEnabled(!timerEnabled)}
-                    className={cn(
-                      "flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer select-none",
-                      timerEnabled 
-                        ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800/60 shadow-xs" 
-                        : "bg-muted/40 border-border/60 hover:bg-muted/70 hover:border-border"
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={cn(
-                        "p-2 rounded-lg transition-colors",
-                        timerEnabled ? "bg-blue-500 text-white" : "bg-muted text-muted-foreground"
-                      )}>
-                        <Clock className="size-4" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium leading-none text-foreground">{t('enableTimer')}</div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {timerEnabled ? `${initialTimeMins} min + ${incrementSecs}s / turn` : "Play without time pressure"}
+            <div className="bg-muted/20 border border-border/50 rounded-xl px-4">
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="settings" className="border-b-0">
+                  <AccordionTrigger className="hover:no-underline py-3 data-[state=open]:pb-4">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <Settings className="size-4 text-muted-foreground" />
+                      Game Settings
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-4 pb-2">
+                    {/* Custom Timer Toggle Card */}
+                    <div 
+                      onClick={() => setTimerEnabled(!timerEnabled)}
+                      className={cn(
+                        "flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer select-none",
+                        timerEnabled 
+                          ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800/60 shadow-xs" 
+                          : "bg-muted/40 border-border/60 hover:bg-muted/70 hover:border-border"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "p-2 rounded-lg transition-colors",
+                          timerEnabled ? "bg-blue-500 text-white" : "bg-muted text-muted-foreground"
+                        )}>
+                          <Clock className="size-4" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium leading-none text-foreground">{t('enableTimer')}</div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {timerEnabled ? `${initialTimeMins} min + ${incrementSecs}s / turn` : "Play without time pressure"}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Styled iOS/Modern Switch */}
-                    <div 
-                      className={cn(
-                        "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden",
-                        timerEnabled ? "bg-blue-600 dark:bg-blue-500" : "bg-input"
-                      )}
-                      role="switch"
-                      aria-checked={timerEnabled}
-                    >
-                      <span
+                      {/* Styled iOS/Modern Switch */}
+                      <div 
                         className={cn(
-                          "pointer-events-none inline-block size-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out",
-                          timerEnabled ? "translate-x-5" : "translate-x-0"
+                          "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden",
+                          timerEnabled ? "bg-blue-600 dark:bg-blue-500" : "bg-input"
                         )}
-                      />
-                    </div>
-                  </div>
-                  
-                  {timerEnabled && (
-                    <div className="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50 animate-in fade-in-50 slide-in-from-top-2 duration-200">
-                      <div className="space-y-1.5">
-                        <Label htmlFor="initial-time" className="text-xs font-medium text-muted-foreground">{t('initialTime')}</Label>
-                        <Input 
-                          id="initial-time" 
-                          type="number" 
-                          min="1" 
-                          max="60"
-                          value={initialTimeMins} 
-                          onChange={(e) => setInitialTimeMins(Number(e.target.value))} 
-                          className="h-9 bg-background/80"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label htmlFor="increment" className="text-xs font-medium text-muted-foreground">{t('increment')}</Label>
-                        <Input 
-                          id="increment" 
-                          type="number" 
-                          min="0" 
-                          max="60"
-                          value={incrementSecs} 
-                          onChange={(e) => setIncrementSecs(Number(e.target.value))} 
-                          className="h-9 bg-background/80"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Board Size Selector */}
-                  <div className="space-y-2.5">
-                    <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <div className="p-1.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-                        <div className="w-3.5 h-3.5 border-2 border-current rounded-sm" />
-                      </div>
-                      Board Size
-                    </Label>
-                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                      {['20x20', '30x30', '20x30', '39x32', '39x39'].map((size) => (
-                        <button
-                          key={size}
-                          type="button"
-                          onClick={() => setBoardSize(size)}
+                        role="switch"
+                        aria-checked={timerEnabled}
+                      >
+                        <span
                           className={cn(
-                            "px-2 py-1.5 rounded-lg text-xs font-medium transition-all border cursor-pointer",
-                            boardSize === size
-                              ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20"
-                              : "bg-muted/40 border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                            "pointer-events-none inline-block size-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out",
+                            timerEnabled ? "translate-x-5" : "translate-x-0"
                           )}
-                        >
-                          {size}
-                        </button>
-                      ))}
+                        />
+                      </div>
                     </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                    
+                    {timerEnabled && (
+                      <div className="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-background/50 border border-border/50 animate-in fade-in-50 slide-in-from-top-2 duration-200">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="initial-time" className="text-xs font-medium text-muted-foreground">{t('initialTime')}</Label>
+                          <Input 
+                            id="initial-time" 
+                            type="number" 
+                            min="1" 
+                            max="60"
+                            value={initialTimeMins} 
+                            onChange={(e) => setInitialTimeMins(Number(e.target.value))} 
+                            className="h-9 bg-background/80"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="increment" className="text-xs font-medium text-muted-foreground">{t('increment')}</Label>
+                          <Input 
+                            id="increment" 
+                            type="number" 
+                            min="0" 
+                            max="60"
+                            value={incrementSecs} 
+                            onChange={(e) => setIncrementSecs(Number(e.target.value))} 
+                            className="h-9 bg-background/80"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Board Size Selector Card */}
+                    <div className="p-3.5 rounded-xl border border-border/60 bg-muted/40 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-indigo-500 text-white">
+                          <div className="w-4 h-4 border-2 border-current rounded-sm" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium leading-none text-foreground">Board Size</div>
+                          <div className="text-xs text-muted-foreground mt-1">Select playing area dimensions</div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 pt-1">
+                        {BOARD_SIZES.map((size) => (
+                          <button
+                            key={size}
+                            type="button"
+                            onClick={() => setBoardSize(size)}
+                            className={cn(
+                              "px-2 py-1.5 rounded-lg text-xs font-medium transition-all border cursor-pointer",
+                              boardSize === size
+                                ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20"
+                                : "bg-background/80 border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                            )}
+                          >
+                            {size}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
 
             <Button 
               onClick={handleCreateRoom} 
