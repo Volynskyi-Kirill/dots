@@ -38,3 +38,7 @@ const (
 	ReasonDisconnect WinReason = "disconnect"
 	ReasonBoardFull  WinReason = "board_full"
 )
+
+const (
+	DefaultRoomEmptyTimeout = 3 // minutes
+)

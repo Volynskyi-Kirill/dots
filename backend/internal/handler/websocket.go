@@ -4,24 +4,12 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
-	"os"
-
+	"github.com/dots-game/backend/internal/config"
 	"github.com/dots-game/backend/internal/constants"
 	"github.com/dots-game/backend/internal/domain"
 	"github.com/dots-game/backend/internal/service"
 	"github.com/gorilla/websocket"
 )
-
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		allowedOrigin := os.Getenv("ALLOWED_ORIGIN")
-		if allowedOrigin == "" {
-			return true // Fallback for local development
-		}
-		origin := r.Header.Get("Origin")
-		return origin == allowedOrigin || origin == "http://localhost:3000" || origin == "http://localhost:5173"
-	},
-}
 
 type wsClient struct {
 	conn *websocket.Conn
@@ -59,7 +47,18 @@ type wsSession struct {
 	height   int
 }
 
-func ServeWS(rm service.RoomManager, width, height int) http.HandlerFunc {
+func ServeWS(rm service.RoomManager, cfg *config.Config) http.HandlerFunc {
+	upgrader := websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			allowedOrigin := cfg.AllowedOrigin
+			if allowedOrigin == "" {
+				return true // Fallback for local development
+			}
+			origin := r.Header.Get("Origin")
+			return origin == allowedOrigin || origin == "http://localhost:3000" || origin == "http://localhost:5173"
+		},
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -79,8 +78,8 @@ func ServeWS(rm service.RoomManager, width, height int) http.HandlerFunc {
 		session := &wsSession{
 			client: client,
 			rm:     rm,
-			width:  width,
-			height: height,
+			width:  cfg.BoardWidth,
+			height: cfg.BoardHeight,
 		}
 
 		defer func() {

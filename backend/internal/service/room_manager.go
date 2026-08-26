@@ -3,7 +3,7 @@ package service
 import (
 	"log/slog"
 	"sync"
-
+	"time"
 	"github.com/dots-game/backend/internal/game"
 )
 
@@ -20,15 +20,17 @@ type RoomManager interface {
 }
 
 type roomManager struct {
-	rooms map[string]*Room
-	mutex sync.Mutex
-	logic game.Logic
+	rooms        map[string]*Room
+	mutex        sync.Mutex
+	logic        game.Logic
+	emptyTimeout time.Duration
 }
 
-func NewRoomManager(logic game.Logic) RoomManager {
+func NewRoomManager(logic game.Logic, timeoutMinutes int) RoomManager {
 	return &roomManager{
-		rooms: make(map[string]*Room),
-		logic: logic,
+		rooms:        make(map[string]*Room),
+		logic:        logic,
+		emptyTimeout: time.Duration(timeoutMinutes) * time.Minute,
 	}
 }
 
@@ -66,6 +68,12 @@ func (rm *roomManager) JoinRoom(roomID string, sessionID string, client Client) 
 
 	room.Mutex.Lock()
 	defer room.Mutex.Unlock()
+
+	if room.EmptyTimer != nil {
+		room.EmptyTimer.Stop()
+		room.EmptyTimer = nil
+		slog.Info("Room empty timer stopped", "event", "room_timer_stopped", "room_id", roomID)
+	}
 
 	// 1. Check for reconnect
 	if sessionID != "" {
@@ -112,11 +120,22 @@ func (rm *roomManager) LeaveRoom(roomID string, client Client) {
 		room.Mutex.Unlock()
 
 		if count == 0 {
-			rm.mutex.Lock()
-			delete(rm.rooms, roomID)
-			rm.mutex.Unlock()
-			close(room.Quit)
-			slog.Info("Room destroyed", "event", "room_destroyed", "room_id", roomID)
+			slog.Info("Room is empty, starting destroy timer", "event", "room_empty", "room_id", roomID, "timeout_min", rm.emptyTimeout.Minutes())
+			room.EmptyTimer = time.AfterFunc(rm.emptyTimeout, func() {
+				rm.mutex.Lock()
+				defer rm.mutex.Unlock()
+				
+				// Re-check if room is still empty
+				room.Mutex.Lock()
+				currentCount := len(room.Clients)
+				room.Mutex.Unlock()
+				
+				if currentCount == 0 {
+					delete(rm.rooms, roomID)
+					close(room.Quit)
+					slog.Info("Room destroyed due to timeout", "event", "room_destroyed", "room_id", roomID)
+				}
+			})
 		}
 	}
 }

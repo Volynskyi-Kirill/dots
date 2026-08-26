@@ -24,6 +24,8 @@ type Room struct {
 	State      *domain.GameState
 	StateMutex sync.RWMutex
 	Logic      game.Logic
+
+	EmptyTimer *time.Timer
 }
 
 func (r *Room) getEffectivePlayerID(clientID int) int {

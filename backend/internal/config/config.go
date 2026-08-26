@@ -4,12 +4,16 @@ import (
 	"log/slog"
 	"os"
 	"strconv"
+
+	"github.com/dots-game/backend/internal/constants"
 )
 
 type Config struct {
-	ServerPort  string
-	BoardWidth  int
-	BoardHeight int
+	ServerPort       string
+	BoardWidth       int
+	BoardHeight      int
+	RoomEmptyTimeout int
+	AllowedOrigin    string
 }
 
 func Load() *Config {
@@ -34,11 +38,22 @@ func Load() *Config {
 		}
 	}
 
-	slog.Info("Loaded config", "port", port, "boardWidth", boardWidth, "boardHeight", boardHeight)
+	timeout := constants.DefaultRoomEmptyTimeout
+	if envVal := os.Getenv("ROOM_EMPTY_TIMEOUT"); envVal != "" {
+		if parsed, err := strconv.Atoi(envVal); err == nil && parsed > 0 {
+			timeout = parsed
+		}
+	}
+
+	allowedOrigin := os.Getenv("ALLOWED_ORIGIN")
+
+	slog.Info("Loaded config", "port", port, "boardWidth", boardWidth, "boardHeight", boardHeight, "roomEmptyTimeout", timeout, "allowedOrigin", allowedOrigin)
 
 	return &Config{
-		ServerPort:  port,
-		BoardWidth:  boardWidth,
-		BoardHeight: boardHeight,
+		ServerPort:       port,
+		BoardWidth:       boardWidth,
+		BoardHeight:      boardHeight,
+		RoomEmptyTimeout: timeout,
+		AllowedOrigin:    allowedOrigin,
 	}
 }

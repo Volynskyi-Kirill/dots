@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dots-game/backend/internal/config"
 	"github.com/dots-game/backend/internal/constants"
 	"github.com/dots-game/backend/internal/domain"
 	"github.com/dots-game/backend/internal/game"
@@ -16,8 +17,12 @@ import (
 
 func setupTestServer() (*httptest.Server, service.RoomManager) {
 	gameLogic := game.NewGameLogic()
-	rm := service.NewRoomManager(gameLogic)
-	handler := ServeWS(rm, 39, 39)
+	rm := service.NewRoomManager(gameLogic, constants.DefaultRoomEmptyTimeout)
+	cfg := &config.Config{
+		BoardWidth: 39,
+		BoardHeight: 39,
+	}
+	handler := ServeWS(rm, cfg)
 	return httptest.NewServer(handler), rm
 }
 
