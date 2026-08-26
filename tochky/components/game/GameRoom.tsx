@@ -259,7 +259,7 @@ export function GameRoom({ roomId }: { roomId: string }) {
             <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 -mr-2 text-foreground">
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-            {menuOpen && (
+            {menuOpen && gameState && (
               <div className="absolute top-12 right-0 bg-background border shadow-lg rounded-xl flex flex-col min-w-[200px] p-2 gap-1 z-50">
                 {/* Match Score */}
                 <div className="flex items-center justify-between px-3 py-2 text-sm font-medium border-b mb-1">
