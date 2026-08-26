@@ -5,7 +5,7 @@ import { Link } from "@/i18n/routing";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function MobileNav({ tPlay, tRules, tGuide, tFaq }: { tPlay: string, tRules: string, tGuide: string, tFaq: string }) {
+export function MobileNav({ tPlay, tRules, tGuide, tFaq, tFeedback }: { tPlay: string, tRules: string, tGuide: string, tFaq: string, tFeedback: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -20,6 +20,7 @@ export function MobileNav({ tPlay, tRules, tGuide, tFaq }: { tPlay: string, tRul
           <Link href="/rules" className="text-base font-medium" onClick={() => setIsOpen(false)}>{tRules}</Link>
           <Link href="/guide" className="text-base font-medium" onClick={() => setIsOpen(false)}>{tGuide}</Link>
           <Link href="/faq" className="text-base font-medium" onClick={() => setIsOpen(false)}>{tFaq}</Link>
+          <Link href="/feedback" className="text-base font-medium" onClick={() => setIsOpen(false)}>{tFeedback}</Link>
         </div>
       )}
     </div>

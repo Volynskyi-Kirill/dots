@@ -16,6 +16,7 @@ export function Navbar() {
             tRules={t('rules')} 
             tGuide={t('guide')} 
             tFaq={t('faq')} 
+            tFeedback={t('feedback')}
           />
           <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-red-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
             Dots
@@ -32,6 +33,9 @@ export function Navbar() {
             </Link>
             <Link href="/faq" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               {t('faq')}
+            </Link>
+            <Link href="/feedback" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              {t('feedback')}
             </Link>
           </nav>
         </div>
