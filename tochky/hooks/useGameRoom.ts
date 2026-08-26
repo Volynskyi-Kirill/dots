@@ -13,19 +13,17 @@ export function useGameRoom(roomId: string) {
 
   useEffect(() => {
     let settings = undefined;
-    if (searchParams.get('timer') === '1') {
+    if (searchParams.get('timer') === '1' || searchParams.get('w') || searchParams.get('h')) {
       settings = {
-        timerEnabled: true,
+        timerEnabled: searchParams.get('timer') === '1',
         initialTime: parseInt(searchParams.get('time') || '300000', 10),
         increment: parseInt(searchParams.get('inc') || '3000', 10),
+        boardWidth: parseInt(searchParams.get('w') || '20', 10),
+        boardHeight: parseInt(searchParams.get('h') || '20', 10),
       };
     }
 
-    wsService.connect(roomId);
-    
-    setTimeout(() => {
-      wsService.send('join', { roomId, settings });
-    }, 100);
+    wsService.connect(roomId, settings);
 
     const onState = (state: GameState) => {
       setGameState(state);

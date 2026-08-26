@@ -9,6 +9,8 @@ export interface RoomSettings {
   timerEnabled: boolean;
   initialTime: number;
   increment: number;
+  boardWidth: number;
+  boardHeight: number;
 }
 
 export interface GameState {

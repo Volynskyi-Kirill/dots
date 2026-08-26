@@ -20,7 +20,7 @@ export class WSService {
     }
   }
 
-  connect(roomId?: string) {
+  connect(roomId?: string, settings?: any) {
     if (this.ws || typeof window === 'undefined') return;
     
     // Connect directly to the Next.js rewrite /ws
@@ -36,7 +36,7 @@ export class WSService {
     this.ws.onopen = () => {
       console.log('Connected to WS server');
       if (roomId) {
-        this.send('join', { roomId });
+        this.send('join', { roomId, settings });
       }
     };
 

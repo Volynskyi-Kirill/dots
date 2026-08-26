@@ -10,13 +10,13 @@ import { drawGrid, drawPolygons, drawCapturedPoints, drawDots, drawGhostDot, dra
 interface GameBoardProps {
   state: GameState | null;
   onMove: (x: number, y: number) => void;
-  width?: number;
-  height?: number;
   controlScheme?: ControlSchemeType;
   myPlayerId?: number | null;
 }
 
-export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39, height = 39, controlScheme = CONTROL_SCHEME.DIRECT, myPlayerId }) => {
+export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, controlScheme = CONTROL_SCHEME.DIRECT, myPlayerId }) => {
+  const width = state?.settings?.boardWidth || 20;
+  const height = state?.settings?.boardHeight || 20;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
