@@ -29,6 +29,12 @@ export const DEFAULT_BOARD_HEIGHT = 20
 export const DEFAULT_BOARD_SIZE =
   `${DEFAULT_BOARD_WIDTH}x${DEFAULT_BOARD_HEIGHT}` as const
 
+export const GAME_MODE = {
+  ONLINE: "online",
+  LOCAL: "local",
+} as const
+export type GameModeType = (typeof GAME_MODE)[keyof typeof GAME_MODE]
+
 export type GameStatusType = (typeof GAME_STATUS)[keyof typeof GAME_STATUS]
 export type WinReasonType = (typeof WIN_REASON)[keyof typeof WIN_REASON]
 export type ControlSchemeType =

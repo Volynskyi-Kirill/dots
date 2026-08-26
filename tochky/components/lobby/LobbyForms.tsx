@@ -11,13 +11,13 @@ import { Sparkles, Clock, Users, ArrowRight, PlusCircle, Settings, Gamepad2 } fr
 import { useTranslations } from 'next-intl';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BOARD_SIZES, DEFAULT_BOARD_SIZE } from '@/lib/constants';
+import { BOARD_SIZES, DEFAULT_BOARD_SIZE, GAME_MODE, GameModeType } from '@/lib/constants';
 
 export function LobbyForms() {
   const router = useRouter();
   const t = useTranslations('Lobby');
   const [roomId, setRoomId] = useState('');
-  const [gameMode, setGameMode] = useState<'online' | 'local'>('online');
+  const [gameMode, setGameMode] = useState<GameModeType>(GAME_MODE.ONLINE);
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [initialTimeMins, setInitialTimeMins] = useState(5);
   const [incrementSecs, setIncrementSecs] = useState(3);
@@ -32,7 +32,7 @@ export function LobbyForms() {
       searchParams.set('inc', (incrementSecs * 1000).toString());
     }
     
-    if (gameMode === 'local') {
+    if (gameMode === GAME_MODE.LOCAL) {
       searchParams.set('local', '1');
     }
 
@@ -67,13 +67,13 @@ export function LobbyForms() {
             </div>
           </CardHeader>
           <CardContent className="space-y-5">
-            <Tabs value={gameMode} onValueChange={(v) => setGameMode(v as 'online' | 'local')} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="online" className="data-active:bg-background">
+            <Tabs value={gameMode} onValueChange={(v) => setGameMode(v as GameModeType)} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value={GAME_MODE.ONLINE} className="data-active:bg-background">
                   <Users className="size-4 mr-2" />
                   {t('onlineMode')}
                 </TabsTrigger>
-                <TabsTrigger value="local" className="data-active:bg-background">
+                <TabsTrigger value={GAME_MODE.LOCAL} className="data-active:bg-background">
                   <Gamepad2 className="size-4 mr-2" />
                   {t('localMode')}
                 </TabsTrigger>
