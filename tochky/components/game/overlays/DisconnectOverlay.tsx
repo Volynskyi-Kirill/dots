@@ -15,7 +15,7 @@ function DisconnectCountdown({ deadline }: { deadline: number }) {
   return <span>{left}s</span>;
 }
 
-export function DisconnectOverlay({ gameState, t }: { gameState: GameState, t: (key: string) => string }) {
+export function DisconnectOverlay({ gameState, t }: { gameState: GameState, t: (key: string, values?: any) => string }) {
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-10">
       <div className="bg-card border shadow-xl rounded-xl p-6 text-center animate-pulse">
