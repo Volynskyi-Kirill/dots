@@ -121,8 +121,8 @@ func ServeWS(rm service.RoomManager, width, height int) http.HandlerFunc {
 func (s *wsSession) cleanup() {
 	if s.room != nil {
 		slog.Info("Client disconnected", "event", "client_disconnected", "room_id", s.room.ID, "player_id", s.playerID)
-		s.rm.LeaveRoom(s.room.ID, s.client)
 		s.room.HandleClientDisconnected(s.playerID)
+		s.rm.LeaveRoom(s.room.ID, s.client)
 	}
 }
 
