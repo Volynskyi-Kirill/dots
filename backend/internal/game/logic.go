@@ -285,8 +285,8 @@ func (l *gameLogic) InitState(state *domain.GameState) {
 	}
 	
 	// Add starting 2x2 diagonal cross near the center
-	cx := width / 2
-	cy := height / 2
+	cx := (width - 1) / 2
+	cy := (height - 1) / 2
 	
 	// Top-left: Player 1, Top-right: Player 2
 	// Bottom-left: Player 2, Bottom-right: Player 1
