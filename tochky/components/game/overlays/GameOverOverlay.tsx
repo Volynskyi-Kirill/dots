@@ -36,23 +36,38 @@ export function GameOverOverlay({
     }
   }, [iWon, isLocal, isTie]);
 
-  let title = isTie ? t('tieTitle') : iWon ? t('winTitle') : t('loseTitle');
-  if (isLocal && !isTie) {
-    title = t('playerWins', { turn: gameState.winner });
-  }
+  const getTitle = () => {
+    if (isTie) return t('tieTitle');
+    if (isLocal) return t('playerWins', { turn: gameState.winner });
+    return iWon ? t('winTitle') : t('loseTitle');
+  };
 
-  const reasonKey = gameState.winReason === 'surrender'
-    ? (isLocal ? 'winReasonSurrenderLocal' : iWon ? 'winReasonSurrenderWin' : 'winReasonSurrenderLose')
-    : gameState.winReason === 'timeout'
-    ? (isLocal ? 'winReasonTimeoutLocal' : iWon ? 'winReasonTimeoutWin' : 'winReasonTimeoutLose')
-    : gameState.winReason === 'disconnect'
-    ? (isLocal ? 'winReasonDisconnectLocal' : iWon ? 'winReasonDisconnectWin' : 'winReasonDisconnectLose')
-    : 'winReasonBoardFull';
+  const getReasonKey = () => {
+    if (!gameState.winReason || gameState.winReason === 'boardFull') return 'winReasonBoardFull';
+
+    const reasonMap: Record<string, { local: string; win: string; lose: string }> = {
+      surrender: { local: 'winReasonSurrenderLocal', win: 'winReasonSurrenderWin', lose: 'winReasonSurrenderLose' },
+      timeout: { local: 'winReasonTimeoutLocal', win: 'winReasonTimeoutWin', lose: 'winReasonTimeoutLose' },
+      disconnect: { local: 'winReasonDisconnectLocal', win: 'winReasonDisconnectWin', lose: 'winReasonDisconnectLose' }
+    };
+
+    const status = isLocal ? 'local' : (iWon ? 'win' : 'lose');
+    return reasonMap[gameState.winReason]?.[status] || 'winReasonBoardFull';
+  };
+
+  const title = getTitle();
+  const reasonKey = getReasonKey();
+
+  const getTitleColor = () => {
+    if (isTie) return 'text-muted-foreground';
+    if (isLocal) return gameState.winner === 1 ? 'text-blue-400' : 'text-red-400';
+    return iWon ? 'text-yellow-400' : 'text-destructive';
+  };
 
   return (
     <div className="absolute inset-0 bg-background/85 backdrop-blur-sm z-20 flex items-center justify-center p-4 animate-in fade-in duration-300">
       <div className="bg-card border shadow-2xl rounded-2xl w-full max-w-sm p-8 text-center animate-in zoom-in-90 duration-300">
-        <h2 className={`text-3xl font-black mb-1 ${isTie ? 'text-muted-foreground' : (isLocal ? (gameState.winner === 1 ? 'text-blue-400' : 'text-red-400') : (iWon ? 'text-yellow-400' : 'text-destructive'))}`}>
+        <h2 className={`text-3xl font-black mb-1 ${getTitleColor()}`}>
           {title}
         </h2>
         <p className="text-xs text-muted-foreground mb-6">{t(reasonKey, { winner: gameState.winner, loser: gameState.winner === 1 ? 2 : 1 })}</p>

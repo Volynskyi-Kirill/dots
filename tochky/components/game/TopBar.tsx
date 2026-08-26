@@ -32,6 +32,25 @@ export function TopBar({
   t,
   wsService
 }: TopBarProps) {
+  const isPlaying = gameState?.status === GAME_STATUS.PLAYING;
+  const isFinished = gameState?.status === GAME_STATUS.FINISHED;
+  const isLocal = gameState?.settings?.isLocal;
+  const isMyTurn = gameState?.currentTurn === myPlayerId;
+  const isActiveTurnDisplay = isLocal || isMyTurn;
+  const turnPlayerColor = gameState?.currentTurn === 1 ? "blue" : "red";
+  
+  const getTurnClasses = () => {
+    if (!isActiveTurnDisplay) return "bg-secondary/30 text-muted-foreground border-transparent opacity-70";
+    return turnPlayerColor === "blue" 
+      ? "bg-blue-500/10 text-blue-500 border-blue-500/30" 
+      : "bg-red-500/10 text-red-500 border-red-500/30";
+  };
+
+  const getTurnText = () => {
+    if (isLocal) return t('playerTurn', { turn: gameState?.currentTurn });
+    return isMyTurn ? t('yourTurn') : t('opponentTurn');
+  };
+
   return (
     <div className="w-full px-4 py-3 flex justify-between items-center bg-background z-10 border-b shadow-sm flex-none">
       <div className="flex items-center gap-3">
@@ -40,22 +59,14 @@ export function TopBar({
         </h1>
         {gameState && myPlayerId && (
           <div className="hidden sm:flex text-sm font-medium items-center gap-2 border-l pl-3 ml-1 border-border/50 h-6">
-            {gameState.status === GAME_STATUS.PLAYING ? (
-              <span className={cn(
-                "px-3 py-1 rounded-full border shadow-sm flex items-center gap-2",
-                (gameState.settings?.isLocal || gameState.currentTurn === myPlayerId)
-                  ? (gameState.currentTurn === 1 ? "bg-blue-500/10 text-blue-500 border-blue-500/30" : "bg-red-500/10 text-red-500 border-red-500/30")
-                  : "bg-secondary/30 text-muted-foreground border-transparent opacity-70"
-              )}>
-                {(gameState.settings?.isLocal || gameState.currentTurn === myPlayerId) && (
-                  <div className={cn(
-                    "w-2 h-2 rounded-full animate-pulse",
-                    gameState.currentTurn === 1 ? "bg-blue-500" : "bg-red-500"
-                  )} />
+            {isPlaying ? (
+              <span className={cn("px-3 py-1 rounded-full border shadow-sm flex items-center gap-2", getTurnClasses())}>
+                {isActiveTurnDisplay && (
+                  <div className={cn("w-2 h-2 rounded-full animate-pulse", turnPlayerColor === "blue" ? "bg-blue-500" : "bg-red-500")} />
                 )}
-                {gameState.settings?.isLocal ? t('playerTurn', { turn: gameState.currentTurn }) : (gameState.currentTurn === myPlayerId ? t('yourTurn') : t('opponentTurn'))}
+                {getTurnText()}
               </span>
-            ) : gameState.status === GAME_STATUS.FINISHED ? (
+            ) : isFinished ? (
               <span className="text-muted-foreground font-bold">{t("gameOver")}</span>
             ) : null}
           </div>
