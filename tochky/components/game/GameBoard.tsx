@@ -224,13 +224,25 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     const fontSize = Math.max(8, scale * 0.45); 
     ctx.font = `${fontSize}px monospace`;
     
+    // Dynamic step based on scale to prevent label overlapping
+    let step = 1;
+    if (scale < 8) step = 10;
+    else if (scale < 12) step = 5;
+    else if (scale < 16) step = 2;
+
+    const xOffset = Math.max(8, scale * 0.4);
+    const yOffset = Math.max(8, scale * 0.4);
+
     // Left edge (y coordinates, starting from 1 at the bottom)
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
     for (let y = 0; y < height; y++) {
+      const label = height - y;
+      if (label % step !== 0 && label !== 1) continue;
+      
       const screenY = offset.y + y * scale;
       if (screenY >= -20 && screenY <= canvas.height + 20) {
-        ctx.fillText((height - y).toString(), offset.x - (scale * 0.4), screenY);
+        ctx.fillText(label.toString(), offset.x - xOffset, screenY);
       }
     }
 
@@ -238,9 +250,12 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, width = 39,
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     for (let x = 0; x < width; x++) {
+      const label = x + 1;
+      if (label % step !== 0 && label !== 1) continue;
+
       const screenX = offset.x + x * scale;
       if (screenX >= -20 && screenX <= canvas.width + 20) {
-        ctx.fillText((x + 1).toString(), screenX, offset.y + (height - 1) * scale + (scale * 0.4));
+        ctx.fillText(label.toString(), screenX, offset.y + (height - 1) * scale + yOffset);
       }
     }
     ctx.restore();
