@@ -33,15 +33,19 @@ func (c *wsClient) GetID() string {
 }
 
 func (c *wsClient) Send(message []byte) {
-	c.send <- message
+	select {
+	case c.send <- message:
+	default:
+		slog.Warn("WebSocket send buffer full, closing connection", "client", c.GetID())
+		c.conn.Close()
+	}
 }
 
 func writePump(c *wsClient) {
 	defer c.conn.Close()
 	for msg := range c.send {
-		err := c.conn.WriteMessage(websocket.TextMessage, msg)
-		if err != nil {
-			return
+		if err := c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+			break
 		}
 	}
 }
@@ -79,7 +83,10 @@ func ServeWS(rm service.RoomManager, width, height int) http.HandlerFunc {
 			height: height,
 		}
 
-		defer session.cleanup()
+		defer func() {
+			close(client.send)
+			session.cleanup()
+		}()
 
 		for {
 			_, message, err := conn.ReadMessage()

@@ -34,6 +34,17 @@ func (r *Room) getEffectivePlayerID(clientID int) int {
 }
 
 func (r *Room) BroadcastState() {
+	r.StateMutex.RLock()
+	b, _ := json.Marshal(r.State)
+	r.StateMutex.RUnlock()
+	msg, _ := json.Marshal(domain.Message{
+		Type:    constants.MessageState,
+		Payload: b,
+	})
+	r.Broadcast <- msg
+}
+
+func (r *Room) broadcastStateLocked() {
 	b, _ := json.Marshal(r.State)
 	msg, _ := json.Marshal(domain.Message{
 		Type:    constants.MessageState,
@@ -110,7 +121,7 @@ func (r *Room) HandleClientDisconnected(playerID int) {
 		if r.State.Status == constants.StatusPlaying {
 			r.State.DisconnectDeadline = time.Now().UnixMilli() + 60000
 		}
-		r.BroadcastState()
+		r.broadcastStateLocked()
 	}
 }
 
@@ -175,7 +186,7 @@ func (r *Room) MakeMove(clientID, x, y int) error {
 		slog.Info("Game finished", "event", "game_finished", "room_id", r.ID, "reason", "board_full")
 	}
 
-	r.BroadcastState()
+	r.broadcastStateLocked()
 	return nil
 }
 
@@ -200,7 +211,7 @@ func (r *Room) Surrender(clientID int) {
 	}
 	
 	slog.Info("Game finished", "event", "game_finished", "room_id", r.ID, "reason", "surrender")
-	r.BroadcastState()
+	r.broadcastStateLocked()
 }
 
 func (r *Room) RequestRematch(clientID int) {
@@ -209,7 +220,7 @@ func (r *Room) RequestRematch(clientID int) {
 
 	if r.State != nil && r.State.Status == constants.StatusFinished {
 		r.State.RematchRequestedBy = clientID
-		r.BroadcastState()
+		r.broadcastStateLocked()
 	}
 }
 
@@ -246,7 +257,7 @@ func (r *Room) AnswerRematch(clientID int, accept bool) {
 		} else {
 			r.State.RematchRequestedBy = 0
 		}
-		r.BroadcastState()
+		r.broadcastStateLocked()
 	}
 }
 
@@ -261,7 +272,7 @@ func (r *Room) RequestUndo(clientID int) {
 	effectivePlayer := r.getEffectivePlayerID(clientID)
 	if r.State.Settings.IsLocal || r.State.CurrentTurn != effectivePlayer {
 		r.State.UndoRequestedBy = clientID
-		r.BroadcastState()
+		r.broadcastStateLocked()
 	}
 }
 
@@ -281,7 +292,7 @@ func (r *Room) AnswerUndo(clientID int, accept bool) {
 			}
 		}
 		r.State.UndoRequestedBy = 0
-		r.BroadcastState()
+		r.broadcastStateLocked()
 	}
 }
 
@@ -327,7 +338,7 @@ func (r *Room) checkTimeouts() {
 			}
 			r.State.DisconnectDeadline = 0
 			slog.Info("Game finished", "event", "game_finished", "room_id", r.ID, "reason", "disconnect")
-			r.BroadcastState()
+			r.broadcastStateLocked()
 			return
 		}
 	}
@@ -359,7 +370,7 @@ func (r *Room) checkTimeouts() {
 				r.State.MatchScoreP2++
 			}
 			slog.Info("Game finished", "event", "game_finished", "room_id", r.ID, "reason", "timeout")
-			r.BroadcastState()
+			r.broadcastStateLocked()
 		}
 	}
 }

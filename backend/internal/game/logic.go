@@ -169,6 +169,10 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 	globalVisited := getGrid()
 	defer putGrid(globalVisited)
 
+	queue := make([]domain.Point, 0, 128)
+	capPoints := make([]domain.Point, 0, 128)
+	rawBoundary := make([]domain.Point, 0, 128)
+
 	for _, cd := range checkDirs {
 		nx, ny := startX+cd.X, startY+cd.Y
 		startPt := domain.Point{X: nx, Y: ny}
@@ -190,7 +194,7 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 			continue
 		}
 
-		queue := make([]domain.Point, 0, 128)
+		queue = queue[:0]
 		queue = append(queue, startPt)
 		
 		regionVisited := getGrid()
@@ -239,7 +243,7 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 		}
 
 		if !escaped && hasOpponent {
-			var capPoints []domain.Point
+			capPoints = capPoints[:0]
 			for y := 0; y < height; y++ {
 				for x := 0; x < width; x++ {
 					if regionVisited[y*width+x] {
@@ -248,7 +252,7 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 				}
 			}
 
-			var rawBoundary []domain.Point
+			rawBoundary = rawBoundary[:0]
 			for y := 0; y < height; y++ {
 				for x := 0; x < width; x++ {
 					if boundary[y*width+x] {
