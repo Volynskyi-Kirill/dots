@@ -1,26 +1,32 @@
 services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "${SERVER_PORT:-8080}:8080"
-    env_file:
-      - .env
-    volumes:
-      - ./backend:/app
-    environment:
-      - SERVER_PORT=8080
-      - AXIOM_TOKEN=${AXIOM_TOKEN}
-      - AXIOM_DATASET=${AXIOM_DATASET}
-      - AXIOM_EDGE=${AXIOM_EDGE}
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        ports:
+            - '${SERVER_PORT:-8080}:8080'
+        env_file:
+            - .env
+        volumes:
+            - ./backend:/app
+        environment:
+            - SERVER_PORT=8080
+            - AXIOM_TOKEN=${AXIOM_TOKEN}
+            - AXIOM_DATASET=${AXIOM_DATASET}
+            - AXIOM_EDGE=${AXIOM_EDGE}
 
-  frontend:
-    build:
-      context: ./tochky
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./tochky:/app
-      - /app/node_modules
+
+    frontend:
+        build:
+            context: ./tochky
+            dockerfile: Dockerfile
+        ports:
+            - '3000:3000'
+        env_file:
+            - .env
+        environment:
+            - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+            - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+        volumes:
+            - ./tochky:/app
+            - /app/node_modules
