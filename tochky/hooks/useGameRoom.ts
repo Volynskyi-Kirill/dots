@@ -1,0 +1,82 @@
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { wsService } from '@/lib/websocket';
+import { GameState } from '@/lib/types';
+
+export function useGameRoom(roomId: string) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  const [gameState, setGameState] = useState<GameState | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [myPlayerId, setMyPlayerId] = useState<number | null>(null);
+
+  useEffect(() => {
+    let settings = undefined;
+    if (searchParams.get('timer') === '1') {
+      settings = {
+        timerEnabled: true,
+        initialTime: parseInt(searchParams.get('time') || '300000', 10),
+        increment: parseInt(searchParams.get('inc') || '3000', 10),
+      };
+    }
+
+    wsService.connect(roomId);
+    
+    setTimeout(() => {
+      wsService.send('join', { roomId, settings });
+    }, 100);
+
+    const onState = (state: GameState) => {
+      setGameState(state);
+      setError(null);
+    };
+
+    const onError = (err: string) => {
+      setError(err);
+      setTimeout(() => setError(null), 3000);
+    };
+
+    const onWelcome = (data: { playerId: number }) => {
+      setMyPlayerId(data.playerId);
+    };
+
+    wsService.on('state', onState);
+    wsService.on('error', onError);
+    wsService.on('welcome', onWelcome);
+
+    return () => {
+      wsService.off('state', onState);
+      wsService.off('error', onError);
+      wsService.off('welcome', onWelcome);
+    };
+  }, [roomId, searchParams]);
+
+  const doLeaveRoom = () => {
+    wsService.disconnect();
+    router.push('/');
+  };
+
+  const handleMove = (x: number, y: number) => {
+    if (gameState && gameState.status === 'playing') {
+      wsService.send('move', { x, y });
+    }
+  };
+
+  let p1Score = 0;
+  let p2Score = 0;
+  if (gameState) {
+    p1Score = (gameState.capturedP1 || []).filter(p => gameState.board[p.y] && gameState.board[p.y][p.x] === 2).length;
+    p2Score = (gameState.capturedP2 || []).filter(p => gameState.board[p.y] && gameState.board[p.y][p.x] === 1).length;
+  }
+
+  return {
+    gameState,
+    error,
+    myPlayerId,
+    p1Score,
+    p2Score,
+    doLeaveRoom,
+    handleMove
+  };
+}

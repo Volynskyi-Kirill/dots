@@ -1,3 +1,5 @@
+import { GameStatusType, WinReasonType } from './constants';
+
 export interface Point {
   x: number;
   y: number;
@@ -16,9 +18,9 @@ export interface GameState {
   capturedP2: Point[];
   polygonsP1: Point[][];
   polygonsP2: Point[][];
-  status: string;
+  status: GameStatusType;
   winner?: number;
-  winReason?: string;
+  winReason?: WinReasonType;
   lastMove?: Point;
   undoRequestedBy?: number;
 
