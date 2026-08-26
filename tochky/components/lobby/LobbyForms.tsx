@@ -61,7 +61,7 @@ export function LobbyForms() {
           </CardHeader>
           <CardContent className="space-y-5">
             <div className="bg-muted/20 border border-border/50 rounded-xl px-4">
-              <Accordion type="single" collapsible className="w-full">
+              <Accordion className="w-full">
                 <AccordionItem value="settings" className="border-b-0">
                   <AccordionTrigger className="hover:no-underline py-3 data-[state=open]:pb-4">
                     <div className="flex items-center gap-2 text-sm font-medium">
