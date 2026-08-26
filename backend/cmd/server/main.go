@@ -1,8 +1,9 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 
 	"github.com/dots-game/backend/internal/config"
 	"github.com/dots-game/backend/internal/game"
@@ -12,6 +13,9 @@ import (
 )
 
 func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+
 	// Load .env if present (ignore error if not found, since Docker handles env vars)
 	_ = godotenv.Load("../.env")
 
@@ -28,8 +32,9 @@ func main() {
 		w.Write([]byte("OK"))
 	})
 
-	log.Printf("Server starting on port %s", cfg.ServerPort)
+	slog.Info("Server starting", "event", "server_start", "port", cfg.ServerPort)
 	if err := http.ListenAndServe(":"+cfg.ServerPort, nil); err != nil {
-		log.Fatalf("Server failed to start: %v", err)
+		slog.Error("Server failed to start", "event", "server_error", "error", err)
+		os.Exit(1)
 	}
 }

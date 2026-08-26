@@ -1,7 +1,7 @@
 package service
 
 import (
-	"log"
+	"log/slog"
 	"sync"
 
 	"github.com/dots-game/backend/internal/domain"
@@ -55,6 +55,8 @@ func (rm *roomManager) CreateRoom(roomID string) *Room {
 	}
 	rm.rooms[roomID] = room
 
+	slog.Info("Room created", "event", "room_created", "room_id", roomID)
+
 	go func() {
 		for {
 			select {
@@ -92,12 +94,12 @@ func (rm *roomManager) JoinRoom(roomID string, sessionID string, client Client) 
 	if sessionID != "" {
 		if room.Player1Session == sessionID {
 			room.Clients[client] = 1
-			log.Printf("Client reconnected to room %s as Player 1", roomID)
+			slog.Info("Client reconnected", "event", "client_reconnected", "room_id", roomID, "player_id", 1)
 			return room, 1, nil
 		}
 		if room.Player2Session == sessionID {
 			room.Clients[client] = 2
-			log.Printf("Client reconnected to room %s as Player 2", roomID)
+			slog.Info("Client reconnected", "event", "client_reconnected", "room_id", roomID, "player_id", 2)
 			return room, 2, nil
 		}
 	}
@@ -119,7 +121,7 @@ func (rm *roomManager) JoinRoom(roomID string, sessionID string, client Client) 
 		room.Player2Session = sessionID
 	}
 	
-	log.Printf("Client joined room %s as Player %d", roomID, playerID)
+	slog.Info("Client joined", "event", "client_joined", "room_id", roomID, "player_id", playerID)
 	
 	return room, playerID, nil
 }
@@ -137,7 +139,7 @@ func (rm *roomManager) LeaveRoom(roomID string, client Client) {
 			delete(rm.rooms, roomID)
 			rm.mutex.Unlock()
 			close(room.Quit)
-			log.Printf("Room %s destroyed", roomID)
+			slog.Info("Room destroyed", "event", "room_destroyed", "room_id", roomID)
 		}
 	}
 }

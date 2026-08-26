@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"log/slog"
 	"os"
 	"strconv"
 )
@@ -34,7 +34,7 @@ func Load() *Config {
 		}
 	}
 
-	log.Printf("Loaded config: Port=%s, Board=%dx%d", port, boardWidth, boardHeight)
+	slog.Info("Loaded config", "port", port, "boardWidth", boardWidth, "boardHeight", boardHeight)
 
 	return &Config{
 		ServerPort:  port,

@@ -2,7 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"strconv"
@@ -63,7 +63,7 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 	return func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			log.Println("upgrade error:", err)
+			slog.Error("Upgrade error", "event", "websocket_upgrade_error", "error", err)
 			return
 		}
 
@@ -119,6 +119,7 @@ func ServeWS(rm service.RoomManager, logic game.Logic, width, height int) http.H
 
 func (s *wsSession) cleanup() {
 	if s.room != nil {
+		slog.Info("Client disconnected", "event", "client_disconnected", "room_id", s.room.ID, "player_id", s.playerID)
 		s.rm.LeaveRoom(s.room.ID, s.client)
 		if s.playerID > 0 {
 			s.room.StateMutex.Lock()
@@ -186,6 +187,7 @@ func (s *wsSession) handleJoin(msg domain.Message) {
 
 	if clientsCount == 2 && state.Status == constants.StatusWaiting {
 		state.Status = constants.StatusPlaying
+		slog.Info("Game started", "event", "game_started", "room_id", s.room.ID)
 		if state.Settings.TimerEnabled && state.LastMoveTime == 0 {
 			state.LastMoveTime = time.Now().UnixMilli()
 		}
@@ -251,6 +253,8 @@ func startTimerLoop(r *service.Room) {
 						}
 						state.DisconnectDeadline = 0 // clear
 
+						slog.Info("Game finished", "event", "game_finished", "room_id", r.ID, "reason", "disconnect", "winner", state.Winner)
+
 						stateBytes, _ := json.Marshal(domain.Message{
 							Type:    "state",
 							Payload: marshalState(state),
@@ -285,6 +289,8 @@ func startTimerLoop(r *service.Room) {
 						} else if state.Winner == constants.Player2 {
 							state.MatchScoreP2++
 						}
+
+						slog.Info("Game finished", "event", "game_finished", "room_id", r.ID, "reason", "timeout", "winner", state.Winner)
 
 						stateBytes, _ := json.Marshal(domain.Message{
 							Type:    "state",
@@ -364,6 +370,8 @@ func (s *wsSession) handleMove(msg domain.Message) {
 			} else {
 				state.Winner = 0
 			}
+
+			slog.Info("Game finished", "event", "game_finished", "room_id", s.room.ID, "reason", "board_full", "winner", state.Winner, "moves_count", len(state.MovesHistory))
 		}
 
 		stateBytes, _ := json.Marshal(domain.Message{
@@ -398,6 +406,9 @@ func (s *wsSession) handleSurrender(msg domain.Message) {
 			state.Winner = constants.Player1
 			state.MatchScoreP1++
 		}
+		
+		slog.Info("Game finished", "event", "game_finished", "room_id", s.room.ID, "reason", "surrender", "winner", state.Winner)
+		
 		stateBytes, _ := json.Marshal(domain.Message{
 			Type:    constants.MessageState,
 			Payload: marshalState(state),
@@ -453,6 +464,7 @@ func (s *wsSession) handleRematchAnswer(msg domain.Message) {
 
 			if clientsCount == 2 {
 				state.Status = constants.StatusPlaying
+				slog.Info("Game started", "event", "game_started", "room_id", s.room.ID)
 				if state.Settings.TimerEnabled {
 					state.LastMoveTime = time.Now().UnixMilli()
 				}
