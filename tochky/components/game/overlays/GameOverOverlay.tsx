@@ -52,7 +52,7 @@ export function GameOverOverlay({
   return (
     <div className="absolute inset-0 bg-background/85 backdrop-blur-sm z-20 flex items-center justify-center p-4 animate-in fade-in duration-300">
       <div className="bg-card border shadow-2xl rounded-2xl w-full max-w-sm p-8 text-center animate-in zoom-in-90 duration-300">
-        <h2 className={`text-3xl font-black mb-1 ${iWon ? 'text-yellow-400' : isTie ? 'text-muted-foreground' : 'text-destructive'}`}>
+        <h2 className={`text-3xl font-black mb-1 ${isTie ? 'text-muted-foreground' : (isLocal ? (gameState.winner === 1 ? 'text-blue-400' : 'text-red-400') : (iWon ? 'text-yellow-400' : 'text-destructive'))}`}>
           {title}
         </h2>
         <p className="text-xs text-muted-foreground mb-6">{t(reasonKey, { winner: gameState.winner, loser: gameState.winner === 1 ? 2 : 1 })}</p>

@@ -68,12 +68,12 @@ export function LobbyForms() {
           </CardHeader>
           <CardContent className="space-y-5">
             <Tabs value={gameMode} onValueChange={(v) => setGameMode(v as 'online' | 'local')} className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="online" className="data-[state=active]:bg-background">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="online" className="data-active:bg-background">
                   <Users className="size-4 mr-2" />
                   {t('onlineMode')}
                 </TabsTrigger>
-                <TabsTrigger value="local" className="data-[state=active]:bg-background">
+                <TabsTrigger value="local" className="data-active:bg-background">
                   <Gamepad2 className="size-4 mr-2" />
                   {t('localMode')}
                 </TabsTrigger>
