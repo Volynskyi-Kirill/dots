@@ -21,6 +21,7 @@ export function useGameRoom(roomId: string) {
         increment: parseInt(searchParams.get('inc') || '3000', 10),
         boardWidth: parseInt(searchParams.get('w') || DEFAULT_BOARD_WIDTH.toString(), 10),
         boardHeight: parseInt(searchParams.get('h') || DEFAULT_BOARD_HEIGHT.toString(), 10),
+        isLocal: searchParams.get('local') === '1',
       };
     }
 

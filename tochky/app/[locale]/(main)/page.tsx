@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title,
     description,
-    keywords: ['Dots game online', 'play tochka', 'точка игра', 'точка онлайн', 'dots strategy game'],
+    keywords: ['Dots game online', 'play tochka', 'точка игра', 'точка онлайн', 'dots strategy game', 'local multiplayer', 'hotseat'],
     alternates: {
       canonical: `${baseUrl}/${locale}`,
       languages: {

@@ -15,7 +15,7 @@ interface TopBarProps {
   setSettingsOpen: (v: boolean) => void;
   menuOpen: boolean;
   setMenuOpen: (v: boolean) => void;
-  t: (key: string) => string;
+  t: (key: string, values?: Record<string, any>) => string;
   wsService: any;
 }
 
@@ -43,17 +43,17 @@ export function TopBar({
             {gameState.status === GAME_STATUS.PLAYING ? (
               <span className={cn(
                 "px-3 py-1 rounded-full border shadow-sm flex items-center gap-2",
-                gameState.currentTurn === myPlayerId
-                  ? (myPlayerId === 1 ? "bg-blue-500/10 text-blue-500 border-blue-500/30" : "bg-red-500/10 text-red-500 border-red-500/30")
+                (gameState.settings?.isLocal || gameState.currentTurn === myPlayerId)
+                  ? (gameState.currentTurn === 1 ? "bg-blue-500/10 text-blue-500 border-blue-500/30" : "bg-red-500/10 text-red-500 border-red-500/30")
                   : "bg-secondary/30 text-muted-foreground border-transparent opacity-70"
               )}>
-                {gameState.currentTurn === myPlayerId && (
+                {(gameState.settings?.isLocal || gameState.currentTurn === myPlayerId) && (
                   <div className={cn(
                     "w-2 h-2 rounded-full animate-pulse",
-                    myPlayerId === 1 ? "bg-blue-500" : "bg-red-500"
+                    gameState.currentTurn === 1 ? "bg-blue-500" : "bg-red-500"
                   )} />
                 )}
-                {gameState.currentTurn === myPlayerId ? t('yourTurn') : t('opponentTurn')}
+                {gameState.settings?.isLocal ? t('playerTurn', { turn: gameState.currentTurn }) : (gameState.currentTurn === myPlayerId ? t('yourTurn') : t('opponentTurn'))}
               </span>
             ) : gameState.status === GAME_STATUS.FINISHED ? (
               <span className="text-muted-foreground font-bold">{t("gameOver")}</span>
@@ -101,7 +101,7 @@ export function TopBar({
                 <div className="flex items-center justify-center min-w-[70px] sm:min-w-[90px]">
                   {(!gameState.undoRequestedBy || gameState.undoRequestedBy === 0) ? (
                     <button 
-                      disabled={!(gameState.currentTurn !== myPlayerId && gameState.lastMove)}
+                      disabled={!gameState.lastMove || (!gameState.settings?.isLocal && gameState.currentTurn === myPlayerId)}
                       onClick={() => wsService.send('request_undo', {})}
                       className="disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1 px-2.5 py-1 bg-secondary/80 hover:bg-secondary rounded-md text-[10px] sm:text-xs font-medium border shadow-sm transition-colors text-muted-foreground hover:text-foreground w-full justify-center"
                     >
@@ -160,7 +160,7 @@ export function TopBar({
                 <>
                   {(!gameState.undoRequestedBy || gameState.undoRequestedBy === 0) ? (
                     <button 
-                      disabled={!(gameState.currentTurn !== myPlayerId && gameState.lastMove)}
+                      disabled={!gameState.lastMove || (!gameState.settings?.isLocal && gameState.currentTurn === myPlayerId)}
                       onClick={() => { wsService.send('request_undo', {}); setMenuOpen(false); }}
                       className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-secondary rounded-lg transition-colors w-full text-left font-medium disabled:opacity-40"
                     >

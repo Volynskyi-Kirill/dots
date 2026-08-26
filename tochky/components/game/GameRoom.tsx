@@ -101,7 +101,7 @@ export function GameRoom({ roomId }: { roomId: string }) {
         confirmButtonClass="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
       />
 
-      {gameState?.status === GAME_STATUS.PLAYING && !!gameState.undoRequestedBy && gameState.undoRequestedBy !== myPlayerId && (
+      {gameState?.status === GAME_STATUS.PLAYING && !!gameState.undoRequestedBy && (gameState.settings.isLocal || gameState.undoRequestedBy !== myPlayerId) && (
         <UndoRequestOverlay t={t} />
       )}
 

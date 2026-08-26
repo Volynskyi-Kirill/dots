@@ -29,6 +29,12 @@ The game operates on an **authoritative server model**. The frontend is a "dumb"
     4.  Backend replies directly to the client with `{"type": "welcome", "payload": {"playerId": X}}`.
 *   **State Sync**: After any state change (join, move, undo), the backend broadcasts the full JSON `GameState` to both players.
 
+### Local Game Mode (Hotseat)
+To adhere to DRY (Don't Repeat Yourself) principles, local hotseat games still run entirely through the Go backend rather than re-implementing game/BFS logic in the frontend.
+*   **Flow**: The client creates a room with `IsLocal=true`. The server initializes a standard WebSocket room but starts the game immediately with only 1 client connected.
+*   **Move Handling**: The single client submits moves for both Player 1 and Player 2. The server dynamically intercepts the move request and overrides the submitting player's ID with the current turn's player ID, effectively allowing one socket to control the entire board.
+*   **Disconnects & States**: The server bypasses Player 2 disconnect timers for local games and automatically resolves Undo/Rematch requests instantly since there is no opponent client to verify them.
+
 ---
 
 ## 3. Sub-domain Documentation

@@ -22,6 +22,7 @@ type RoomSettings struct {
 	Increment    int64 `json:"increment"`   // in ms
 	BoardWidth   int   `json:"boardWidth"`
 	BoardHeight  int   `json:"boardHeight"`
+	IsLocal      bool  `json:"isLocal"`
 }
 
 type MoveRecord struct {

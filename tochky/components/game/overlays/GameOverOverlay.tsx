@@ -9,7 +9,7 @@ export function GameOverOverlay({
 }: {
   gameState: GameState;
   myPlayerId: number;
-  t: (key: string) => string;
+  t: (key: string, values?: Record<string, any>) => string;
   p1Score: number;
   p2Score: number;
   onRematch: () => void;
@@ -17,11 +17,12 @@ export function GameOverOverlay({
 }) {
   const iWon = gameState.winner === myPlayerId;
   const isTie = gameState.winner === 0;
+  const isLocal = gameState.settings?.isLocal;
   const confettiRan = useRef(false);
   const opponentDisconnected = myPlayerId === 1 ? gameState.p2Disconnected : gameState.p1Disconnected;
 
   useEffect(() => {
-    if (iWon && !confettiRan.current) {
+    if ((iWon || (isLocal && !isTie)) && !confettiRan.current) {
       confettiRan.current = true;
       import('canvas-confetti').then(({ default: confetti }) => {
         const end = Date.now() + 2000;
@@ -33,16 +34,19 @@ export function GameOverOverlay({
         })();
       });
     }
-  }, [iWon]);
+  }, [iWon, isLocal, isTie]);
 
-  const title = isTie ? t('tieTitle') : iWon ? t('winTitle') : t('loseTitle');
+  let title = isTie ? t('tieTitle') : iWon ? t('winTitle') : t('loseTitle');
+  if (isLocal && !isTie) {
+    title = t('playerWins', { turn: gameState.winner });
+  }
 
   const reasonKey = gameState.winReason === 'surrender'
-    ? (iWon ? 'winReasonSurrenderWin' : 'winReasonSurrenderLose')
+    ? (isLocal ? 'winReasonSurrenderLocal' : iWon ? 'winReasonSurrenderWin' : 'winReasonSurrenderLose')
     : gameState.winReason === 'timeout'
-    ? (iWon ? 'winReasonTimeoutWin' : 'winReasonTimeoutLose')
+    ? (isLocal ? 'winReasonTimeoutLocal' : iWon ? 'winReasonTimeoutWin' : 'winReasonTimeoutLose')
     : gameState.winReason === 'disconnect'
-    ? (iWon ? 'winReasonDisconnectWin' : 'winReasonDisconnectLose')
+    ? (isLocal ? 'winReasonDisconnectLocal' : iWon ? 'winReasonDisconnectWin' : 'winReasonDisconnectLose')
     : 'winReasonBoardFull';
 
   return (
@@ -51,7 +55,7 @@ export function GameOverOverlay({
         <h2 className={`text-3xl font-black mb-1 ${iWon ? 'text-yellow-400' : isTie ? 'text-muted-foreground' : 'text-destructive'}`}>
           {title}
         </h2>
-        <p className="text-xs text-muted-foreground mb-6">{t(reasonKey)}</p>
+        <p className="text-xs text-muted-foreground mb-6">{t(reasonKey, { winner: gameState.winner, loser: gameState.winner === 1 ? 2 : 1 })}</p>
 
         <div className="mb-4">
           <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">{t('scoreCaptured')}</div>
@@ -89,12 +93,12 @@ export function GameOverOverlay({
                   🔄 {t('rematch')}
                 </button>
               )}
-              {gameState.rematchRequestedBy === myPlayerId && (
+              {gameState.rematchRequestedBy === myPlayerId && !isLocal && (
                 <span className="text-sm text-muted-foreground animate-pulse border px-4 py-3 rounded-xl bg-secondary/30">
                   {t('waiting')}
                 </span>
               )}
-              {!!gameState.rematchRequestedBy && gameState.rematchRequestedBy !== myPlayerId && (
+              {!!gameState.rematchRequestedBy && (isLocal || gameState.rematchRequestedBy !== myPlayerId) && (
                 <div className="flex flex-col gap-2">
               <p className="text-sm font-bold text-primary">{t('rematchQuestion')}</p>
               <div className="flex gap-3">

@@ -11,6 +11,7 @@ export interface RoomSettings {
   increment: number;
   boardWidth: number;
   boardHeight: number;
+  isLocal: boolean;
 }
 
 export interface GameState {

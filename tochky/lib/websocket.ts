@@ -21,7 +21,20 @@ export class WSService {
   }
 
   connect(roomId?: string, settings?: any) {
-    if (this.ws || typeof window === 'undefined') return;
+    if (typeof window === 'undefined') return;
+
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      if (roomId) {
+        this.send('join', { roomId, settings });
+      }
+      return;
+    }
+
+    if (this.ws) {
+      this.ws.onclose = null;
+      this.ws.close();
+      this.ws = null;
+    }
     
     // Connect directly to the Next.js rewrite /ws
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -84,6 +97,7 @@ export class WSService {
 
   disconnect() {
     if (this.ws) {
+      this.ws.onclose = null;
       this.ws.close();
       this.ws = null;
     }

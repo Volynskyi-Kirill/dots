@@ -1,7 +1,7 @@
 {
   "Metadata": {
-    "title": "Gra Kropki Online | Graj w Kropki",
-    "description": "Graj w klasyczną grę Kropki online z przyjaciółmi. Przejmuj terytorium, blokuj przeciwników i wygrywaj!",
+    "title": "Gra Kropki Online i Lokalnie | Graj w Kropki",
+    "description": "Graj w klasyczną grę Kropki online z przyjaciółmi lub lokalnie w trybie Hotseat. Przejmuj terytorium, blokuj przeciwników i wygrywaj!",
     "roomTitle": "Pokój {id} | Gra Kropki",
     "roomDescription": "Dołącz do pokoju {id}, aby grać w Kropki online.",
     "rulesTitle": "Zasady - Jak grać w Kropki",
@@ -18,8 +18,8 @@
     "faq": "FAQ"
   },
   "Index": {
-    "title": "Graj w Kropki Online",
-    "subtitle": "Klasyczna strategiczna gra terytorialna. Otaczaj kropki przeciwnika, aby je przejąć. Graj ze znajomymi natychmiast — bez konieczności rejestracji."
+    "title": "Graj w Kropki",
+    "subtitle": "Klasyczna strategiczna gra terytorialna. Graj ze znajomymi online lub lokalnie na jednym urządzeniu. Bez konieczności rejestracji."
   },
   "Rules": {
     "title": "Jak grać w Kropki (Zasady)",
@@ -46,7 +46,7 @@
   "Guide": {
     "title": "Poradnik po interfejsie i sterowaniu",
     "lobbySection": "Lobby i tworzenie gry",
-    "lobbyDesc": "Na stronie głównej możesz utworzyć nowy pokój lub dołączyć do istniejącego za pomocą 6-znakowego ID pokoju.",
+    "lobbyDesc": "Na stronie głównej możesz utworzyć nowy pokój lub dołączyć do istniejącego za pomocą 6-znakowego ID pokoju. Możesz wybrać tryb «Online» lub «Lokalny» (hotseat).",
     "timerSettings": "Ustawienia zegara: Podczas tworzenia pokoju możesz włączyć zegar szachowy. Ustaw «Czas początkowy» (minuty dla każdego gracza) oraz «Dodatkowy czas na ruch» (sekundy dodawane do zegara po każdym ruchu).",
     "inGameSection": "Interfejs w grze",
     "inviteFriend": "Zapraszanie znajomego: Kliknij przycisk «Kopiuj link z zaproszeniem» u góry pokoju, aby udostępnić link przeciwnikowi.",
@@ -58,11 +58,15 @@
     "themeLanguage": "Motyw i język: Możesz w dowolnym momencie przełączać motyw jasny, ciemny lub systemowy, a także zmieniać język interfejsu w górnym pasku nawigacji lub w oknie ustawień gry."
   },
   "Lobby": {
+    "onlineMode": "Online",
+    "localMode": "Lokalnie (Hotseat)",
     "joinRoom": "Dołącz do pokoju",
     "joinDescription": "Wprowadź identyfikator pokoju, aby dołączyć do istniejącej gry",
     "roomIdLabel": "ID pokoju",
     "roomIdPlaceholder": "np. 8x9q2w",
     "joinGameButton": "Dołącz do gry",
+    "createGameTitle": "Utwórz grę",
+    "createGameDesc": "Rozpocznij nowy mecz online lub lokalnie",
     "createRoom": "Utwórz pokój",
     "createDescription": "Rozpocznij nową grę i zaproś znajomego",
     "enableTimer": "Włącz zegar",
@@ -122,6 +126,10 @@
     "winReasonDisconnectLose": "Zostałeś rozłączony",
     "winReasonTimeoutWin": "Przeciwnikowi skończył się czas",
     "winReasonTimeoutLose": "Skończył ci się czas",
+    "playerWins": "Gracz {turn} wygrywa! 🎉",
+    "winReasonSurrenderLocal": "Gracz {loser} się poddał",
+    "winReasonTimeoutLocal": "Graczowi {loser} skończył się czas",
+    "winReasonDisconnectLocal": "Gracz {loser} się rozłączył",
     "shareInstruction": "Udostępnij ten link przeciwnikowi, aby rozpocząć grę",
     "yourTurn": "Twój ruch",
     "opponentTurn": "Oczekiwanie na przeciwnika...",

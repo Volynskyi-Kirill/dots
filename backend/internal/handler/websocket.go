@@ -190,7 +190,7 @@ func (s *wsSession) handleJoin(msg domain.Message) {
 	clientsCount := len(s.room.Clients)
 	s.room.Mutex.Unlock()
 
-	if clientsCount == 2 && state.Status == constants.StatusWaiting {
+	if (clientsCount == 2 || (state.Settings.IsLocal && clientsCount == 1)) && state.Status == constants.StatusWaiting {
 		state.Status = constants.StatusPlaying
 		slog.Info("Game started", "event", "game_started", "room_id", s.room.ID)
 		if state.Settings.TimerEnabled && state.LastMoveTime == 0 {
@@ -245,7 +245,8 @@ func startTimerLoop(r *service.Room) {
 			}
 
 			if state.Status == constants.StatusPlaying {
-				if (state.P1Disconnected || state.P2Disconnected) && state.DisconnectDeadline > 0 {
+				isDisconnected := state.P1Disconnected || (state.P2Disconnected && !state.Settings.IsLocal)
+				if isDisconnected && state.DisconnectDeadline > 0 {
 					if time.Now().UnixMilli() > state.DisconnectDeadline {
 						state.Status = constants.StatusFinished
 						state.WinReason = constants.ReasonDisconnect
@@ -342,9 +343,14 @@ func (s *wsSession) handleMove(msg domain.Message) {
 		}
 	}
 
-	if err := s.logic.MakeMove(state, s.playerID, payload.X, payload.Y); err == nil {
+	activePlayerID := s.playerID
+	if state.Settings.IsLocal && s.playerID == 1 {
+		activePlayerID = state.CurrentTurn
+	}
+
+	if err := s.logic.MakeMove(state, activePlayerID, payload.X, payload.Y); err == nil {
 		if state.Settings.TimerEnabled && state.LastMoveTime > 0 {
-			if s.playerID == constants.Player1 {
+			if activePlayerID == constants.Player1 {
 				state.TimeP1 += state.Settings.Increment
 			} else {
 				state.TimeP2 += state.Settings.Increment
@@ -453,7 +459,7 @@ func (s *wsSession) handleRematchAnswer(msg domain.Message) {
 	defer s.room.StateMutex.Unlock()
 
 	state := s.room.State
-	if state != nil && state.Status == constants.StatusFinished && state.RematchRequestedBy != 0 && state.RematchRequestedBy != s.playerID {
+	if state != nil && state.Status == constants.StatusFinished && state.RematchRequestedBy != 0 && (state.Settings.IsLocal || state.RematchRequestedBy != s.playerID) {
 		if payload.Accept {
 			if state.StartingPlayer == constants.Player1 {
 				state.StartingPlayer = constants.Player2
@@ -496,7 +502,7 @@ func (s *wsSession) handleUndoRequest(msg domain.Message) {
 
 	state := s.room.State
 	if state != nil && state.Status == constants.StatusPlaying && len(state.MovesHistory) > 0 {
-		if state.CurrentTurn != s.playerID {
+		if state.Settings.IsLocal || state.CurrentTurn != s.playerID {
 			state.UndoRequestedBy = s.playerID
 			stateBytes, _ := json.Marshal(domain.Message{
 				Type:    constants.MessageState,
@@ -520,7 +526,7 @@ func (s *wsSession) handleUndoAnswer(msg domain.Message) {
 	defer s.room.StateMutex.Unlock()
 
 	state := s.room.State
-	if state != nil && state.UndoRequestedBy != 0 && state.UndoRequestedBy != s.playerID {
+	if state != nil && state.UndoRequestedBy != 0 && (state.Settings.IsLocal || state.UndoRequestedBy != s.playerID) {
 		if payload.Accept {
 			if len(state.MovesHistory) > 0 {
 				state.MovesHistory = state.MovesHistory[:len(state.MovesHistory)-1]

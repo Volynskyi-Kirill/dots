@@ -23,6 +23,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, controlSche
 
   const { scale, offset, setCamera, initializedCenter, setInitializedCenter, centerBoard, clampOffset } = useCamera(width, height, canvasRef, containerRef);
 
+  const effectivePlayerId = state?.settings?.isLocal && state?.currentTurn ? state.currentTurn : myPlayerId;
+
   const {
     ghostDot,
     setGhostDot,
@@ -31,7 +33,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, controlSche
     handlePointerUp,
     handleClick
   } = useBoardInteraction(
-    canvasRef, state, myPlayerId, width, height, scale, offset, setCamera, clampOffset, controlScheme, onMove
+    canvasRef, state, effectivePlayerId, width, height, scale, offset, setCamera, clampOffset, controlScheme, onMove
   );
 
   useEffect(() => {

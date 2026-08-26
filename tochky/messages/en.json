@@ -1,7 +1,7 @@
 {
   "Metadata": {
-    "title": "Dots Game Online | Play Tochka",
-    "description": "Play the classic Dots (Tochka) game online with friends. Capture territory, block opponents, and win the match!",
+    "title": "Dots Game Online & Local | Play Tochka",
+    "description": "Play the classic Dots (Tochka) game online with friends or locally in Hotseat mode. Capture territory, block opponents, and win the match!",
     "roomTitle": "Room {id} | Dots Game",
     "roomDescription": "Join room {id} to play Dots online.",
     "rulesTitle": "Rules - How to Play Dots",
@@ -18,8 +18,8 @@
     "faq": "FAQ"
   },
   "Index": {
-    "title": "Play Dots Online",
-    "subtitle": "The classic territorial strategy game. Enclose your opponent's dots to capture them. Play with friends instantly—no sign up required."
+    "title": "Play Dots",
+    "subtitle": "The classic territorial strategy game. Play with friends online or locally on the same device. No sign up required."
   },
   "Rules": {
     "title": "How to Play Dots (Rules)",
@@ -46,7 +46,7 @@
   "Guide": {
     "title": "UI & Controls Guide",
     "lobbySection": "Lobby & Game Creation",
-    "lobbyDesc": "On the main page, you can either create a new room or join an existing one using a 6-character Room ID.",
+    "lobbyDesc": "On the main page, you can either create a new room or join an existing one using a 6-character Room ID. You can select 'Online' or 'Local' hotseat mode.",
     "timerSettings": "Timer Settings: When creating a room, you can enable a chess clock. Set the 'Initial Time' (minutes each player gets) and 'Increment' (seconds added to your clock after every move).",
     "inGameSection": "In-Game Interface",
     "inviteFriend": "Inviting a Friend: Click the 'Copy Invite Link' button at the top of the room to share the URL with your opponent.",
@@ -58,11 +58,15 @@
     "themeLanguage": "Theme & Language: You can switch between light, dark, or system themes and change the interface language anytime from the header bar or in-game settings."
   },
   "Lobby": {
+    "onlineMode": "Online",
+    "localMode": "Local (Hotseat)",
     "joinRoom": "Join Room",
     "joinDescription": "Enter a room ID to join an existing game",
     "roomIdLabel": "Room ID",
     "roomIdPlaceholder": "e.g. 8x9q2w",
     "joinGameButton": "Join Game",
+    "createGameTitle": "Create Game",
+    "createGameDesc": "Start a new match online or locally",
     "createRoom": "Create Room",
     "createDescription": "Start a new game and invite a friend",
     "enableTimer": "Enable Timer",
@@ -122,6 +126,10 @@
     "winReasonDisconnectLose": "You disconnected",
     "winReasonTimeoutWin": "Opponent ran out of time",
     "winReasonTimeoutLose": "You ran out of time",
+    "playerWins": "Player {turn} Wins! 🎉",
+    "winReasonSurrenderLocal": "Player {loser} surrendered",
+    "winReasonTimeoutLocal": "Player {loser} ran out of time",
+    "winReasonDisconnectLocal": "Player {loser} disconnected",
     "shareInstruction": "Share this link with your opponent to start the game",
     "yourTurn": "Your turn",
     "opponentTurn": "Waiting for opponent...",
