@@ -410,7 +410,13 @@ func (s *wsSession) handleSurrender(msg domain.Message) {
 	if state != nil && state.Status == constants.StatusPlaying {
 		state.Status = constants.StatusFinished
 		state.WinReason = constants.ReasonSurrender
-		if s.playerID == constants.Player1 {
+
+		surrenderingPlayer := s.playerID
+		if state.Settings.IsLocal {
+			surrenderingPlayer = state.CurrentTurn
+		}
+
+		if surrenderingPlayer == constants.Player1 {
 			state.Winner = constants.Player2
 			state.MatchScoreP2++
 		} else {
