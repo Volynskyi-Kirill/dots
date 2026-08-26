@@ -131,5 +131,21 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System"
+  },
+  "Feedback": {
+    "trigger": "Feedback",
+    "title": "Feedback",
+    "description": "Found a bug, have an idea, or just want to leave a review? Let us know!",
+    "success": "Thank you for your feedback!",
+    "question": "What would you like to tell us?",
+    "typeBug": "Found a bug 🐛",
+    "typeIdea": "Have an idea 💡",
+    "typeReview": "Just a review ❤️",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Describe the details...",
+    "contactLabel": "Contact (optional)",
+    "contactPlaceholder": "Telegram or Email",
+    "submit": "Submit",
+    "submitting": "Submitting..."
   }
 }
