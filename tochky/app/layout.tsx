@@ -6,7 +6,6 @@ import { routing } from "@/i18n/routing"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
-import { FeedbackDialog } from "@/components/FeedbackDialog"
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -39,7 +38,6 @@ export default async function RootLayout({
       <body suppressHydrationWarning>
         <ThemeProvider>
           {children}
-          <FeedbackDialog />
         </ThemeProvider>
       </body>
     </html>

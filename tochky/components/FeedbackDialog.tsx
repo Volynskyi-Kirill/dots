@@ -64,15 +64,17 @@ export function FeedbackDialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg"
-          title={t('trigger')}
-        >
-          <MessageSquarePlus className="h-6 w-6" />
-        </Button>
+      <DialogTrigger
+        render={
+          <Button
+            variant="outline"
+            size="icon"
+            className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg"
+            title={t('trigger')}
+          />
+        }
+      >
+        <MessageSquarePlus className="h-6 w-6" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
