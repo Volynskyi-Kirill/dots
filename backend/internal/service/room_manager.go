@@ -4,25 +4,12 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/dots-game/backend/internal/domain"
+	"github.com/dots-game/backend/internal/game"
 )
 
 type Client interface {
 	GetID() string
 	Send(message []byte)
-}
-
-type Room struct {
-	ID             string
-	Clients        map[Client]int // map Client -> PlayerID (1 or 2)
-	Player1Session string
-	Player2Session string
-	Mutex          sync.Mutex
-	Broadcast      chan []byte
-	Quit           chan struct{}
-
-	State      *domain.GameState
-	StateMutex sync.RWMutex
 }
 
 type RoomManager interface {
@@ -35,11 +22,13 @@ type RoomManager interface {
 type roomManager struct {
 	rooms map[string]*Room
 	mutex sync.Mutex
+	logic game.Logic
 }
 
-func NewRoomManager() RoomManager {
+func NewRoomManager(logic game.Logic) RoomManager {
 	return &roomManager{
 		rooms: make(map[string]*Room),
+		logic: logic,
 	}
 }
 
@@ -52,25 +41,13 @@ func (rm *roomManager) CreateRoom(roomID string) *Room {
 		Clients:   make(map[Client]int),
 		Broadcast: make(chan []byte),
 		Quit:      make(chan struct{}),
+		Logic:     rm.logic,
 	}
 	rm.rooms[roomID] = room
 
 	slog.Info("Room created", "event", "room_created", "room_id", roomID)
 
-	go func() {
-		for {
-			select {
-			case msg := <-room.Broadcast:
-				room.Mutex.Lock()
-				for client := range room.Clients {
-					client.Send(msg)
-				}
-				room.Mutex.Unlock()
-			case <-room.Quit:
-				return
-			}
-		}
-	}()
+	go room.Run()
 
 	return room
 }

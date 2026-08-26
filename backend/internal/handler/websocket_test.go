@@ -15,9 +15,9 @@ import (
 )
 
 func setupTestServer() (*httptest.Server, service.RoomManager) {
-	rm := service.NewRoomManager()
-	lg := game.NewGameLogic()
-	handler := ServeWS(rm, lg, 39, 39)
+	gameLogic := game.NewGameLogic()
+	rm := service.NewRoomManager(gameLogic)
+	handler := ServeWS(rm, 39, 39)
 	return httptest.NewServer(handler), rm
 }
 
