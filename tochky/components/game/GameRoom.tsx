@@ -257,8 +257,25 @@ export function GameRoom({ roomId }: { roomId: string }) {
           {/* Mobile Menu Toggle */}
           <div className="sm:hidden relative">
             <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 -mr-2 text-foreground">
-              <Menu className="w-5 h-5" />
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
+            {menuOpen && (
+              <div className="absolute top-12 right-0 bg-background border shadow-lg rounded-xl flex flex-col min-w-[150px] p-2 gap-1 z-50">
+                <button 
+                  onClick={() => { setSettingsOpen(true); setMenuOpen(false); }} 
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-secondary rounded-lg transition-colors w-full text-left font-medium"
+                >
+                  <Settings className="w-4 h-4 text-muted-foreground" /> {t("settings")}
+                </button>
+                <div className="h-px bg-border my-1" />
+                <button 
+                  onClick={() => { handleLeaveClick(); setMenuOpen(false); }} 
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full text-left font-medium"
+                >
+                  <LogOut className="w-4 h-4" /> {t("leave")}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
