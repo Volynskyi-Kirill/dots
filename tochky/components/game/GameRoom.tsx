@@ -209,7 +209,7 @@ export function GameRoom({ roomId }: { roomId: string }) {
           )}
 
           {gameState && myPlayerId && (
-            <div className="flex items-center gap-1">
+            <div className="hidden sm:flex items-center gap-1">
               {gameState.status === 'playing' ? (
                 <>
                   <div className="flex items-center justify-center min-w-[70px] sm:min-w-[90px]">
@@ -260,14 +260,49 @@ export function GameRoom({ roomId }: { roomId: string }) {
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
             {menuOpen && (
-              <div className="absolute top-12 right-0 bg-background border shadow-lg rounded-xl flex flex-col min-w-[150px] p-2 gap-1 z-50">
+              <div className="absolute top-12 right-0 bg-background border shadow-lg rounded-xl flex flex-col min-w-[200px] p-2 gap-1 z-50">
+                {/* Match Score */}
+                <div className="flex items-center justify-between px-3 py-2 text-sm font-medium border-b mb-1">
+                  <span className="text-muted-foreground font-semibold uppercase text-xs tracking-wider">{t("matchScore")}</span>
+                  <div className="flex items-center gap-1 text-base">
+                    <span className="text-blue-500 font-bold">{gameState.matchScoreP1 || 0}</span>
+                    <span className="text-muted-foreground">-</span>
+                    <span className="text-red-500 font-bold">{gameState.matchScoreP2 || 0}</span>
+                  </div>
+                </div>
+
+                {gameState.status === 'playing' && (
+                  <>
+                    {(!gameState.undoRequestedBy || gameState.undoRequestedBy === 0) ? (
+                      <button 
+                        disabled={!(gameState.currentTurn !== myPlayerId && gameState.lastMove)}
+                        onClick={() => { wsService.send('request_undo', {}); setMenuOpen(false); }}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-secondary rounded-lg transition-colors w-full text-left font-medium disabled:opacity-40"
+                      >
+                        <RotateCcw className="w-4 h-4 text-muted-foreground" /> {t("undo")}
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground w-full text-left font-medium animate-pulse">
+                        <RotateCcw className="w-4 h-4" /> {t("waiting")}
+                      </div>
+                    )}
+                    
+                    <button 
+                      onClick={() => { setSurrenderConfirmOpen(true); setMenuOpen(false); }}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full text-left font-medium"
+                    >
+                      <Flag className="w-4 h-4" /> {t("surrender")}
+                    </button>
+                    <div className="h-px bg-border my-1" />
+                  </>
+                )}
+
                 <button 
                   onClick={() => { setSettingsOpen(true); setMenuOpen(false); }} 
                   className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-secondary rounded-lg transition-colors w-full text-left font-medium"
                 >
                   <Settings className="w-4 h-4 text-muted-foreground" /> {t("settings")}
                 </button>
-                <div className="h-px bg-border my-1" />
                 <button 
                   onClick={() => { handleLeaveClick(); setMenuOpen(false); }} 
                   className="flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full text-left font-medium"
