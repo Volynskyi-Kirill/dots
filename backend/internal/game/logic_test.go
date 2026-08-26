@@ -8,7 +8,7 @@ import (
 )
 
 func TestMakeMove_ValidMove(t *testing.T) {
-	logic := NewGameLogic(5, 5)
+	logic := NewGameLogic()
 	state := createEmptyState(5, 5)
 
 	err := logic.MakeMove(state, constants.Player1, 2, 2)
@@ -24,7 +24,7 @@ func TestMakeMove_ValidMove(t *testing.T) {
 }
 
 func TestMakeMove_Capture(t *testing.T) {
-	logic := NewGameLogic(5, 5)
+	logic := NewGameLogic()
 	state := createEmptyState(5, 5)
 
 	// P1 forms a square around (2,2)
@@ -67,7 +67,7 @@ func TestMakeMove_Capture(t *testing.T) {
 }
 
 func TestMakeMove_NoCaptureIfNoEnemy(t *testing.T) {
-	logic := NewGameLogic(5, 5)
+	logic := NewGameLogic()
 	state := createEmptyState(5, 5)
 
 	// P1 forms a square around (2,2) but it's EMPTY
@@ -95,5 +95,6 @@ func createEmptyState(w, h int) *domain.GameState {
 		Board:       board,
 		CurrentTurn: constants.Player1,
 		Status:      constants.StatusPlaying,
+		Settings:    domain.RoomSettings{BoardWidth: w, BoardHeight: h},
 	}
 }

@@ -18,18 +18,15 @@ type Logic interface {
 }
 
 type gameLogic struct {
-	width  int
-	height int
 	boolGridPool *sync.Pool
 }
 
-func NewGameLogic(width, height int) Logic {
+func NewGameLogic() Logic {
 	return &gameLogic{
-		width:  width,
-		height: height,
 		boolGridPool: &sync.Pool{
 			New: func() interface{} {
-				b := make([]bool, width*height)
+				// Max possible size is 39x39 = 1521
+				b := make([]bool, 1521)
 				return &b
 			},
 		},
@@ -37,13 +34,16 @@ func NewGameLogic(width, height int) Logic {
 }
 
 func (l *gameLogic) MakeMove(state *domain.GameState, playerID int, x, y int) error {
+	width := state.Settings.BoardWidth
+	height := state.Settings.BoardHeight
+
 	if state.Status != constants.StatusPlaying {
 		return errors.New("game is not in playing state")
 	}
 	if state.CurrentTurn != playerID {
 		return errors.New("not your turn")
 	}
-	if x < 0 || x >= l.width || y < 0 || y >= l.height {
+	if x < 0 || x >= width || y < 0 || y >= height {
 		return errors.New("out of bounds")
 	}
 	if state.Board[y][x] != constants.Empty {
@@ -130,6 +130,9 @@ func orderBoundaryPoints(pts []domain.Point) []domain.Point {
 }
 
 func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX, startY int) {
+	width := state.Settings.BoardWidth
+	height := state.Settings.BoardHeight
+
 	opponentID := constants.Player1
 	if playerID == constants.Player1 {
 		opponentID = constants.Player2
@@ -144,7 +147,7 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 
 	getGrid := func() []bool {
 		bPtr := l.boolGridPool.Get().(*[]bool)
-		b := *bPtr
+		b := (*bPtr)[:width*height]
 		for i := range b {
 			b[i] = false
 		}
@@ -157,10 +160,10 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 	capturedGrid := getGrid()
 	defer putGrid(capturedGrid)
 	for _, p := range state.CapturedP1 {
-		capturedGrid[p.Y*l.width+p.X] = true
+		capturedGrid[p.Y*width+p.X] = true
 	}
 	for _, p := range state.CapturedP2 {
-		capturedGrid[p.Y*l.width+p.X] = true
+		capturedGrid[p.Y*width+p.X] = true
 	}
 
 	globalVisited := getGrid()
@@ -170,11 +173,11 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 		nx, ny := startX+cd.X, startY+cd.Y
 		startPt := domain.Point{X: nx, Y: ny}
 
-		if nx < 0 || nx >= l.width || ny < 0 || ny >= l.height {
+		if nx < 0 || nx >= width || ny < 0 || ny >= height {
 			continue
 		}
 
-		startIdx := ny*l.width + nx
+		startIdx := ny*width + nx
 		if globalVisited[startIdx] {
 			continue
 		}
@@ -199,12 +202,12 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 			curr := queue[0]
 			queue = queue[1:]
 
-			if curr.X < 0 || curr.X >= l.width || curr.Y < 0 || curr.Y >= l.height {
+			if curr.X < 0 || curr.X >= width || curr.Y < 0 || curr.Y >= height {
 				escaped = true
 				continue
 			}
 
-			idx := curr.Y*l.width + curr.X
+			idx := curr.Y*width + curr.X
 			if regionVisited[idx] {
 				continue
 			}
@@ -219,12 +222,12 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 				adjX, adjY := curr.X+d.X, curr.Y+d.Y
 				adj := domain.Point{X: adjX, Y: adjY}
 
-				if adjX < 0 || adjX >= l.width || adjY < 0 || adjY >= l.height {
+				if adjX < 0 || adjX >= width || adjY < 0 || adjY >= height {
 					queue = append(queue, adj)
 					continue
 				}
 
-				adjIdx := adjY*l.width + adjX
+				adjIdx := adjY*width + adjX
 				if state.Board[adjY][adjX] == playerID && !capturedGrid[adjIdx] {
 					boundary[adjIdx] = true
 				} else {
@@ -237,18 +240,18 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 
 		if !escaped && hasOpponent {
 			var capPoints []domain.Point
-			for y := 0; y < l.height; y++ {
-				for x := 0; x < l.width; x++ {
-					if regionVisited[y*l.width+x] {
+			for y := 0; y < height; y++ {
+				for x := 0; x < width; x++ {
+					if regionVisited[y*width+x] {
 						capPoints = append(capPoints, domain.Point{X: x, Y: y})
 					}
 				}
 			}
 
 			var rawBoundary []domain.Point
-			for y := 0; y < l.height; y++ {
-				for x := 0; x < l.width; x++ {
-					if boundary[y*l.width+x] {
+			for y := 0; y < height; y++ {
+				for x := 0; x < width; x++ {
+					if boundary[y*width+x] {
 						rawBoundary = append(rawBoundary, domain.Point{X: x, Y: y})
 					}
 				}
@@ -271,16 +274,19 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 }
 
 func (l *gameLogic) InitState(state *domain.GameState) {
+	width := state.Settings.BoardWidth
+	height := state.Settings.BoardHeight
+
 	// Clear board
-	for y := 0; y < l.height; y++ {
-		for x := 0; x < l.width; x++ {
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
 			state.Board[y][x] = constants.Empty
 		}
 	}
 	
 	// Add starting 2x2 diagonal cross near the center
-	cx := l.width / 2
-	cy := l.height / 2
+	cx := width / 2
+	cy := height / 2
 	
 	// Top-left: Player 1, Top-right: Player 2
 	// Bottom-left: Player 2, Bottom-right: Player 1

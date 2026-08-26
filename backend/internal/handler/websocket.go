@@ -160,6 +160,11 @@ func (s *wsSession) handleJoin(msg domain.Message) {
 		return
 	}
 
+	if payload.Settings.BoardWidth == 0 || payload.Settings.BoardHeight == 0 {
+		payload.Settings.BoardWidth = s.width
+		payload.Settings.BoardHeight = s.height
+	}
+
 	room, pid, _ := s.rm.JoinRoom(payload.RoomID, payload.SessionID, s.client)
 	if room == nil {
 		return
@@ -209,9 +214,9 @@ func (s *wsSession) handleJoin(msg domain.Message) {
 }
 
 func (s *wsSession) initState(settings domain.RoomSettings) {
-	board := make([][]int, s.height)
+	board := make([][]int, settings.BoardHeight)
 	for i := range board {
-		board[i] = make([]int, s.width)
+		board[i] = make([]int, settings.BoardWidth)
 	}
 	state := &domain.GameState{
 		Board:    board,
@@ -358,7 +363,7 @@ func (s *wsSession) handleMove(msg domain.Message) {
 		state.MovesHistory = append(state.MovesHistory, record)
 		state.UndoRequestedBy = 0
 
-		if len(state.MovesHistory)+4 >= (s.width * s.height) {
+		if len(state.MovesHistory)+4 >= (state.Settings.BoardWidth * state.Settings.BoardHeight) {
 			state.Status = constants.StatusFinished
 			state.WinReason = constants.ReasonBoardFull
 			if len(state.CapturedP1) > len(state.CapturedP2) {

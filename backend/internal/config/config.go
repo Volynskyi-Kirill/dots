@@ -19,7 +19,7 @@ func Load() *Config {
 	}
 
 	bw := os.Getenv("BOARD_WIDTH")
-	boardWidth := 39
+	boardWidth := 20
 	if bw != "" {
 		if val, err := strconv.Atoi(bw); err == nil {
 			boardWidth = val
@@ -27,7 +27,7 @@ func Load() *Config {
 	}
 
 	bh := os.Getenv("BOARD_HEIGHT")
-	boardHeight := 39
+	boardHeight := 20
 	if bh != "" {
 		if val, err := strconv.Atoi(bh); err == nil {
 			boardHeight = val

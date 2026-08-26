@@ -26,7 +26,7 @@ func main() {
 
 	// 3. Dependency Injection
 	roomManager := service.NewRoomManager()
-	gameLogic := game.NewGameLogic(cfg.BoardWidth, cfg.BoardHeight)
+	gameLogic := game.NewGameLogic()
 
 	// 4. Routes
 	http.HandleFunc("/ws", handler.ServeWS(roomManager, gameLogic, cfg.BoardWidth, cfg.BoardHeight))
