@@ -6,7 +6,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Frontend Specific Guidelines (tochky)
 
-1. **UI Framework**: We use Next.js App Router + next-intl + shadcn/ui + TailwindCSS + lucide-react.
+1. **UI Framework & Components**: We use Next.js App Router, next-intl, TailwindCSS, and lucide-react.
+   - **CRITICAL:** We use `@base-ui/react` for base primitives (NOT Radix UI).
+   - Base UI components do NOT use the `asChild` pattern. Instead, they use a `render` prop (e.g., `render={<Button />}`).
+   - **NEVER** use `asChild` on our primitive UI components (DialogTrigger, etc.), it will result in hydration errors and nested buttons.
 2. **Translations**: For translating or syncing i18n files, NEVER do it directly in the main context. Always use the `i18n-sync-translations` skill which delegates the task to a cheaper `flash` subagent.
 3. **Clean Code & Component Architecture**:
    - **No Magic Strings/Values**: Always extract game statuses, actions, control schemes, default values (e.g., default board sizes), and configuration arrays into strongly typed constants (`as const` objects in `lib/constants.ts`). Do not inline magic strings, arrays, or fallback values directly inside components or hooks.

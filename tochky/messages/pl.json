@@ -15,7 +15,8 @@
     "play": "Graj",
     "rules": "Zasady",
     "guide": "Poradnik",
-    "faq": "FAQ"
+    "faq": "FAQ",
+    "feedback": "Opinia"
   },
   "Index": {
     "title": "Graj w Kropki",
@@ -147,5 +148,21 @@
     "light": "Jasny",
     "dark": "Ciemny",
     "system": "Systemowy"
+  },
+  "Feedback": {
+    "trigger": "Opinia",
+    "title": "Opinia",
+    "description": "Znalazłeś błąd, masz pomysł lub po prostu chcesz zostawić opinię? Daj nam znać!",
+    "success": "Dziękujemy za opinię!",
+    "question": "Co chciałbyś nam przekazać?",
+    "typeBug": "Znaleziono błąd 🐛",
+    "typeIdea": "Mam pomysł 💡",
+    "typeReview": "Po prostu opinia ❤️",
+    "messageLabel": "Wiadomość",
+    "messagePlaceholder": "Opisz szczegóły...",
+    "contactLabel": "Kontakt (opcjonalnie)",
+    "contactPlaceholder": "Telegram lub e-mail",
+    "submit": "Wyślij",
+    "submitting": "Wysyłanie..."
   }
 }

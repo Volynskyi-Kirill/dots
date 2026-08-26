@@ -15,7 +15,8 @@
     "play": "Играть",
     "rules": "Правила",
     "guide": "Гайд",
-    "faq": "FAQ"
+    "faq": "FAQ",
+    "feedback": "Обратная связь"
   },
   "Index": {
     "title": "Играть в Точки",
@@ -147,5 +148,21 @@
     "light": "Светлая",
     "dark": "Темная",
     "system": "Системная"
+  },
+  "Feedback": {
+    "trigger": "Обратная связь",
+    "title": "Обратная связь",
+    "description": "Нашли ошибку, есть идея или просто хотите оставить отзыв? Напишите нам!",
+    "success": "Спасибо за ваш отзыв!",
+    "question": "О чем вы хотите рассказать?",
+    "typeBug": "Найдена ошибка 🐛",
+    "typeIdea": "Есть идея 💡",
+    "typeReview": "Просто отзыв ❤️",
+    "messageLabel": "Сообщение",
+    "messagePlaceholder": "Опишите подробности...",
+    "contactLabel": "Контакт (необязательно)",
+    "contactPlaceholder": "Telegram или Email",
+    "submit": "Отправить",
+    "submitting": "Отправка..."
   }
 }

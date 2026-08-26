@@ -112,7 +112,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, controlSche
       
       <button
         onClick={centerBoard}
-        className="md:hidden absolute bottom-4 right-4 px-3 py-1.5 text-xs font-medium bg-secondary/80 hover:bg-secondary text-secondary-foreground backdrop-blur-md rounded-md shadow-md border transition-all z-10"
+        className="md:hidden absolute bottom-4 left-4 px-3 py-1.5 text-xs font-medium bg-secondary/80 hover:bg-secondary text-secondary-foreground backdrop-blur-md rounded-md shadow-md border transition-all z-10"
       >
         Center Board
       </button>
