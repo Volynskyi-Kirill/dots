@@ -8,24 +8,27 @@ import (
 	"github.com/dots-game/backend/internal/config"
 	"github.com/dots-game/backend/internal/game"
 	"github.com/dots-game/backend/internal/handler"
+	"github.com/dots-game/backend/internal/logger"
 	"github.com/dots-game/backend/internal/service"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	slog.SetDefault(logger)
-
-	// Load .env if present (ignore error if not found, since Docker handles env vars)
+	// Load .env if present
 	_ = godotenv.Load("../.env")
 
+	// 1. Setup Logger
+	_, cleanupLogger := logger.Setup()
+	defer cleanupLogger()
+
+	// 2. Load Config
 	cfg := config.Load()
 
-	// Dependency Injection
+	// 3. Dependency Injection
 	roomManager := service.NewRoomManager()
 	gameLogic := game.NewGameLogic(cfg.BoardWidth, cfg.BoardHeight)
 
-	// Routes
+	// 4. Routes
 	http.HandleFunc("/ws", handler.ServeWS(roomManager, gameLogic, cfg.BoardWidth, cfg.BoardHeight))
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
