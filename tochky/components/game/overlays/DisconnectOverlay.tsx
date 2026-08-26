@@ -21,7 +21,7 @@ export function DisconnectOverlay({ gameState, t }: { gameState: GameState, t: (
       <div className="bg-card border shadow-xl rounded-xl p-6 text-center animate-pulse">
         <h3 className="text-xl font-bold text-destructive mb-2">{t("playerDisconnected")}</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          {gameState.p1Disconnected ? "Player 1" : "Player 2"} has left the room.
+          {t("playerLeftRoom", { player: gameState.p1Disconnected ? 1 : 2 })}
         </p>
         {gameState.disconnectDeadline && (
           <div className="text-2xl font-mono text-primary">
