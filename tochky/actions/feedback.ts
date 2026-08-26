@@ -1,12 +1,13 @@
 'use server';
 
 export async function submitFeedback(formData: FormData) {
-  const type = formData.get('type');
-  const message = formData.get('message');
-  const contact = formData.get('contact') || 'Анонимно';
-  const sessionId = formData.get('sessionId') || 'Unknown';
-  const userAgent = formData.get('userAgent') || 'Unknown';
-  const screenResolution = formData.get('screenResolution') || 'Unknown';
+  const type = String(formData.get('type') ?? 'bug');
+  const rawMessage = formData.get('message');
+  const message = typeof rawMessage === 'string' ? rawMessage.trim() : '';
+  const contact = String(formData.get('contact') ?? '').trim() || 'Анонимно';
+  const sessionId = String(formData.get('sessionId') ?? 'Unknown');
+  const userAgent = String(formData.get('userAgent') ?? 'Unknown');
+  const screenResolution = String(formData.get('screenResolution') ?? 'Unknown');
 
   if (!message) {
     return { error: 'Сообщение не может быть пустым' };
