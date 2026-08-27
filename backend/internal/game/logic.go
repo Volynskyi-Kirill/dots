@@ -247,7 +247,9 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 			for y := 0; y < height; y++ {
 				for x := 0; x < width; x++ {
 					if regionVisited[y*width+x] {
-						capPoints = append(capPoints, domain.Point{X: x, Y: y})
+						if state.Board[y][x] == opponentID {
+							capPoints = append(capPoints, domain.Point{X: x, Y: y})
+						}
 					}
 				}
 			}
@@ -266,9 +268,27 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 			if playerID == constants.Player1 {
 				state.CapturedP1 = append(state.CapturedP1, capPoints...)
 				state.PolygonsP1 = append(state.PolygonsP1, orderedBoundary)
+
+				var newCapP2 []domain.Point
+				for _, p := range state.CapturedP2 {
+					if !regionVisited[p.Y*width+p.X] {
+						newCapP2 = append(newCapP2, p)
+					}
+				}
+				state.CapturedP2 = newCapP2
+
 			} else {
 				state.CapturedP2 = append(state.CapturedP2, capPoints...)
 				state.PolygonsP2 = append(state.PolygonsP2, orderedBoundary)
+
+				var newCapP1 []domain.Point
+				for _, p := range state.CapturedP1 {
+					if !regionVisited[p.Y*width+p.X] {
+						newCapP1 = append(newCapP1, p)
+					}
+				}
+				state.CapturedP1 = newCapP1
+
 			}
 		}
 		
