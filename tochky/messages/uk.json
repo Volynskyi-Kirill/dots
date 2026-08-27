@@ -71,7 +71,7 @@
     "createRoom": "Створити кімнату",
     "createDescription": "Розпочніть нову гру та запросіть друга",
     "enableTimer": "Увімкнути таймер",
-    "initialTime": "Початковий час (хв)",
+    "initialTime": "Початковий час",
     "increment": "Додавання часу (сек)",
     "createGameButton": "Створити гру",
     "gameSettings": "Налаштування гри",

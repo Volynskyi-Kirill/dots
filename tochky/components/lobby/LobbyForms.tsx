@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from '@/i18n/routing';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,23 +11,37 @@ import { Sparkles, Clock, Users, ArrowRight, PlusCircle, Settings, Gamepad2 } fr
 import { useTranslations } from 'next-intl';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BOARD_SIZES, DEFAULT_BOARD_SIZE, GAME_MODE, GameModeType, DEFAULT_TIMER } from '@/lib/constants';
+import { BOARD_SIZES, DEFAULT_BOARD_SIZE, GAME_MODE, GameModeType, DEFAULT_TIMER, TIMER_MODE, TimerModeType } from '@/lib/constants';
+import { useLobbyStore } from '@/store/useLobbyStore';
 
 export function LobbyForms() {
   const router = useRouter();
   const t = useTranslations('Lobby');
   const [roomId, setRoomId] = useState('');
-  const [gameMode, setGameMode] = useState<GameModeType>(GAME_MODE.ONLINE);
-  const [timerEnabled, setTimerEnabled] = useState(false);
-  const [timerMode, setTimerMode] = useState<'game' | 'move'>('game');
-  const [initialTimeMins, setInitialTimeMins] = useState<number>(DEFAULT_TIMER.GAME.MINUTES);
-  const [initialTimeSecs, setInitialTimeSecs] = useState<number>(DEFAULT_TIMER.GAME.SECONDS);
-  const [incrementSecs, setIncrementSecs] = useState<number>(DEFAULT_TIMER.GAME.INCREMENT);
-  const [boardSize, setBoardSize] = useState<string>(DEFAULT_BOARD_SIZE);
+  
+  const {
+    gameMode, setGameMode,
+    timerEnabled, setTimerEnabled,
+    timerMode, setTimerMode,
+    initialTimeMins, setInitialTimeMins,
+    initialTimeSecs, setInitialTimeSecs,
+    incrementSecs, setIncrementSecs,
+    boardSize, setBoardSize
+  } = useLobbyStore();
 
-  const handleTimerModeChange = (mode: 'game' | 'move') => {
+  // Prevent hydration mismatch for persisted store values
+  const [hasHydrated, setHasHydrated] = useState(false);
+  useEffect(() => {
+    const unsubFinishHydration = useLobbyStore.persist.onFinishHydration(() => setHasHydrated(true));
+    setHasHydrated(useLobbyStore.persist.hasHydrated());
+    return () => {
+      unsubFinishHydration();
+    };
+  }, []);
+
+  const handleTimerModeChange = (mode: TimerModeType) => {
     setTimerMode(mode);
-    if (mode === 'game') {
+    if (mode === TIMER_MODE.GAME) {
       setInitialTimeMins(DEFAULT_TIMER.GAME.MINUTES);
       setInitialTimeSecs(DEFAULT_TIMER.GAME.SECONDS);
       setIncrementSecs(DEFAULT_TIMER.GAME.INCREMENT);
@@ -45,7 +59,7 @@ export function LobbyForms() {
       searchParams.set('timer', '1');
       const totalMs = (initialTimeMins * 60 + initialTimeSecs) * 1000;
       searchParams.set('time', totalMs.toString());
-      searchParams.set('inc', (timerMode === 'game' ? incrementSecs * 1000 : 0).toString());
+      searchParams.set('inc', (timerMode === TIMER_MODE.GAME ? incrementSecs * 1000 : 0).toString());
       searchParams.set('mode', timerMode);
     }
     
@@ -65,6 +79,15 @@ export function LobbyForms() {
       router.push(`/room/${roomId.trim()}`);
     }
   };
+
+  if (!hasHydrated) {
+    return (
+      <div className="flex flex-col gap-6 w-full max-w-xl mx-auto mt-6">
+        <div className="h-[400px] w-full rounded-2xl bg-card/50 animate-pulse border border-border/50" />
+        <div className="h-[120px] w-full rounded-2xl bg-card/50 animate-pulse border border-border/50" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-xl mx-auto mt-6">
@@ -127,7 +150,7 @@ export function LobbyForms() {
                         <div>
                           <div className="text-sm font-medium leading-none text-foreground">{t('enableTimer')}</div>
                           <div className="text-xs text-muted-foreground mt-1">
-                            {timerEnabled ? `${initialTimeMins}:${initialTimeSecs.toString().padStart(2, '0')} ${t('min')}` + (timerMode === 'game' ? ` + ${incrementSecs} ${t('secTurn')}` : '') : t('playWithoutTimePressure')}
+                            {timerEnabled ? `${initialTimeMins}:${initialTimeSecs.toString().padStart(2, '0')} ${t('min')}` + (timerMode === TIMER_MODE.GAME ? ` + ${incrementSecs} ${t('secTurn')}` : '') : t('playWithoutTimePressure')}
                           </div>
                         </div>
                       </div>
@@ -155,11 +178,11 @@ export function LobbyForms() {
                         <div className="grid grid-cols-2 gap-2" role="group" aria-label="Timer Mode">
                           <button
                             type="button"
-                            onClick={() => handleTimerModeChange('game')}
-                            aria-pressed={timerMode === 'game'}
+                            onClick={() => handleTimerModeChange(TIMER_MODE.GAME)}
+                            aria-pressed={timerMode === TIMER_MODE.GAME}
                             className={cn(
                               "px-2 py-1.5 rounded-lg text-xs font-medium transition-all border cursor-pointer",
-                              timerMode === 'game'
+                              timerMode === TIMER_MODE.GAME
                                 ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20"
                                 : "bg-background/80 border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground"
                             )}
@@ -168,11 +191,11 @@ export function LobbyForms() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleTimerModeChange('move')}
-                            aria-pressed={timerMode === 'move'}
+                            onClick={() => handleTimerModeChange(TIMER_MODE.MOVE)}
+                            aria-pressed={timerMode === TIMER_MODE.MOVE}
                             className={cn(
                               "px-2 py-1.5 rounded-lg text-xs font-medium transition-all border cursor-pointer",
-                              timerMode === 'move'
+                              timerMode === TIMER_MODE.MOVE
                                 ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20"
                                 : "bg-background/80 border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground"
                             )}
@@ -180,7 +203,7 @@ export function LobbyForms() {
                             {t('timerModeMove')}
                           </button>
                         </div>
-                        <div className={cn("grid gap-3", timerMode === 'game' ? "grid-cols-2" : "grid-cols-1")}>
+                        <div className={cn("grid gap-3", timerMode === TIMER_MODE.GAME ? "grid-cols-2" : "grid-cols-1")}>
                           <div className="space-y-1.5">
                             <Label className="text-xs font-medium text-muted-foreground">{t('initialTime')}</Label>
                             <div className="flex gap-2 items-center">
@@ -211,7 +234,7 @@ export function LobbyForms() {
                               </div>
                             </div>
                           </div>
-                          {timerMode === 'game' && (
+                          {timerMode === TIMER_MODE.GAME && (
                             <div className="space-y-1.5">
                               <Label htmlFor="increment" className="text-xs font-medium text-muted-foreground">{t('increment')}</Label>
                               <Input 

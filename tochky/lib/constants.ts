@@ -3,6 +3,7 @@ export const STORAGE_KEYS = {
   CONTROL_SCHEME: 'dots_control_scheme',
   SOUND_ENABLED: 'dots_sound_enabled',
   SOUND_VOLUME: 'dots_sound_volume',
+  LOBBY_SETTINGS: 'dots_lobby_settings',
 } as const
 
 export const GAME_STATUS = {
@@ -53,6 +54,12 @@ export const DEFAULT_TIMER = {
     INCREMENT: 0,
   }
 } as const
+
+export const TIMER_MODE = {
+  GAME: "game",
+  MOVE: "move",
+} as const
+export type TimerModeType = (typeof TIMER_MODE)[keyof typeof TIMER_MODE]
 export type GameModeType = (typeof GAME_MODE)[keyof typeof GAME_MODE]
 
 export type GameStatusType = (typeof GAME_STATUS)[keyof typeof GAME_STATUS]

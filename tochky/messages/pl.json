@@ -71,7 +71,7 @@
     "createRoom": "Utwórz pokój",
     "createDescription": "Rozpocznij nową grę i zaproś znajomego",
     "enableTimer": "Włącz zegar",
-    "initialTime": "Czas początkowy (min)",
+    "initialTime": "Czas początkowy",
     "increment": "Dodatkowy czas na ruch (sek)",
     "createGameButton": "Utwórz grę",
     "gameSettings": "Ustawienia gry",

@@ -71,7 +71,7 @@
     "createRoom": "Create Room",
     "createDescription": "Start a new game and invite a friend",
     "enableTimer": "Enable Timer",
-    "initialTime": "Initial Time (min)",
+    "initialTime": "Initial Time",
     "increment": "Increment (sec)",
     "createGameButton": "Create Game",
     "gameSettings": "Game Settings",

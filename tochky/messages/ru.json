@@ -71,7 +71,7 @@
     "createRoom": "Создать комнату",
     "createDescription": "Начните новую игру и пригласите друга",
     "enableTimer": "Включить таймер",
-    "initialTime": "Начальное время (мин)",
+    "initialTime": "Начальное время",
     "increment": "Добавление (сек)",
     "createGameButton": "Создать игру",
     "gameSettings": "Настройки игры",
