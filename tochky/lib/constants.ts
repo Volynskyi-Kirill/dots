@@ -40,6 +40,19 @@ export const GAME_MODE = {
   ONLINE: "online",
   LOCAL: "local",
 } as const
+
+export const DEFAULT_TIMER = {
+  GAME: {
+    MINUTES: 5,
+    SECONDS: 0,
+    INCREMENT: 3,
+  },
+  MOVE: {
+    MINUTES: 0,
+    SECONDS: 30,
+    INCREMENT: 0,
+  }
+} as const
 export type GameModeType = (typeof GAME_MODE)[keyof typeof GAME_MODE]
 
 export type GameStatusType = (typeof GAME_STATUS)[keyof typeof GAME_STATUS]

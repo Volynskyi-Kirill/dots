@@ -11,7 +11,7 @@ import { Sparkles, Clock, Users, ArrowRight, PlusCircle, Settings, Gamepad2 } fr
 import { useTranslations } from 'next-intl';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BOARD_SIZES, DEFAULT_BOARD_SIZE, GAME_MODE, GameModeType } from '@/lib/constants';
+import { BOARD_SIZES, DEFAULT_BOARD_SIZE, GAME_MODE, GameModeType, DEFAULT_TIMER } from '@/lib/constants';
 
 export function LobbyForms() {
   const router = useRouter();
@@ -20,17 +20,32 @@ export function LobbyForms() {
   const [gameMode, setGameMode] = useState<GameModeType>(GAME_MODE.ONLINE);
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [timerMode, setTimerMode] = useState<'game' | 'move'>('game');
-  const [initialTimeMins, setInitialTimeMins] = useState(5);
-  const [incrementSecs, setIncrementSecs] = useState(3);
+  const [initialTimeMins, setInitialTimeMins] = useState<number>(DEFAULT_TIMER.GAME.MINUTES);
+  const [initialTimeSecs, setInitialTimeSecs] = useState<number>(DEFAULT_TIMER.GAME.SECONDS);
+  const [incrementSecs, setIncrementSecs] = useState<number>(DEFAULT_TIMER.GAME.INCREMENT);
   const [boardSize, setBoardSize] = useState<string>(DEFAULT_BOARD_SIZE);
+
+  const handleTimerModeChange = (mode: 'game' | 'move') => {
+    setTimerMode(mode);
+    if (mode === 'game') {
+      setInitialTimeMins(DEFAULT_TIMER.GAME.MINUTES);
+      setInitialTimeSecs(DEFAULT_TIMER.GAME.SECONDS);
+      setIncrementSecs(DEFAULT_TIMER.GAME.INCREMENT);
+    } else {
+      setInitialTimeMins(DEFAULT_TIMER.MOVE.MINUTES);
+      setInitialTimeSecs(DEFAULT_TIMER.MOVE.SECONDS);
+      setIncrementSecs(DEFAULT_TIMER.MOVE.INCREMENT);
+    }
+  };
 
   const handleCreateRoom = () => {
     const newRoomId = Math.random().toString(36).substring(2, 8);
     const searchParams = new URLSearchParams();
     if (timerEnabled) {
       searchParams.set('timer', '1');
-      searchParams.set('time', (initialTimeMins * 60 * 1000).toString());
-      searchParams.set('inc', (incrementSecs * 1000).toString());
+      const totalMs = (initialTimeMins * 60 + initialTimeSecs) * 1000;
+      searchParams.set('time', totalMs.toString());
+      searchParams.set('inc', (timerMode === 'game' ? incrementSecs * 1000 : 0).toString());
       searchParams.set('mode', timerMode);
     }
     
@@ -112,7 +127,7 @@ export function LobbyForms() {
                         <div>
                           <div className="text-sm font-medium leading-none text-foreground">{t('enableTimer')}</div>
                           <div className="text-xs text-muted-foreground mt-1">
-                            {timerEnabled ? `${initialTimeMins} ${t('min')} + ${incrementSecs} ${t('secTurn')}` : t('playWithoutTimePressure')}
+                            {timerEnabled ? `${initialTimeMins}:${initialTimeSecs.toString().padStart(2, '0')} ${t('min')}` + (timerMode === 'game' ? ` + ${incrementSecs} ${t('secTurn')}` : '') : t('playWithoutTimePressure')}
                           </div>
                         </div>
                       </div>
@@ -140,7 +155,7 @@ export function LobbyForms() {
                         <div className="grid grid-cols-2 gap-2" role="group" aria-label="Timer Mode">
                           <button
                             type="button"
-                            onClick={() => setTimerMode('game')}
+                            onClick={() => handleTimerModeChange('game')}
                             aria-pressed={timerMode === 'game'}
                             className={cn(
                               "px-2 py-1.5 rounded-lg text-xs font-medium transition-all border cursor-pointer",
@@ -153,7 +168,7 @@ export function LobbyForms() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => setTimerMode('move')}
+                            onClick={() => handleTimerModeChange('move')}
                             aria-pressed={timerMode === 'move'}
                             className={cn(
                               "px-2 py-1.5 rounded-lg text-xs font-medium transition-all border cursor-pointer",
@@ -165,31 +180,51 @@ export function LobbyForms() {
                             {t('timerModeMove')}
                           </button>
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className={cn("grid gap-3", timerMode === 'game' ? "grid-cols-2" : "grid-cols-1")}>
                           <div className="space-y-1.5">
-                            <Label htmlFor="initial-time" className="text-xs font-medium text-muted-foreground">{t('initialTime')}</Label>
-                            <Input 
-                              id="initial-time" 
-                              type="number" 
-                              min="1" 
-                              max="60"
-                              value={initialTimeMins} 
-                              onChange={(e) => setInitialTimeMins(Number(e.target.value))} 
-                              className="h-9 bg-background/80"
-                            />
+                            <Label className="text-xs font-medium text-muted-foreground">{t('initialTime')}</Label>
+                            <div className="flex gap-2 items-center">
+                              <div className="flex flex-col gap-1">
+                                <Input 
+                                  id="initial-time-mins" 
+                                  type="number" 
+                                  min="0" 
+                                  max="60"
+                                  value={initialTimeMins} 
+                                  onChange={(e) => setInitialTimeMins(Number(e.target.value))} 
+                                  className="h-9 bg-background/80 text-center px-1"
+                                />
+                                <span className="text-[10px] text-muted-foreground text-center">min</span>
+                              </div>
+                              <span className="text-muted-foreground font-medium pb-4">:</span>
+                              <div className="flex flex-col gap-1">
+                                <Input 
+                                  id="initial-time-secs" 
+                                  type="number" 
+                                  min="0" 
+                                  max="59"
+                                  value={initialTimeSecs} 
+                                  onChange={(e) => setInitialTimeSecs(Number(e.target.value))} 
+                                  className="h-9 bg-background/80 text-center px-1"
+                                />
+                                <span className="text-[10px] text-muted-foreground text-center">sec</span>
+                              </div>
+                            </div>
                           </div>
-                          <div className="space-y-1.5">
-                            <Label htmlFor="increment" className="text-xs font-medium text-muted-foreground">{t('increment')}</Label>
-                            <Input 
-                              id="increment" 
-                              type="number" 
-                              min="0" 
-                              max="60"
-                              value={incrementSecs} 
-                              onChange={(e) => setIncrementSecs(Number(e.target.value))} 
-                              className="h-9 bg-background/80"
-                            />
-                          </div>
+                          {timerMode === 'game' && (
+                            <div className="space-y-1.5">
+                              <Label htmlFor="increment" className="text-xs font-medium text-muted-foreground">{t('increment')}</Label>
+                              <Input 
+                                id="increment" 
+                                type="number" 
+                                min="0" 
+                                max="60"
+                                value={incrementSecs} 
+                                onChange={(e) => setIncrementSecs(Number(e.target.value))} 
+                                className="h-9 bg-background/80"
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
