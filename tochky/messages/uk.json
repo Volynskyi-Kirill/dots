@@ -60,7 +60,7 @@
   },
   "Lobby": {
     "onlineMode": "Онлайн",
-    "localMode": "Локально (Hotseat)",
+    "localMode": "Локально",
     "joinRoom": "Приєднатися до кімнати",
     "joinDescription": "Введіть ID кімнати, щоб увійти в існуючу гру",
     "roomIdLabel": "ID кімнати",
