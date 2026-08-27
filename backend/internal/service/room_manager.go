@@ -43,7 +43,7 @@ func (rm *roomManager) CreateRoom(roomID string) *Room {
 	room := &Room{
 		ID:                roomID,
 		Clients:           make(map[Client]int),
-		Broadcast:         make(chan []byte),
+		Broadcast:         make(chan []byte, 100),
 		Quit:              make(chan struct{}),
 		Logic:             rm.logic,
 		DisconnectTimeout: rm.disconnectTimeout,

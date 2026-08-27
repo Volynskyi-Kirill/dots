@@ -44,7 +44,11 @@ func (r *Room) BroadcastState() {
 		Type:    constants.MessageState,
 		Payload: b,
 	})
-	r.Broadcast <- msg
+	select {
+	case r.Broadcast <- msg:
+	default:
+		slog.Warn("Room broadcast channel full, dropping message", "room_id", r.ID)
+	}
 }
 
 func (r *Room) broadcastStateLocked() {
@@ -53,7 +57,11 @@ func (r *Room) broadcastStateLocked() {
 		Type:    constants.MessageState,
 		Payload: b,
 	})
-	r.Broadcast <- msg
+	select {
+	case r.Broadcast <- msg:
+	default:
+		slog.Warn("Room broadcast channel full, dropping message", "room_id", r.ID)
+	}
 }
 
 func (r *Room) InitState(settings domain.RoomSettings, width, height int) {
