@@ -30,10 +30,11 @@ export const useCamera = (width: number, height: number, canvasRef: React.RefObj
 
   const clampOffset = useCallback((x: number, y: number, currentScale: number) => {
     const canvas = canvasRef.current;
-    if (!canvas) return { x, y };
+    const container = containerRef.current;
+    if (!canvas || !container) return { x, y };
     
-    const cw = canvas.width;
-    const ch = canvas.height;
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
     const bw = (width - 1) * currentScale;
     const bh = (height - 1) * currentScale;
 
@@ -58,7 +59,7 @@ export const useCamera = (width: number, height: number, canvasRef: React.RefObj
     }
 
     return { x: newX, y: newY };
-  }, [width, height, canvasRef]);
+  }, [width, height, canvasRef, containerRef]);
 
   return { scale, offset, setCamera, initializedCenter, setInitializedCenter, centerBoard, clampOffset };
 };

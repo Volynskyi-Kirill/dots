@@ -41,8 +41,9 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, controlSche
       const canvas = canvasRef.current;
       const container = containerRef.current;
       if (canvas && container) {
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = container.clientWidth * dpr;
+        canvas.height = container.clientHeight * dpr;
         
         if (window.innerWidth > 768 || !initializedCenter) {
           centerBoard();
@@ -57,12 +58,17 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, controlSche
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const dpr = window.devicePixelRatio || 1;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
+    ctx.save();
+    ctx.scale(dpr, dpr);
+
     ctx.save();
     ctx.translate(offset.x, offset.y);
     ctx.scale(scale, scale);
@@ -82,7 +88,9 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, controlSche
 
     ctx.restore();
 
-    drawGridCoordinates(ctx, width, height, scale, offset, canvas.width, canvas.height, resolvedTheme);
+    drawGridCoordinates(ctx, width, height, scale, offset, container.clientWidth, container.clientHeight, resolvedTheme);
+    
+    ctx.restore();
   }, [state, offset, scale, width, height, ghostDot, controlScheme, resolvedTheme, effectivePlayerId]);
 
   useEffect(() => {
