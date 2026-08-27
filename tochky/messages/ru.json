@@ -142,7 +142,8 @@
     "yourTurn": "Ваш ход",
     "opponentTurn": "Ожидание соперника...",
     "undoDescription": "Соперник просит отменить последний ход. Разрешить?",
-    "playerLeftRoom": "Игрок {player} покинул комнату."
+    "playerLeftRoom": "Игрок {player} покинул комнату.",
+    "soundEnabled": "Включить Звуки"
   },
   "Theme": {
     "light": "Светлая",

@@ -6,6 +6,7 @@ import { wsService } from '@/lib/websocket';
 import { GameBoard } from './GameBoard';
 import { TopBar } from './TopBar';
 import { useGameRoom } from '@/hooks/useGameRoom';
+import { useGameSounds } from '@/hooks/useGameSounds';
 import { GameOverOverlay } from './overlays/GameOverOverlay';
 import { SettingsModal } from './overlays/SettingsModal';
 import { ConfirmModal } from './overlays/ConfirmModal';
@@ -32,19 +33,26 @@ export function GameRoom({ roomId }: { roomId: string }) {
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
   const [surrenderConfirmOpen, setSurrenderConfirmOpen] = useState(false);
   const [controlScheme, setControlScheme] = useState<ControlSchemeType>(CONTROL_SCHEME.DIRECT);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('dots_control_scheme');
-      if (saved) setControlScheme(saved as ControlSchemeType);
+      const savedScheme = localStorage.getItem('dots_control_scheme');
+      if (savedScheme) setControlScheme(savedScheme as ControlSchemeType);
+      
+      const savedSound = localStorage.getItem('dots_sound_enabled');
+      if (savedSound !== null) setSoundEnabled(savedSound === 'true');
     }
   }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('dots_control_scheme', controlScheme);
+      localStorage.setItem('dots_sound_enabled', String(soundEnabled));
     }
-  }, [controlScheme]);
+  }, [controlScheme, soundEnabled]);
+
+  useGameSounds(gameState, myPlayerId, soundEnabled);
 
   return (
     <div className="flex flex-col w-screen h-screen bg-background text-foreground overflow-hidden">
@@ -73,6 +81,8 @@ export function GameRoom({ roomId }: { roomId: string }) {
           onClose={() => setSettingsOpen(false)} 
           controlScheme={controlScheme} 
           setControlScheme={setControlScheme} 
+          soundEnabled={soundEnabled}
+          setSoundEnabled={setSoundEnabled}
           t={t} 
         />
       )}

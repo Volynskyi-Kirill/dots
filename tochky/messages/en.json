@@ -142,7 +142,8 @@
     "yourTurn": "Your turn",
     "opponentTurn": "Waiting for opponent...",
     "undoDescription": "Opponent requested to undo their last move. Do you accept?",
-    "playerLeftRoom": "Player {player} has left the room."
+    "playerLeftRoom": "Player {player} has left the room.",
+    "soundEnabled": "Enable Sounds"
   },
   "Theme": {
     "light": "Light",

@@ -1,5 +1,5 @@
 "use client";
-import { Settings, X } from 'lucide-react';
+import { Settings, X, Volume2, VolumeX } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LanguageToggle } from '@/components/language-toggle';
 import { ControlSchemeType, CONTROL_SCHEME } from '@/lib/constants';
@@ -8,11 +8,15 @@ export function SettingsModal({
   onClose,
   controlScheme,
   setControlScheme,
+  soundEnabled,
+  setSoundEnabled,
   t
 }: {
   onClose: () => void;
   controlScheme: ControlSchemeType;
   setControlScheme: (val: ControlSchemeType) => void;
+  soundEnabled: boolean;
+  setSoundEnabled: (val: boolean) => void;
   t: (key: string) => string;
 }) {
   return (
@@ -45,6 +49,15 @@ export function SettingsModal({
 
         <div className="mb-2 border-t pt-4">
           <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">{t('preferences')}</h3>
+          
+          <div className="flex items-center justify-between p-3 border rounded-lg mb-4 hover:bg-secondary/50 cursor-pointer" onClick={() => setSoundEnabled(!soundEnabled)}>
+            <div className="flex items-center gap-3">
+              {soundEnabled ? <Volume2 className="w-5 h-5 text-primary" /> : <VolumeX className="w-5 h-5 text-muted-foreground" />}
+              <div className="font-medium text-sm">{t('soundEnabled')}</div>
+            </div>
+            <input type="checkbox" checked={soundEnabled} readOnly className="pointer-events-none" />
+          </div>
+
           <div className="flex items-center gap-4">
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">{t('theme')}</span>

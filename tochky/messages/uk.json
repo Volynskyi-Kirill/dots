@@ -142,7 +142,8 @@
     "yourTurn": "Ваш хід",
     "opponentTurn": "Очікування суперника...",
     "undoDescription": "Суперник просить скасувати останній хід. Дозволити?",
-    "playerLeftRoom": "Гравець {player} залишив кімнату."
+    "playerLeftRoom": "Гравець {player} залишив кімнату.",
+    "soundEnabled": "Увімкнути Звуки"
   },
   "Theme": {
     "light": "Світла",

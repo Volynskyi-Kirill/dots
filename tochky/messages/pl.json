@@ -142,7 +142,8 @@
     "yourTurn": "Twój ruch",
     "opponentTurn": "Oczekiwanie na przeciwnika...",
     "undoDescription": "Przeciwnik poprosił o cofnięcie ostatniego ruchu. Zgadzasz się?",
-    "playerLeftRoom": "Gracz {player} opuścił pokój."
+    "playerLeftRoom": "Gracz {player} opuścił pokój.",
+    "soundEnabled": "Włącz Dźwięki"
   },
   "Theme": {
     "light": "Jasny",
