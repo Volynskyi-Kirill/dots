@@ -80,7 +80,9 @@
     "playWithoutTimePressure": "Гра без обмеження часу",
     "min": "хв",
     "secTurn": "с / хід",
-    "orJoinWithCode": "або увійти за кодом"
+    "orJoinWithCode": "або увійти за кодом",
+    "timerModeGame": "На партію",
+    "timerModeMove": "На хід"
   },
   "GameRoom": {
     "roomPrefix": "Кімната:",

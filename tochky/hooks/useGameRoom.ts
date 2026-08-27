@@ -17,6 +17,7 @@ export function useGameRoom(roomId: string) {
     if (searchParams.get('timer') === '1' || searchParams.get('w') || searchParams.get('h')) {
       settings = {
         timerEnabled: searchParams.get('timer') === '1',
+        timerMode: searchParams.get('mode') === 'move' ? 'move' : 'game',
         initialTime: parseInt(searchParams.get('time') || '300000', 10),
         increment: parseInt(searchParams.get('inc') || '3000', 10),
         boardWidth: parseInt(searchParams.get('w') || DEFAULT_BOARD_WIDTH.toString(), 10),

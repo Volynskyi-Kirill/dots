@@ -80,7 +80,9 @@
     "playWithoutTimePressure": "Gra bez presji czasu",
     "min": "min",
     "secTurn": "s / ruch",
-    "orJoinWithCode": "lub dołącz za pomocą kodu"
+    "orJoinWithCode": "lub dołącz za pomocą kodu",
+    "timerModeGame": "Na grę",
+    "timerModeMove": "Na ruch"
   },
   "GameRoom": {
     "roomPrefix": "Pokój:",

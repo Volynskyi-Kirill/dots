@@ -80,7 +80,9 @@
     "playWithoutTimePressure": "Play without time pressure",
     "min": "min",
     "secTurn": "s / turn",
-    "orJoinWithCode": "or join with code"
+    "orJoinWithCode": "or join with code",
+    "timerModeGame": "Time per game",
+    "timerModeMove": "Time per move"
   },
   "GameRoom": {
     "roomPrefix": "Room:",
