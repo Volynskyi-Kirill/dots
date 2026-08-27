@@ -1,3 +1,4 @@
+import { STORAGE_KEYS } from "@/lib/constants";
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
@@ -24,7 +25,7 @@ export function FeedbackForm() {
 
   useEffect(() => {
     setTechInfo({
-      sessionId: localStorage.getItem('sessionId') || 'Not found',
+      sessionId: localStorage.getItem(STORAGE_KEYS.SESSION_ID) || 'Not found',
       userAgent: navigator.userAgent,
       screenResolution: `${window.innerWidth}x${window.innerHeight}`,
     });

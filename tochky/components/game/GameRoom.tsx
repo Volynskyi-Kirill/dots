@@ -1,6 +1,6 @@
 "use client";
-import { GAME_STATUS, WIN_REASON, CONTROL_SCHEME, ControlSchemeType, STORAGE_KEYS } from '@/lib/constants';
-import { useState, useEffect } from 'react';
+import { GAME_STATUS } from '@/lib/constants';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { wsService } from '@/lib/websocket';
 import { GameBoard } from './GameBoard';
@@ -8,6 +8,7 @@ import { TopBar } from './TopBar';
 import { useGameRoom } from '@/hooks/useGameRoom';
 import { useGameSounds } from '@/hooks/useGameSounds';
 import { GameOverOverlay } from './overlays/GameOverOverlay';
+import { useSettingsStore } from '@/store/useSettingsStore';
 import { SettingsModal } from './overlays/SettingsModal';
 import { ConfirmModal } from './overlays/ConfirmModal';
 import { UndoRequestOverlay } from './overlays/UndoRequestOverlay';
@@ -32,36 +33,7 @@ export function GameRoom({ roomId }: { roomId: string }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
   const [surrenderConfirmOpen, setSurrenderConfirmOpen] = useState(false);
-  const [controlScheme, setControlScheme] = useState<ControlSchemeType>(CONTROL_SCHEME.DIRECT);
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [soundVolume, setSoundVolume] = useState(0.5);
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedScheme = localStorage.getItem(STORAGE_KEYS.CONTROL_SCHEME);
-      if (savedScheme) setControlScheme(savedScheme as ControlSchemeType);
-      
-      const savedSound = localStorage.getItem(STORAGE_KEYS.SOUND_ENABLED);
-      if (savedSound !== null) setSoundEnabled(savedSound === 'true');
-
-      const savedVolume = localStorage.getItem(STORAGE_KEYS.SOUND_VOLUME);
-      if (savedVolume !== null) {
-        setSoundVolume(parseFloat(savedVolume));
-      } else {
-        setSoundVolume(0.5); // Default to half volume if not set
-      }
-      setIsInitialized(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isInitialized && typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEYS.CONTROL_SCHEME, controlScheme);
-      localStorage.setItem(STORAGE_KEYS.SOUND_ENABLED, String(soundEnabled));
-      localStorage.setItem(STORAGE_KEYS.SOUND_VOLUME, String(soundVolume));
-    }
-  }, [controlScheme, soundEnabled, soundVolume, isInitialized]);
+  const { controlScheme, soundEnabled, soundVolume } = useSettingsStore();
 
   useGameSounds(gameState, myPlayerId, soundEnabled, soundVolume);
 
@@ -90,12 +62,6 @@ export function GameRoom({ roomId }: { roomId: string }) {
       {settingsOpen && (
         <SettingsModal 
           onClose={() => setSettingsOpen(false)} 
-          controlScheme={controlScheme} 
-          setControlScheme={setControlScheme} 
-          soundEnabled={soundEnabled}
-          setSoundEnabled={setSoundEnabled}
-          soundVolume={soundVolume}
-          setSoundVolume={setSoundVolume}
           t={t} 
         />
       )}

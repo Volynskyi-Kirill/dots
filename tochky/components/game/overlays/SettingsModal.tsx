@@ -10,25 +10,17 @@ function VolumeIcon({ enabled, volume }: { enabled: boolean; volume: number }) {
   return <Volume2 className="w-5 h-5 text-primary" />;
 }
 
+import { useSettingsStore } from '@/store/useSettingsStore';
+
 export function SettingsModal({
   onClose,
-  controlScheme,
-  setControlScheme,
-  soundEnabled,
-  setSoundEnabled,
-  soundVolume,
-  setSoundVolume,
   t
 }: {
   onClose: () => void;
-  controlScheme: ControlSchemeType;
-  setControlScheme: (val: ControlSchemeType) => void;
-  soundEnabled: boolean;
-  setSoundEnabled: (val: boolean) => void;
-  soundVolume: number;
-  setSoundVolume: (val: number) => void;
   t: (key: string) => string;
 }) {
+  const { controlScheme, setControlScheme, soundEnabled, setSoundEnabled, soundVolume, setSoundVolume } = useSettingsStore();
+
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-card border shadow-xl rounded-xl w-full max-w-sm p-6 relative">
