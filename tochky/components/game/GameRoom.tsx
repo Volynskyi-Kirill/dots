@@ -34,7 +34,8 @@ export function GameRoom({ roomId }: { roomId: string }) {
   const [surrenderConfirmOpen, setSurrenderConfirmOpen] = useState(false);
   const [controlScheme, setControlScheme] = useState<ControlSchemeType>(CONTROL_SCHEME.DIRECT);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [soundVolume, setSoundVolume] = useState(1);
+  const [soundVolume, setSoundVolume] = useState(0.5);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -45,17 +46,22 @@ export function GameRoom({ roomId }: { roomId: string }) {
       if (savedSound !== null) setSoundEnabled(savedSound === 'true');
 
       const savedVolume = localStorage.getItem(STORAGE_KEYS.SOUND_VOLUME);
-      if (savedVolume !== null) setSoundVolume(parseFloat(savedVolume));
+      if (savedVolume !== null) {
+        setSoundVolume(parseFloat(savedVolume));
+      } else {
+        setSoundVolume(0.5); // Default to half volume if not set
+      }
+      setIsInitialized(true);
     }
   }, []);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isInitialized && typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEYS.CONTROL_SCHEME, controlScheme);
       localStorage.setItem(STORAGE_KEYS.SOUND_ENABLED, String(soundEnabled));
       localStorage.setItem(STORAGE_KEYS.SOUND_VOLUME, String(soundVolume));
     }
-  }, [controlScheme, soundEnabled, soundVolume]);
+  }, [controlScheme, soundEnabled, soundVolume, isInitialized]);
 
   useGameSounds(gameState, myPlayerId, soundEnabled, soundVolume);
 
