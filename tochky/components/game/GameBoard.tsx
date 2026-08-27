@@ -78,12 +78,12 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, controlSche
       drawDots(ctx, state, 2, '#f87171', 'rgba(248, 113, 113, 0.6)', width, height);
     }
 
-    drawGhostDot(ctx, ghostDot, controlScheme, state, myPlayerId, resolvedTheme);
+    drawGhostDot(ctx, ghostDot, controlScheme, state, effectivePlayerId, resolvedTheme);
 
     ctx.restore();
 
     drawGridCoordinates(ctx, width, height, scale, offset, canvas.width, canvas.height, resolvedTheme);
-  }, [state, offset, scale, width, height, ghostDot, controlScheme, resolvedTheme, myPlayerId]);
+  }, [state, offset, scale, width, height, ghostDot, controlScheme, resolvedTheme, effectivePlayerId]);
 
   useEffect(() => {
     draw();
@@ -91,7 +91,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ state, onMove, controlSche
 
   return (
     <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-background">
-      {controlScheme === CONTROL_SCHEME.CONFIRM && ghostDot && state?.currentTurn === myPlayerId && (
+      {controlScheme === CONTROL_SCHEME.CONFIRM && ghostDot && state?.currentTurn === effectivePlayerId && (
         <button
           onClick={(e) => { e.stopPropagation(); onMove(ghostDot.x, ghostDot.y); setGhostDot(null); }}
           className="absolute bottom-20 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full shadow-xl border border-primary/50 z-20 text-sm sm:text-base animate-in slide-in-from-bottom-5 duration-200"
