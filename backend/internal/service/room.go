@@ -73,6 +73,9 @@ func (r *Room) InitState(settings domain.RoomSettings, width, height int) {
 			settings.BoardWidth = width
 			settings.BoardHeight = height
 		}
+		if settings.TimerMode != "game" && settings.TimerMode != "move" {
+			settings.TimerMode = "game"
+		}
 		
 		newState := &domain.GameState{
 			Status:         constants.StatusWaiting,
@@ -83,8 +86,8 @@ func (r *Room) InitState(settings domain.RoomSettings, width, height int) {
 			CapturedP1:     make([]domain.Point, 0),
 			CapturedP2:     make([]domain.Point, 0),
 			MovesHistory:   make([]domain.MoveRecord, 0),
-			TimeP1:         int64(settings.InitialTime * 60 * 1000),
-			TimeP2:         int64(settings.InitialTime * 60 * 1000),
+			TimeP1:         settings.InitialTime,
+			TimeP2:         settings.InitialTime,
 		}
 		for i := range newState.Board {
 			newState.Board[i] = make([]int, settings.BoardWidth)
@@ -165,12 +168,44 @@ func (r *Room) MakeMove(clientID, x, y int) error {
 	}
 
 	if r.State.Settings.TimerEnabled && r.State.LastMoveTime > 0 {
+		elapsed := time.Now().UnixMilli() - r.State.LastMoveTime
 		if effectivePlayer == constants.Player1 {
-			r.State.TimeP1 += r.State.Settings.Increment
+			if r.State.Settings.TimerMode == "game" {
+				r.State.TimeP1 -= elapsed
+			} else {
+				r.State.TimeP1 = r.State.Settings.InitialTime
+			}
+			if r.State.TimeP1 <= 0 {
+				r.State.TimeP1 = 0
+			} else {
+				r.State.TimeP1 += r.State.Settings.Increment
+			}
 		} else {
-			r.State.TimeP2 += r.State.Settings.Increment
+			if r.State.Settings.TimerMode == "game" {
+				r.State.TimeP2 -= elapsed
+			} else {
+				r.State.TimeP2 = r.State.Settings.InitialTime
+			}
+			if r.State.TimeP2 <= 0 {
+				r.State.TimeP2 = 0
+			} else {
+				r.State.TimeP2 += r.State.Settings.Increment
+			}
 		}
 		r.State.LastMoveTime = time.Now().UnixMilli()
+
+		if r.State.TimeP1 == 0 || r.State.TimeP2 == 0 {
+			r.State.Status = constants.StatusFinished
+			r.State.WinReason = constants.ReasonTimeout
+			if r.State.TimeP1 == 0 {
+				r.State.Winner = constants.Player2
+				r.State.MatchScoreP2++
+			} else {
+				r.State.Winner = constants.Player1
+				r.State.MatchScoreP1++
+			}
+			slog.Info("Game finished", "event", "game_finished", "room_id", r.ID, "reason", "timeout")
+		}
 	}
 
 	record := domain.MoveRecord{
@@ -182,7 +217,7 @@ func (r *Room) MakeMove(clientID, x, y int) error {
 	r.State.MovesHistory = append(r.State.MovesHistory, record)
 	r.State.UndoRequestedBy = 0
 
-	if len(r.State.MovesHistory)+4 >= (r.State.Settings.BoardWidth * r.State.Settings.BoardHeight) {
+	if r.State.Status == constants.StatusPlaying && len(r.State.MovesHistory)+4 >= (r.State.Settings.BoardWidth * r.State.Settings.BoardHeight) {
 		r.State.Status = constants.StatusFinished
 		r.State.WinReason = constants.ReasonBoardFull
 		if len(r.State.CapturedP1) > len(r.State.CapturedP2) {

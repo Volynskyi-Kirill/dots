@@ -18,6 +18,7 @@ type PlayerInfo struct {
 
 type RoomSettings struct {
 	TimerEnabled bool  `json:"timerEnabled"`
+	TimerMode    string `json:"timerMode"` // "game" or "move"
 	InitialTime  int64 `json:"initialTime"` // in ms
 	Increment    int64 `json:"increment"`   // in ms
 	BoardWidth   int   `json:"boardWidth"`
