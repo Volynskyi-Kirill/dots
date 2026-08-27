@@ -1,6 +1,6 @@
-import { STORAGE_KEYS } from "@/lib/constants";
 'use client';
 
+import { STORAGE_KEYS } from "@/lib/constants";
 import { useState, useTransition, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { submitFeedback } from '@/actions/feedback';
