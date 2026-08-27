@@ -1,5 +1,7 @@
 "use client";
 
+import { STORAGE_KEYS } from '@/lib/constants';
+
 type MessageHandler = (payload: any) => void;
 
 export class WSService {
@@ -9,10 +11,10 @@ export class WSService {
 
   constructor() {
     if (typeof window !== 'undefined') {
-      let storedId = localStorage.getItem('dots_session_id');
+      let storedId = localStorage.getItem(STORAGE_KEYS.SESSION_ID);
       if (!storedId) {
         storedId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        localStorage.setItem('dots_session_id', storedId);
+        localStorage.setItem(STORAGE_KEYS.SESSION_ID, storedId);
       }
       this.sessionId = storedId;
     } else {

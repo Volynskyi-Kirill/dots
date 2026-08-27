@@ -1,8 +1,14 @@
 "use client";
-import { Settings, X, Volume2, VolumeX } from 'lucide-react';
+import { Settings, X, Volume1, Volume2, VolumeX } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LanguageToggle } from '@/components/language-toggle';
 import { ControlSchemeType, CONTROL_SCHEME } from '@/lib/constants';
+
+function VolumeIcon({ enabled, volume }: { enabled: boolean; volume: number }) {
+  if (!enabled || volume === 0) return <VolumeX className="w-5 h-5 text-muted-foreground" />;
+  if (volume < 0.5) return <Volume1 className="w-5 h-5 text-primary" />;
+  return <Volume2 className="w-5 h-5 text-primary" />;
+}
 
 export function SettingsModal({
   onClose,
@@ -10,6 +16,8 @@ export function SettingsModal({
   setControlScheme,
   soundEnabled,
   setSoundEnabled,
+  soundVolume,
+  setSoundVolume,
   t
 }: {
   onClose: () => void;
@@ -17,6 +25,8 @@ export function SettingsModal({
   setControlScheme: (val: ControlSchemeType) => void;
   soundEnabled: boolean;
   setSoundEnabled: (val: boolean) => void;
+  soundVolume: number;
+  setSoundVolume: (val: number) => void;
   t: (key: string) => string;
 }) {
   return (
@@ -50,12 +60,34 @@ export function SettingsModal({
         <div className="mb-2 border-t pt-4">
           <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">{t('preferences')}</h3>
           
-          <div className="flex items-center justify-between p-3 border rounded-lg mb-4 hover:bg-secondary/50 cursor-pointer" onClick={() => setSoundEnabled(!soundEnabled)}>
-            <div className="flex items-center gap-3">
-              {soundEnabled ? <Volume2 className="w-5 h-5 text-primary" /> : <VolumeX className="w-5 h-5 text-muted-foreground" />}
-              <div className="font-medium text-sm">{t('soundEnabled')}</div>
+          {/* Sound toggle + volume slider */}
+          <div className="p-3 border rounded-lg mb-4">
+            <div
+              className="flex items-center justify-between cursor-pointer hover:opacity-80"
+              onClick={() => setSoundEnabled(!soundEnabled)}
+            >
+              <div className="flex items-center gap-3">
+                <VolumeIcon enabled={soundEnabled} volume={soundVolume} />
+                <div className="font-medium text-sm">{t('soundEnabled')}</div>
+              </div>
+              <input type="checkbox" checked={soundEnabled} readOnly className="pointer-events-none" />
             </div>
-            <input type="checkbox" checked={soundEnabled} readOnly className="pointer-events-none" />
+
+            {soundEnabled && (
+              <div className="flex items-center gap-3 mt-3 pt-3 border-t">
+                <VolumeX className="w-4 h-4 shrink-0 text-muted-foreground" />
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={soundVolume}
+                  onChange={(e) => setSoundVolume(parseFloat(e.target.value))}
+                  className="flex-1 accent-primary"
+                />
+                <Volume2 className="w-4 h-4 shrink-0 text-muted-foreground" />
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-4">

@@ -1,5 +1,5 @@
 "use client";
-import { GAME_STATUS, WIN_REASON, CONTROL_SCHEME, ControlSchemeType } from '@/lib/constants';
+import { GAME_STATUS, WIN_REASON, CONTROL_SCHEME, ControlSchemeType, STORAGE_KEYS } from '@/lib/constants';
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { wsService } from '@/lib/websocket';
@@ -34,25 +34,30 @@ export function GameRoom({ roomId }: { roomId: string }) {
   const [surrenderConfirmOpen, setSurrenderConfirmOpen] = useState(false);
   const [controlScheme, setControlScheme] = useState<ControlSchemeType>(CONTROL_SCHEME.DIRECT);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundVolume, setSoundVolume] = useState(1);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedScheme = localStorage.getItem('dots_control_scheme');
+      const savedScheme = localStorage.getItem(STORAGE_KEYS.CONTROL_SCHEME);
       if (savedScheme) setControlScheme(savedScheme as ControlSchemeType);
       
-      const savedSound = localStorage.getItem('dots_sound_enabled');
+      const savedSound = localStorage.getItem(STORAGE_KEYS.SOUND_ENABLED);
       if (savedSound !== null) setSoundEnabled(savedSound === 'true');
+
+      const savedVolume = localStorage.getItem(STORAGE_KEYS.SOUND_VOLUME);
+      if (savedVolume !== null) setSoundVolume(parseFloat(savedVolume));
     }
   }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('dots_control_scheme', controlScheme);
-      localStorage.setItem('dots_sound_enabled', String(soundEnabled));
+      localStorage.setItem(STORAGE_KEYS.CONTROL_SCHEME, controlScheme);
+      localStorage.setItem(STORAGE_KEYS.SOUND_ENABLED, String(soundEnabled));
+      localStorage.setItem(STORAGE_KEYS.SOUND_VOLUME, String(soundVolume));
     }
-  }, [controlScheme, soundEnabled]);
+  }, [controlScheme, soundEnabled, soundVolume]);
 
-  useGameSounds(gameState, myPlayerId, soundEnabled);
+  useGameSounds(gameState, myPlayerId, soundEnabled, soundVolume);
 
   return (
     <div className="flex flex-col w-screen h-screen bg-background text-foreground overflow-hidden">
@@ -83,6 +88,8 @@ export function GameRoom({ roomId }: { roomId: string }) {
           setControlScheme={setControlScheme} 
           soundEnabled={soundEnabled}
           setSoundEnabled={setSoundEnabled}
+          soundVolume={soundVolume}
+          setSoundVolume={setSoundVolume}
           t={t} 
         />
       )}

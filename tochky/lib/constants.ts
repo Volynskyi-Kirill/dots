@@ -1,3 +1,10 @@
+export const STORAGE_KEYS = {
+  SESSION_ID: 'dots_session_id',
+  CONTROL_SCHEME: 'dots_control_scheme',
+  SOUND_ENABLED: 'dots_sound_enabled',
+  SOUND_VOLUME: 'dots_sound_volume',
+} as const
+
 export const GAME_STATUS = {
   PLAYING: "playing",
   FINISHED: "finished",
