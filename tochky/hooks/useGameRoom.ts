@@ -55,7 +55,9 @@ export function useGameRoom(roomId: string) {
   }, [roomId, searchParams]);
 
   const doLeaveRoom = () => {
-    wsService.disconnect();
+    // We assume useGameRoom is the sole owner of the WS connection here.
+    // forceDisconnect is used to immediately notify the server that we left.
+    wsService.forceDisconnect();
     router.push('/');
   };
 

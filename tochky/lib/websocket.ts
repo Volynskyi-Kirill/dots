@@ -4,10 +4,15 @@ import { STORAGE_KEYS } from '@/lib/constants';
 
 type MessageHandler = (payload: any) => void;
 
+// Grace period to prevent immediate disconnects during rapid remounts (e.g., when changing locale)
+const DISCONNECT_GRACE_MS = 200;
+
 export class WSService {
   private ws: WebSocket | null = null;
   private handlers: Map<string, MessageHandler[]> = new Map();
   private sessionId: string;
+  private connectionCount = 0;
+  private disconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -22,8 +27,19 @@ export class WSService {
     }
   }
 
+  /**
+   * Increments the connection reference count. If not already connected,
+   * establishes a new WebSocket connection. Also clears any pending disconnect timeouts.
+   * This is safe to call multiple times or during React strict mode remounts.
+   */
   connect(roomId?: string, settings?: any) {
     if (typeof window === 'undefined') return;
+
+    this.connectionCount++;
+    if (this.disconnectTimeout) {
+      clearTimeout(this.disconnectTimeout);
+      this.disconnectTimeout = null;
+    }
 
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       if (roomId) {
@@ -97,7 +113,40 @@ export class WSService {
     }
   }
 
+  /**
+   * Decrements the connection reference count. 
+   * The underlying WebSocket is NOT closed immediately if the count reaches 0.
+   * Instead, it waits for a grace period (DISCONNECT_GRACE_MS). If `connect()` 
+   * is called again during this time (e.g. during a route or locale change), 
+   * the disconnection is cancelled.
+   */
   disconnect() {
+    this.connectionCount = Math.max(0, this.connectionCount - 1);
+    
+    if (this.connectionCount === 0 && !this.disconnectTimeout) {
+      this.disconnectTimeout = setTimeout(() => {
+        if (this.connectionCount === 0 && this.ws) {
+          this.ws.onclose = null;
+          this.ws.close();
+          this.ws = null;
+        }
+        this.disconnectTimeout = null;
+      }, DISCONNECT_GRACE_MS);
+    }
+  }
+
+  /**
+   * Instantly terminates the WebSocket connection without waiting for the 
+   * grace period. Use this when you are explicitly leaving the game 
+   * (e.g. user clicks "Leave Room") and want the server to immediately 
+   * recognize the disconnection.
+   */
+  forceDisconnect() {
+    this.connectionCount = 0;
+    if (this.disconnectTimeout) {
+      clearTimeout(this.disconnectTimeout);
+      this.disconnectTimeout = null;
+    }
     if (this.ws) {
       this.ws.onclose = null;
       this.ws.close();
