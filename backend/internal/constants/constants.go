@@ -17,6 +17,7 @@ const (
 	MessageUndoRequest    = "request_undo"
 	MessageUndoAnswer     = "answer_undo"
 	MessageSurrender      = "surrender"
+	MessagePass           = "pass"
 	MessageRematchRequest = "request_rematch"
 	MessageRematchAnswer  = "answer_rematch"
 	MessageTimeout        = "timeout"
@@ -33,10 +34,11 @@ const (
 type WinReason string
 
 const (
-	ReasonSurrender  WinReason = "surrender"
-	ReasonTimeout    WinReason = "timeout"
-	ReasonDisconnect WinReason = "disconnect"
-	ReasonBoardFull  WinReason = "board_full"
+	ReasonSurrender         WinReason = "surrender"
+	ReasonTimeout           WinReason = "timeout"
+	ReasonDisconnect        WinReason = "disconnect"
+	ReasonBoardFull         WinReason = "board_full"
+	ReasonConsecutivePasses WinReason = "consecutive_passes"
 )
 
 const (

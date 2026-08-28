@@ -55,6 +55,7 @@ func (l *gameLogic) MakeMove(state *domain.GameState, playerID int, x, y int) er
 
 	state.Board[y][x] = playerID
 	state.LastMove = &domain.Point{X: x, Y: y}
+	state.ConsecutivePasses = 0
 
 	l.detectCaptures(state, playerID, x, y)
 
@@ -350,6 +351,7 @@ func (l *gameLogic) InitState(state *domain.GameState) {
 	}
 	state.CurrentTurn = state.StartingPlayer
 	state.LastMove = nil
+	state.ConsecutivePasses = 0
 
 	// Timer reset
 	if state.Settings.TimerEnabled {

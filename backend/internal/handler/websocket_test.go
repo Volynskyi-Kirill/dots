@@ -167,3 +167,89 @@ func TestWebSocket_IntegrationFlow(t *testing.T) {
 		t.Fatalf("expected winReason surrender, got %s", state.WinReason)
 	}
 }
+
+func TestWebSocket_PassTurnFlow(t *testing.T) {
+	ts, _ := setupTestServer()
+	defer ts.Close()
+
+	wsURL := "ws" + strings.TrimPrefix(ts.URL, "http")
+
+	// P1 joins
+	c1, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	if err != nil {
+		t.Fatalf("could not connect p1: %v", err)
+	}
+	defer c1.Close()
+
+	joinP1 := domain.Message{
+		Type: constants.MessageJoin,
+		Payload: mustMarshal(domain.JoinPayload{
+			RoomID:    "pass-room",
+			SessionID: "session-p1",
+			Settings:  domain.RoomSettings{TimerEnabled: false},
+		}),
+	}
+	c1.WriteJSON(joinP1)
+	readWithTimeout(t, c1) // welcome
+	readWithTimeout(t, c1) // state (waiting)
+
+	// P2 joins
+	c2, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	if err != nil {
+		t.Fatalf("could not connect p2: %v", err)
+	}
+	defer c2.Close()
+
+	joinP2 := domain.Message{
+		Type: constants.MessageJoin,
+		Payload: mustMarshal(domain.JoinPayload{
+			RoomID:    "pass-room",
+			SessionID: "session-p2",
+			Settings:  domain.RoomSettings{TimerEnabled: false},
+		}),
+	}
+	c2.WriteJSON(joinP2)
+	readWithTimeout(t, c2) // welcome
+
+	// Broadcast playing state to both
+	msgC1 := readWithTimeout(t, c1)
+	_ = readWithTimeout(t, c2)
+
+	var state domain.GameState
+	json.Unmarshal(msgC1.Payload, &state)
+	if state.Status != constants.StatusPlaying {
+		t.Fatalf("expected status playing, got %s", state.Status)
+	}
+
+	// P1 passes
+	passMsg := domain.Message{
+		Type:    constants.MessagePass,
+		Payload: []byte(`{}`),
+	}
+	c1.WriteJSON(passMsg)
+
+	msgC1 = readWithTimeout(t, c1)
+	_ = readWithTimeout(t, c2)
+	json.Unmarshal(msgC1.Payload, &state)
+
+	if state.ConsecutivePasses != 1 {
+		t.Fatalf("expected consecutive passes 1, got %d", state.ConsecutivePasses)
+	}
+	if state.CurrentTurn != constants.Player2 {
+		t.Fatalf("expected current turn player 2, got %d", state.CurrentTurn)
+	}
+
+	// P2 passes -> Game over with ReasonConsecutivePasses
+	c2.WriteJSON(passMsg)
+
+	msgC1 = readWithTimeout(t, c1)
+	_ = readWithTimeout(t, c2)
+	json.Unmarshal(msgC1.Payload, &state)
+
+	if state.Status != constants.StatusFinished {
+		t.Fatalf("expected status finished, got %s", state.Status)
+	}
+	if state.WinReason != constants.ReasonConsecutivePasses {
+		t.Fatalf("expected winReason consecutive_passes, got %s", state.WinReason)
+	}
+}

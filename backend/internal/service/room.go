@@ -220,10 +220,11 @@ func (r *Room) MakeMove(clientID, x, y int) error {
 	if r.State.Status == constants.StatusPlaying && r.isBoardFull() {
 		r.State.Status = constants.StatusFinished
 		r.State.WinReason = constants.ReasonBoardFull
-		if len(r.State.CapturedP1) > len(r.State.CapturedP2) {
+		p1Score, p2Score := r.calculateScores()
+		if p1Score > p2Score {
 			r.State.Winner = constants.Player1
 			r.State.MatchScoreP1++
-		} else if len(r.State.CapturedP2) > len(r.State.CapturedP1) {
+		} else if p2Score > p1Score {
 			r.State.Winner = constants.Player2
 			r.State.MatchScoreP2++
 		} else {
@@ -234,6 +235,26 @@ func (r *Room) MakeMove(clientID, x, y int) error {
 
 	r.broadcastStateLocked()
 	return nil
+}
+
+func (r *Room) calculateScores() (int, int) {
+	p1Score := 0
+	for _, p := range r.State.CapturedP1 {
+		if p.Y >= 0 && p.Y < len(r.State.Board) && p.X >= 0 && p.X < len(r.State.Board[p.Y]) {
+			if r.State.Board[p.Y][p.X] == constants.Player2 {
+				p1Score++
+			}
+		}
+	}
+	p2Score := 0
+	for _, p := range r.State.CapturedP2 {
+		if p.Y >= 0 && p.Y < len(r.State.Board) && p.X >= 0 && p.X < len(r.State.Board[p.Y]) {
+			if r.State.Board[p.Y][p.X] == constants.Player1 {
+				p2Score++
+			}
+		}
+	}
+	return p1Score, p2Score
 }
 
 func (r *Room) isBoardFull() bool {
@@ -256,6 +277,91 @@ func (r *Room) isBoardFull() bool {
 		}
 	}
 	return true
+}
+
+func (r *Room) PassTurn(clientID int) error {
+	r.StateMutex.Lock()
+	defer r.StateMutex.Unlock()
+
+	if r.State == nil || r.State.Status != constants.StatusPlaying {
+		return errors.New("game not playing")
+	}
+
+	effectivePlayer := r.getEffectivePlayerID(clientID)
+	if r.State.CurrentTurn != effectivePlayer {
+		return errors.New("not your turn")
+	}
+
+	if r.State.Settings.TimerEnabled && r.State.LastMoveTime > 0 {
+		elapsed := time.Now().UnixMilli() - r.State.LastMoveTime
+		if effectivePlayer == constants.Player1 {
+			if r.State.Settings.TimerMode == "game" {
+				r.State.TimeP1 -= elapsed
+			} else {
+				r.State.TimeP1 = r.State.Settings.InitialTime
+			}
+			if r.State.TimeP1 <= 0 {
+				r.State.TimeP1 = 0
+			} else {
+				r.State.TimeP1 += r.State.Settings.Increment
+			}
+		} else {
+			if r.State.Settings.TimerMode == "game" {
+				r.State.TimeP2 -= elapsed
+			} else {
+				r.State.TimeP2 = r.State.Settings.InitialTime
+			}
+			if r.State.TimeP2 <= 0 {
+				r.State.TimeP2 = 0
+			} else {
+				r.State.TimeP2 += r.State.Settings.Increment
+			}
+		}
+		r.State.LastMoveTime = time.Now().UnixMilli()
+
+		if r.State.TimeP1 == 0 || r.State.TimeP2 == 0 {
+			r.State.Status = constants.StatusFinished
+			r.State.WinReason = constants.ReasonTimeout
+			if r.State.TimeP1 == 0 {
+				r.State.Winner = constants.Player2
+				r.State.MatchScoreP2++
+			} else {
+				r.State.Winner = constants.Player1
+				r.State.MatchScoreP1++
+			}
+			slog.Info("Game finished", "event", "game_finished", "room_id", r.ID, "reason", "timeout")
+			r.broadcastStateLocked()
+			return nil
+		}
+	}
+
+	r.State.ConsecutivePasses++
+	r.State.UndoRequestedBy = 0
+
+	if r.State.ConsecutivePasses >= 2 {
+		r.State.Status = constants.StatusFinished
+		r.State.WinReason = constants.ReasonConsecutivePasses
+		p1Score, p2Score := r.calculateScores()
+		if p1Score > p2Score {
+			r.State.Winner = constants.Player1
+			r.State.MatchScoreP1++
+		} else if p2Score > p1Score {
+			r.State.Winner = constants.Player2
+			r.State.MatchScoreP2++
+		} else {
+			r.State.Winner = 0
+		}
+		slog.Info("Game finished", "event", "game_finished", "room_id", r.ID, "reason", "consecutive_passes")
+	} else {
+		if r.State.CurrentTurn == constants.Player1 {
+			r.State.CurrentTurn = constants.Player2
+		} else {
+			r.State.CurrentTurn = constants.Player1
+		}
+	}
+
+	r.broadcastStateLocked()
+	return nil
 }
 
 func (r *Room) Surrender(clientID int) {

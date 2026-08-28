@@ -42,7 +42,8 @@ type GameState struct {
 	PolygonsP2      [][]Point    `json:"polygonsP2"`
 	Status          constants.GameStatus       `json:"status"`      // "waiting", "playing", "finished"
 	Winner          int          `json:"winner,omitempty"` // 1, 2, or 0 (tie)
-	WinReason       constants.WinReason       `json:"winReason,omitempty"` // "timeout", "surrender", "board_full"
+	WinReason       constants.WinReason       `json:"winReason,omitempty"` // "timeout", "surrender", "board_full", "consecutive_passes"
+	ConsecutivePasses int        `json:"consecutivePasses"`
 
 	LastMove        *Point       `json:"lastMove,omitempty"`
 	UndoRequestedBy int          `json:"undoRequestedBy,omitempty"`

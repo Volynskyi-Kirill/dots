@@ -83,8 +83,8 @@ func ServeWS(rm service.RoomManager, cfg *config.Config) http.HandlerFunc {
 		}
 
 		defer func() {
-			close(client.send)
 			session.cleanup()
+			close(client.send)
 		}()
 
 		for {
@@ -103,6 +103,8 @@ func ServeWS(rm service.RoomManager, cfg *config.Config) http.HandlerFunc {
 				session.handleJoin(msg)
 			case constants.MessageMove:
 				session.handleMove(msg)
+			case constants.MessagePass:
+				session.handlePass()
 			case constants.MessageSurrender:
 				if session.room != nil {
 					session.room.Surrender(session.playerID)
@@ -176,6 +178,19 @@ func (s *wsSession) handleMove(msg domain.Message) {
 	}
 	
 	if err := s.room.MakeMove(s.playerID, payload.X, payload.Y); err != nil {
+		errBytes, _ := json.Marshal(domain.Message{
+			Type:    constants.MessageError,
+			Payload: []byte(`"` + err.Error() + `"`),
+		})
+		s.client.Send(errBytes)
+	}
+}
+
+func (s *wsSession) handlePass() {
+	if s.room == nil {
+		return
+	}
+	if err := s.room.PassTurn(s.playerID); err != nil {
 		errBytes, _ := json.Marshal(domain.Message{
 			Type:    constants.MessageError,
 			Payload: []byte(`"` + err.Error() + `"`),
