@@ -1,6 +1,6 @@
 "use client";
 import { cn } from '@/lib/utils';
-import { LogOut, Menu, RotateCcw, Flag, Settings, X, Swords } from 'lucide-react';
+import { LogOut, Menu, RotateCcw, Flag, Settings, X, Swords, SkipForward } from 'lucide-react';
 import { Timer } from './Timer';
 import { GameState } from '@/lib/types';
 import { GAME_STATUS } from '@/lib/constants';
@@ -11,6 +11,7 @@ interface TopBarProps {
   p1Score: number;
   p2Score: number;
   handleLeaveClick: () => void;
+  handlePassClick: () => void;
   setSurrenderConfirmOpen: (v: boolean) => void;
   setSettingsOpen: (v: boolean) => void;
   menuOpen: boolean;
@@ -25,6 +26,7 @@ export function TopBar({
   p1Score,
   p2Score,
   handleLeaveClick,
+  handlePassClick,
   setSurrenderConfirmOpen,
   setSettingsOpen,
   menuOpen,
@@ -109,6 +111,16 @@ export function TopBar({
           <div className="hidden sm:flex items-center gap-1">
             {gameState.status === GAME_STATUS.PLAYING ? (
               <>
+                <button
+                  disabled={!isActiveTurnDisplay}
+                  onClick={handlePassClick}
+                  className="disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-1 px-2.5 py-1 bg-secondary/80 hover:bg-secondary rounded-md text-[10px] sm:text-xs font-medium border shadow-sm transition-colors text-muted-foreground hover:text-foreground"
+                  title={t("pass")}
+                >
+                  <SkipForward className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">{t("pass")}</span>
+                </button>
+
                 <div className="flex items-center justify-center min-w-[70px] sm:min-w-[90px]">
                   {(!gameState.undoRequestedBy || gameState.undoRequestedBy === 0) ? (
                     <button 
@@ -169,6 +181,14 @@ export function TopBar({
 
               {gameState.status === GAME_STATUS.PLAYING && (
                 <>
+                  <button 
+                    disabled={!isActiveTurnDisplay}
+                    onClick={() => { handlePassClick(); setMenuOpen(false); }}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-secondary rounded-lg transition-colors w-full text-left font-medium disabled:opacity-40 disabled:pointer-events-none"
+                  >
+                    <SkipForward className="w-4 h-4 text-muted-foreground" /> {t("pass")}
+                  </button>
+
                   {(!gameState.undoRequestedBy || gameState.undoRequestedBy === 0) ? (
                     <button 
                       disabled={!gameState.lastMove || (!gameState.settings?.isLocal && gameState.currentTurn === myPlayerId)}

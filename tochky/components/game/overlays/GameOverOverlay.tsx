@@ -48,7 +48,9 @@ export function GameOverOverlay({
     const reasonMap: Record<string, { local: string; win: string; lose: string }> = {
       surrender: { local: 'winReasonSurrenderLocal', win: 'winReasonSurrenderWin', lose: 'winReasonSurrenderLose' },
       timeout: { local: 'winReasonTimeoutLocal', win: 'winReasonTimeoutWin', lose: 'winReasonTimeoutLose' },
-      disconnect: { local: 'winReasonDisconnectLocal', win: 'winReasonDisconnectWin', lose: 'winReasonDisconnectLose' }
+      disconnect: { local: 'winReasonDisconnectLocal', win: 'winReasonDisconnectWin', lose: 'winReasonDisconnectLose' },
+      consecutive_passes: { local: 'winReasonPasses', win: 'winReasonPasses', lose: 'winReasonPasses' },
+      consecutivePasses: { local: 'winReasonPasses', win: 'winReasonPasses', lose: 'winReasonPasses' }
     };
 
     const status = isLocal ? 'local' : (iWon ? 'win' : 'lose');

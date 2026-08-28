@@ -14,7 +14,7 @@ import { ConfirmModal } from './overlays/ConfirmModal';
 import { UndoRequestOverlay } from './overlays/UndoRequestOverlay';
 import { DisconnectOverlay } from './overlays/DisconnectOverlay';
 import { WaitingOverlay } from './overlays/WaitingOverlay';
-import { Flag, LogOut } from 'lucide-react';
+import { Flag, LogOut, SkipForward } from 'lucide-react';
 
 export function GameRoom({ roomId }: { roomId: string }) {
   const t = useTranslations('GameRoom');
@@ -33,9 +33,23 @@ export function GameRoom({ roomId }: { roomId: string }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
   const [surrenderConfirmOpen, setSurrenderConfirmOpen] = useState(false);
+  const [passConfirmOpen, setPassConfirmOpen] = useState(false);
   const { controlScheme, soundEnabled, soundVolume } = useSettingsStore();
 
   useGameSounds(gameState, myPlayerId, soundEnabled, soundVolume);
+
+  const handlePass = () => {
+    if (!gameState || gameState.status !== GAME_STATUS.PLAYING) return;
+    const isMyTurn = gameState.currentTurn === myPlayerId;
+    const canPass = gameState.settings?.isLocal || isMyTurn;
+    if (!canPass) return;
+
+    if (gameState.consecutivePasses === 1) {
+      setPassConfirmOpen(true);
+    } else {
+      wsService.send('pass', {});
+    }
+  };
 
   return (
     <div className="flex flex-col w-screen h-screen bg-background text-foreground overflow-hidden">
@@ -45,6 +59,7 @@ export function GameRoom({ roomId }: { roomId: string }) {
         p1Score={p1Score}
         p2Score={p2Score}
         handleLeaveClick={() => setLeaveConfirmOpen(true)}
+        handlePassClick={handlePass}
         setSurrenderConfirmOpen={setSurrenderConfirmOpen}
         setSettingsOpen={setSettingsOpen}
         menuOpen={menuOpen}
@@ -88,6 +103,21 @@ export function GameRoom({ roomId }: { roomId: string }) {
         cancelText={t("cancel")}
         icon={<LogOut className="w-5 h-5 text-destructive" />}
         confirmButtonClass="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+      />
+
+      <ConfirmModal
+        isOpen={passConfirmOpen}
+        onClose={() => setPassConfirmOpen(false)}
+        onConfirm={() => {
+          wsService.send('pass', {});
+          setPassConfirmOpen(false);
+        }}
+        title={t("passConfirmTitle")}
+        description={t("passConfirmDesc")}
+        confirmText={t("confirmPass")}
+        cancelText={t("cancel")}
+        icon={<SkipForward className="w-5 h-5 text-amber-500" />}
+        confirmButtonClass="bg-amber-500 hover:bg-amber-600 text-white"
       />
 
       {gameState?.status === GAME_STATUS.PLAYING && !!gameState.undoRequestedBy && (gameState.settings?.isLocal || gameState.undoRequestedBy !== myPlayerId) && (

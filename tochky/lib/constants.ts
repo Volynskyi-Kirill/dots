@@ -17,6 +17,7 @@ export const WIN_REASON = {
   TIMEOUT: "timeout",
   DISCONNECT: "disconnect",
   BOARD_FULL: "boardFull",
+  CONSECUTIVE_PASSES: "consecutive_passes",
 } as const
 
 export const CONTROL_SCHEME = {

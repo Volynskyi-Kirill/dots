@@ -24,6 +24,7 @@ export interface GameState {
   status: GameStatusType;
   winner?: number;
   winReason?: WinReasonType;
+  consecutivePasses?: number;
   lastMove?: Point;
   undoRequestedBy?: number;
 
