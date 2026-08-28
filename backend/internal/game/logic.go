@@ -3,7 +3,6 @@ package game
 import (
 	"errors"
 	"math"
-	"sort"
 
 	"sync"
 
@@ -82,50 +81,57 @@ func (l *gameLogic) isCaptured(state *domain.GameState, x, y int) bool {
 	return false
 }
 
-// orderBoundaryPoints sorts boundary points by traversal order / angle around their centroid
-// to form a neat consecutive polygon supporting diagonal and orthogonal connections.
+// orderBoundaryPoints uses a Nearest Neighbor algorithm to sort boundary dots,
+// forming a clean perimeter path and preventing self-intersecting jagged edges.
 func orderBoundaryPoints(pts []domain.Point) []domain.Point {
-	if len(pts) <= 3 {
+	if len(pts) <= 1 {
 		return pts
 	}
 
-	// Calculate center
-	var sumX, sumY float64
-	for _, p := range pts {
-		sumX += float64(p.X)
-		sumY += float64(p.Y)
-	}
-	centerX := sumX / float64(len(pts))
-	centerY := sumY / float64(len(pts))
+	ordered := make([]domain.Point, 0, len(pts))
+	visited := make(map[domain.Point]bool)
 
-	// Sort points by angle around centroid
-	type angledPoint struct {
-		p     domain.Point
-		angle float64
-		dist  float64
-	}
-	angled := make([]angledPoint, len(pts))
-	for i, p := range pts {
-		dx := float64(p.X) - centerX
-		dy := float64(p.Y) - centerY
-		angled[i] = angledPoint{
-			p:     p,
-			angle: math.Atan2(dy, dx),
-			dist:  dx*dx + dy*dy,
+	// Start with the top-left-most point to ensure deterministic start
+	curr := pts[0]
+	for _, p := range pts[1:] {
+		if p.Y < curr.Y || (p.Y == curr.Y && p.X < curr.X) {
+			curr = p
 		}
 	}
 
-	sort.Slice(angled, func(i, j int) bool {
-		if angled[i].angle == angled[j].angle {
-			return angled[i].dist < angled[j].dist
-		}
-		return angled[i].angle < angled[j].angle
-	})
+	ordered = append(ordered, curr)
+	visited[curr] = true
 
-	ordered := make([]domain.Point, len(pts))
-	for i, ap := range angled {
-		ordered[i] = ap.p
+	for len(ordered) < len(pts) {
+		var next domain.Point
+		found := false
+		minDist := math.MaxFloat64
+
+		for _, p := range pts {
+			if visited[p] {
+				continue
+			}
+
+			dx := float64(p.X - curr.X)
+			dy := float64(p.Y - curr.Y)
+			dist := dx*dx + dy*dy
+
+			if dist < minDist {
+				minDist = dist
+				next = p
+				found = true
+			}
+		}
+
+		if !found {
+			break
+		}
+
+		curr = next
+		ordered = append(ordered, curr)
+		visited[curr] = true
 	}
+
 	return ordered
 }
 
@@ -141,8 +147,8 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 	dirs := []domain.Point{{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0}}
 	checkDirs := []domain.Point{
 		{X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1},
-		{X: -1, Y: 0},                 {X: 1, Y: 0},
-		{X: -1, Y: 1},  {X: 0, Y: 1},  {X: 1, Y: 1},
+		{X: -1, Y: 0}, {X: 1, Y: 0},
+		{X: -1, Y: 1}, {X: 0, Y: 1}, {X: 1, Y: 1},
 	}
 
 	getGrid := func() []bool {
@@ -196,7 +202,7 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 
 		queue = queue[:0]
 		queue = append(queue, startPt)
-		
+
 		regionVisited := getGrid()
 		boundary := getGrid()
 		escaped := false
@@ -243,16 +249,30 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 		}
 
 		if !escaped && hasOpponent {
+			// Find which grid represents the player's CURRENT captured points
+			// to avoid duplicating points that player already owns.
+			myCapturedGrid := getGrid()
+			if playerID == constants.Player1 {
+				for _, p := range state.CapturedP1 {
+					myCapturedGrid[p.Y*width+p.X] = true
+				}
+			} else {
+				for _, p := range state.CapturedP2 {
+					myCapturedGrid[p.Y*width+p.X] = true
+				}
+			}
+
 			capPoints = capPoints[:0]
 			for y := 0; y < height; y++ {
 				for x := 0; x < width; x++ {
 					if regionVisited[y*width+x] {
-						if state.Board[y][x] == opponentID {
+						if !myCapturedGrid[y*width+x] {
 							capPoints = append(capPoints, domain.Point{X: x, Y: y})
 						}
 					}
 				}
 			}
+			putGrid(myCapturedGrid)
 
 			rawBoundary = rawBoundary[:0]
 			for y := 0; y < height; y++ {
@@ -291,7 +311,7 @@ func (l *gameLogic) detectCaptures(state *domain.GameState, playerID int, startX
 
 			}
 		}
-		
+
 		putGrid(regionVisited)
 		putGrid(boundary)
 	}
@@ -307,11 +327,11 @@ func (l *gameLogic) InitState(state *domain.GameState) {
 			state.Board[y][x] = constants.Empty
 		}
 	}
-	
+
 	// Add starting 2x2 diagonal cross near the center
 	cx := (width - 1) / 2
 	cy := (height - 1) / 2
-	
+
 	// Top-left: Player 1, Top-right: Player 2
 	// Bottom-left: Player 2, Bottom-right: Player 1
 	state.Board[cy][cx] = constants.Player1

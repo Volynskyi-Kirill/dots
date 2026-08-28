@@ -76,7 +76,7 @@ func (r *Room) InitState(settings domain.RoomSettings, width, height int) {
 		if settings.TimerMode != "game" && settings.TimerMode != "move" {
 			settings.TimerMode = "game"
 		}
-		
+
 		newState := &domain.GameState{
 			Status:         constants.StatusWaiting,
 			Settings:       settings,
@@ -100,11 +100,11 @@ func (r *Room) InitState(settings domain.RoomSettings, width, height int) {
 func (r *Room) StartGameIfNeeded() {
 	r.StateMutex.Lock()
 	defer r.StateMutex.Unlock()
-	
+
 	if r.State == nil {
 		return
 	}
-	
+
 	r.Mutex.Lock()
 	clientsCount := len(r.Clients)
 	r.Mutex.Unlock()
@@ -124,14 +124,14 @@ func (r *Room) HandleClientDisconnected(playerID int) {
 	}
 	r.StateMutex.Lock()
 	defer r.StateMutex.Unlock()
-	
+
 	if r.State != nil {
 		if playerID == 1 {
 			r.State.P1Disconnected = true
 		} else if playerID == 2 {
 			r.State.P2Disconnected = true
 		}
-		
+
 		if r.State.Status == constants.StatusPlaying {
 			r.State.DisconnectDeadline = time.Now().UnixMilli() + r.DisconnectTimeout.Milliseconds()
 		}
@@ -142,7 +142,7 @@ func (r *Room) HandleClientDisconnected(playerID int) {
 func (r *Room) HandleClientReconnected(playerID int) {
 	r.StateMutex.Lock()
 	defer r.StateMutex.Unlock()
-	
+
 	if r.State != nil {
 		if playerID == 1 {
 			r.State.P1Disconnected = false
@@ -217,7 +217,7 @@ func (r *Room) MakeMove(clientID, x, y int) error {
 	r.State.MovesHistory = append(r.State.MovesHistory, record)
 	r.State.UndoRequestedBy = 0
 
-	if r.State.Status == constants.StatusPlaying && len(r.State.MovesHistory)+4 >= (r.State.Settings.BoardWidth * r.State.Settings.BoardHeight) {
+	if r.State.Status == constants.StatusPlaying && r.isBoardFull() {
 		r.State.Status = constants.StatusFinished
 		r.State.WinReason = constants.ReasonBoardFull
 		if len(r.State.CapturedP1) > len(r.State.CapturedP2) {
@@ -234,6 +234,28 @@ func (r *Room) MakeMove(clientID, x, y int) error {
 
 	r.broadcastStateLocked()
 	return nil
+}
+
+func (r *Room) isBoardFull() bool {
+	width := r.State.Settings.BoardWidth
+	height := r.State.Settings.BoardHeight
+
+	captured := make([]bool, width*height)
+	for _, p := range r.State.CapturedP1 {
+		captured[p.Y*width+p.X] = true
+	}
+	for _, p := range r.State.CapturedP2 {
+		captured[p.Y*width+p.X] = true
+	}
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			if r.State.Board[y][x] == constants.Empty && !captured[y*width+x] {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func (r *Room) Surrender(clientID int) {
@@ -255,7 +277,7 @@ func (r *Room) Surrender(clientID int) {
 		r.State.Winner = constants.Player1
 		r.State.MatchScoreP1++
 	}
-	
+
 	slog.Info("Game finished", "event", "game_finished", "room_id", r.ID, "reason", "surrender")
 	r.broadcastStateLocked()
 }
@@ -392,7 +414,7 @@ func (r *Room) checkTimeouts() {
 	if r.State.Settings.TimerEnabled && r.State.LastMoveTime > 0 && !r.State.P1Disconnected && !r.State.P2Disconnected {
 		elapsed := time.Now().UnixMilli() - r.State.LastMoveTime
 		var timeout bool
-		
+
 		if r.State.CurrentTurn == 1 {
 			if r.State.TimeP1-elapsed <= 0 {
 				r.State.TimeP1 = 0
@@ -406,7 +428,7 @@ func (r *Room) checkTimeouts() {
 				r.State.Winner = 1
 			}
 		}
-		
+
 		if timeout {
 			r.State.Status = constants.StatusFinished
 			r.State.WinReason = constants.ReasonTimeout
