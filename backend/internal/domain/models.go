@@ -17,13 +17,15 @@ type PlayerInfo struct {
 }
 
 type RoomSettings struct {
-	TimerEnabled bool  `json:"timerEnabled"`
-	TimerMode    string `json:"timerMode"` // "game" or "move"
-	InitialTime  int64 `json:"initialTime"` // in ms
-	Increment    int64 `json:"increment"`   // in ms
-	BoardWidth   int   `json:"boardWidth"`
-	BoardHeight  int   `json:"boardHeight"`
-	IsLocal      bool  `json:"isLocal"`
+	TimerEnabled bool                   `json:"timerEnabled"`
+	TimerMode    string                 `json:"timerMode"` // "game" or "move"
+	InitialTime  int64                  `json:"initialTime"` // in ms
+	Increment    int64                  `json:"increment"`   // in ms
+	BoardWidth   int                    `json:"boardWidth"`
+	BoardHeight  int                    `json:"boardHeight"`
+	IsLocal      bool                   `json:"isLocal"`
+	WinCondition constants.WinCondition `json:"winCondition"` // "full_board" or "target_score"
+	TargetScore  int                    `json:"targetScore"`
 }
 
 type MoveRecord struct {

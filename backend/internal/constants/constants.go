@@ -39,9 +39,18 @@ const (
 	ReasonDisconnect        WinReason = "disconnect"
 	ReasonBoardFull         WinReason = "board_full"
 	ReasonConsecutivePasses WinReason = "consecutive_passes"
+	ReasonTargetScore       WinReason = "target_score"
+)
+
+type WinCondition string
+
+const (
+	WinConditionFullBoard   WinCondition = "full_board"
+	WinConditionTargetScore WinCondition = "target_score"
 )
 
 const (
-	DefaultRoomEmptyTimeout = 3 // minutes
+	DefaultTargetScore       = 20
+	DefaultRoomEmptyTimeout  = 3  // minutes
 	DefaultDisconnectTimeout = 15 // seconds
 )

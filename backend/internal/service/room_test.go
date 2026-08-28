@@ -266,3 +266,70 @@ func TestRoom_PassTurn_LocalMode(t *testing.T) {
 		t.Errorf("expected ReasonConsecutivePasses, got %s", r.State.WinReason)
 	}
 }
+
+func TestRoom_TargetScore_Win(t *testing.T) {
+	r := &Room{
+		ID:        "test-target-score",
+		Logic:     game.NewGameLogic(),
+		Clients:   make(map[Client]int),
+		Broadcast: make(chan []byte, 100),
+	}
+
+	settings := domain.RoomSettings{
+		BoardWidth:   10,
+		BoardHeight:  10,
+		WinCondition: constants.WinConditionTargetScore,
+		TargetScore:  1,
+	}
+
+	r.InitState(settings, 10, 10)
+	r.State.Status = constants.StatusPlaying
+	r.State.CurrentTurn = constants.Player1
+
+	// Setup a small enclosure scenario:
+	// P1 surrounds enemy dot at (x=1, y=1)
+	r.State.Board[1][1] = constants.Player2 // enemy dot
+	r.State.Board[1][0] = constants.Player1 // left (x=0, y=1)
+	r.State.Board[2][1] = constants.Player1 // bottom (x=1, y=2)
+	r.State.Board[1][2] = constants.Player1 // right (x=2, y=1)
+
+	// P1 places dot at top (x=1, y=0) to close the enclosure
+	err := r.MakeMove(constants.Player1, 1, 0)
+	if err != nil {
+		t.Fatalf("MakeMove failed: %v", err)
+	}
+
+	if r.State.Status != constants.StatusFinished {
+		t.Fatalf("expected game to finish upon reaching target score, got %s", r.State.Status)
+	}
+	if r.State.WinReason != constants.ReasonTargetScore {
+		t.Errorf("expected winReason=%s, got %s", constants.ReasonTargetScore, r.State.WinReason)
+	}
+	if r.State.Winner != constants.Player1 {
+		t.Errorf("expected Winner=Player1, got %d", r.State.Winner)
+	}
+	if r.State.MatchScoreP1 != 1 {
+		t.Errorf("expected MatchScoreP1=1, got %d", r.State.MatchScoreP1)
+	}
+}
+
+func TestRoom_TargetScore_DefaultValidation(t *testing.T) {
+	r := &Room{
+		ID:        "test-target-score-val",
+		Logic:     game.NewGameLogic(),
+		Clients:   make(map[Client]int),
+		Broadcast: make(chan []byte, 100),
+	}
+
+	settings := domain.RoomSettings{
+		BoardWidth:   10,
+		BoardHeight:  10,
+		WinCondition: constants.WinConditionTargetScore,
+		TargetScore:  -5,
+	}
+
+	r.InitState(settings, 10, 10)
+	if r.State.Settings.TargetScore != constants.DefaultTargetScore {
+		t.Errorf("expected TargetScore to default to %d, got %d", constants.DefaultTargetScore, r.State.Settings.TargetScore)
+	}
+}
