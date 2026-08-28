@@ -82,7 +82,14 @@
     "secTurn": "с / ход",
     "orJoinWithCode": "или войти по коду",
     "timerModeGame": "На партию",
-    "timerModeMove": "На ход"
+    "timerModeMove": "На ход",
+    "winCondition": "Условие победы",
+    "winConditionDesc": "Выберите, как определяется победа",
+    "winConditionFullBoard": "Полное поле",
+    "winConditionTargetScore": "Целевой счёт",
+    "targetScore": "Целевой счёт",
+    "targetScoreDesc": "Точек для победы",
+    "points": "точек"
   },
   "GameRoom": {
     "roomPrefix": "Комната:",
@@ -130,6 +137,10 @@
     "winReasonBoardFull": "Поле заполнено",
     "winReasonTimeout": "Время вышло",
     "winReasonPasses": "Оба игрока спасовали подряд",
+    "winReasonTargetScore": "Достигнут целевой счёт",
+    "winReasonTargetScoreWin": "Вы достигли целевого счёта в {target} точек! 🎉",
+    "winReasonTargetScoreLose": "Противник достиг целевого счёта в {target} точек",
+    "winReasonTargetScoreLocal": "Игрок {winner} достиг целевого счёта в {target} точек! 🎉",
     "score": "Счёт",
     "matchScore": "Счёт в серии",
     "scoreCaptured": "Захвачено точек",

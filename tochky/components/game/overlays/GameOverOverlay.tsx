@@ -50,7 +50,9 @@ export function GameOverOverlay({
       timeout: { local: 'winReasonTimeoutLocal', win: 'winReasonTimeoutWin', lose: 'winReasonTimeoutLose' },
       disconnect: { local: 'winReasonDisconnectLocal', win: 'winReasonDisconnectWin', lose: 'winReasonDisconnectLose' },
       consecutive_passes: { local: 'winReasonPasses', win: 'winReasonPasses', lose: 'winReasonPasses' },
-      consecutivePasses: { local: 'winReasonPasses', win: 'winReasonPasses', lose: 'winReasonPasses' }
+      consecutivePasses: { local: 'winReasonPasses', win: 'winReasonPasses', lose: 'winReasonPasses' },
+      target_score: { local: 'winReasonTargetScoreLocal', win: 'winReasonTargetScoreWin', lose: 'winReasonTargetScoreLose' },
+      targetScore: { local: 'winReasonTargetScoreLocal', win: 'winReasonTargetScoreWin', lose: 'winReasonTargetScoreLose' }
     };
 
     const status = isLocal ? 'local' : (iWon ? 'win' : 'lose');
@@ -72,7 +74,13 @@ export function GameOverOverlay({
         <h2 className={`text-3xl font-black mb-1 ${getTitleColor()}`}>
           {title}
         </h2>
-        <p className="text-xs text-muted-foreground mb-6">{t(reasonKey, { winner: gameState.winner, loser: gameState.winner === 1 ? 2 : 1 })}</p>
+        <p className="text-xs text-muted-foreground mb-6">
+          {t(reasonKey, { 
+            winner: gameState.winner, 
+            loser: gameState.winner === 1 ? 2 : 1,
+            target: gameState.settings?.targetScore ?? 20 
+          })}
+        </p>
 
         <div className="mb-4">
           <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">{t('scoreCaptured')}</div>

@@ -92,11 +92,21 @@ export function TopBar({
                 </div>
                 <div className={cn("flex items-center gap-1.5 transition-opacity", gameState.currentTurn === 1 ? "opacity-100" : "opacity-40")}>
                   <div className={cn("w-2 h-2 rounded-full bg-blue-500", gameState.currentTurn === 1 && "shadow-[0_0_5px_rgba(59,130,246,0.8)]")}></div>
-                  <span className="font-mono font-bold text-sm">{p1Score}</span>
+                  <span className="font-mono font-bold text-sm">
+                    {p1Score}
+                    {gameState.settings?.winCondition === 'target_score' && !!gameState.settings.targetScore && (
+                      <span className="text-[10px] text-muted-foreground font-normal">/{gameState.settings.targetScore}</span>
+                    )}
+                  </span>
                 </div>
                 <div className="w-px h-4 bg-border"></div>
                 <div className={cn("flex items-center gap-1.5 transition-opacity", gameState.currentTurn === 2 ? "opacity-100" : "opacity-40")}>
-                  <span className="font-mono font-bold text-sm">{p2Score}</span>
+                  <span className="font-mono font-bold text-sm">
+                    {p2Score}
+                    {gameState.settings?.winCondition === 'target_score' && !!gameState.settings.targetScore && (
+                      <span className="text-[10px] text-muted-foreground font-normal">/{gameState.settings.targetScore}</span>
+                    )}
+                  </span>
                   <div className={cn("w-2 h-2 rounded-full bg-red-500", gameState.currentTurn === 2 && "shadow-[0_0_5px_rgba(239,68,68,0.8)]")}></div>
                 </div>
                 <div className={cn("transition-opacity", gameState.currentTurn === 2 ? "opacity-100" : "opacity-40")}>

@@ -7,11 +7,21 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import { Sparkles, Clock, Users, ArrowRight, PlusCircle, Settings, Gamepad2 } from 'lucide-react';
+import { Sparkles, Clock, Users, ArrowRight, PlusCircle, Settings, Gamepad2, Target } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BOARD_SIZES, DEFAULT_BOARD_SIZE, GAME_MODE, GameModeType, DEFAULT_TIMER, TIMER_MODE, TimerModeType } from '@/lib/constants';
+import { 
+  BOARD_SIZES, 
+  DEFAULT_BOARD_SIZE, 
+  GAME_MODE, 
+  GameModeType, 
+  DEFAULT_TIMER, 
+  TIMER_MODE, 
+  TimerModeType,
+  WIN_CONDITION,
+  DEFAULT_TARGET_SCORE
+} from '@/lib/constants';
 import { useLobbyStore } from '@/store/useLobbyStore';
 
 export function LobbyForms() {
@@ -26,7 +36,9 @@ export function LobbyForms() {
     initialTimeMins, setInitialTimeMins,
     initialTimeSecs, setInitialTimeSecs,
     incrementSecs, setIncrementSecs,
-    boardSize, setBoardSize
+    boardSize, setBoardSize,
+    winCondition, setWinCondition,
+    targetScore, setTargetScore
   } = useLobbyStore();
 
   // Prevent hydration mismatch for persisted store values
@@ -65,6 +77,11 @@ export function LobbyForms() {
     
     if (gameMode === GAME_MODE.LOCAL) {
       searchParams.set('local', '1');
+    }
+
+    if (winCondition === WIN_CONDITION.TARGET_SCORE) {
+      searchParams.set('win', 'target');
+      searchParams.set('target', Math.max(1, targetScore || DEFAULT_TARGET_SCORE).toString());
     }
 
     const [w, h] = boardSize.split('x');
@@ -280,6 +297,81 @@ export function LobbyForms() {
                           </button>
                         ))}
                       </div>
+                    </div>
+
+                    {/* Win Condition Selector Card */}
+                    <div className="p-3.5 rounded-xl border border-border/60 bg-muted/40 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-emerald-500 text-white">
+                          <Target className="size-4" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium leading-none text-foreground">{t('winCondition')}</div>
+                          <div className="text-xs text-muted-foreground mt-1">{t('winConditionDesc')}</div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 pt-1" role="group" aria-label="Win Condition">
+                        <button
+                          type="button"
+                          onClick={() => setWinCondition(WIN_CONDITION.FULL_BOARD)}
+                          aria-pressed={winCondition === WIN_CONDITION.FULL_BOARD}
+                          className={cn(
+                            "px-2 py-1.5 rounded-lg text-xs font-medium transition-all border cursor-pointer",
+                            winCondition === WIN_CONDITION.FULL_BOARD
+                              ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-500/20"
+                              : "bg-background/80 border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                          )}
+                        >
+                          {t('winConditionFullBoard')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setWinCondition(WIN_CONDITION.TARGET_SCORE)}
+                          aria-pressed={winCondition === WIN_CONDITION.TARGET_SCORE}
+                          className={cn(
+                            "px-2 py-1.5 rounded-lg text-xs font-medium transition-all border cursor-pointer",
+                            winCondition === WIN_CONDITION.TARGET_SCORE
+                              ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-500/20"
+                              : "bg-background/80 border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                          )}
+                        >
+                          {t('winConditionTargetScore')}
+                        </button>
+                      </div>
+
+                      {winCondition === WIN_CONDITION.TARGET_SCORE && (
+                        <div className="flex flex-col gap-2 p-3 rounded-xl bg-background/50 border border-border/50 animate-in fade-in-50 slide-in-from-top-2 duration-200">
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor="target-score" className="text-xs font-medium text-muted-foreground">
+                              {t('targetScore')}
+                            </Label>
+                            <span className="text-[10px] text-muted-foreground">{t('targetScoreDesc')}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              id="target-score"
+                              type="number"
+                              min="1"
+                              value={targetScore || ''}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value, 10);
+                                if (e.target.value === '') {
+                                  setTargetScore(0);
+                                } else if (!isNaN(val) && val > 0) {
+                                  setTargetScore(val);
+                                }
+                              }}
+                              onBlur={() => {
+                                if (!targetScore || targetScore < 1) {
+                                  setTargetScore(DEFAULT_TARGET_SCORE);
+                                }
+                              }}
+                              className="h-9 bg-background/80 font-mono text-sm"
+                            />
+                            <span className="text-xs text-muted-foreground font-medium pr-1">{t('points')}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </AccordionContent>
                 </AccordionItem>

@@ -82,7 +82,14 @@
     "secTurn": "s / turn",
     "orJoinWithCode": "or join with code",
     "timerModeGame": "Time per game",
-    "timerModeMove": "Time per move"
+    "timerModeMove": "Time per move",
+    "winCondition": "Win Condition",
+    "winConditionDesc": "Choose how the match is won",
+    "winConditionFullBoard": "Full Board",
+    "winConditionTargetScore": "Target Score",
+    "targetScore": "Target Score",
+    "targetScoreDesc": "Points to win",
+    "points": "pts"
   },
   "GameRoom": {
     "roomPrefix": "Room:",
@@ -130,6 +137,10 @@
     "winReasonBoardFull": "Board is full",
     "winReasonTimeout": "Time ran out",
     "winReasonPasses": "Both players passed consecutively",
+    "winReasonTargetScore": "Target score reached",
+    "winReasonTargetScoreWin": "You reached the target score of {target} dots! 🎉",
+    "winReasonTargetScoreLose": "Opponent reached the target score of {target} dots",
+    "winReasonTargetScoreLocal": "Player {winner} reached the target score of {target} dots! 🎉",
     "score": "Score",
     "matchScore": "Match Score",
     "scoreCaptured": "Captured dots",

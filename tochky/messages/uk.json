@@ -82,7 +82,14 @@
     "secTurn": "с / хід",
     "orJoinWithCode": "або увійти за кодом",
     "timerModeGame": "На партію",
-    "timerModeMove": "На хід"
+    "timerModeMove": "На хід",
+    "winCondition": "Умова перемоги",
+    "winConditionDesc": "Оберіть, як визначається перемога",
+    "winConditionFullBoard": "Повне поле",
+    "winConditionTargetScore": "Цільовий рахунок",
+    "targetScore": "Цільовий рахунок",
+    "targetScoreDesc": "Точок для перемоги",
+    "points": "точок"
   },
   "GameRoom": {
     "roomPrefix": "Кімната:",
@@ -130,6 +137,10 @@
     "winReasonBoardFull": "Поле заповнене",
     "winReasonTimeout": "Час вийшов",
     "winReasonPasses": "Обидва гравці спасували поспіль",
+    "winReasonTargetScore": "Досягнуто цільового рахунку",
+    "winReasonTargetScoreWin": "Ви досягли цільового рахунку у {target} точок! 🎉",
+    "winReasonTargetScoreLose": "Суперник досяг цільового рахунку у {target} точок",
+    "winReasonTargetScoreLocal": "Гравець {winner} досяг цільового рахунку у {target} точок! 🎉",
     "score": "Рахунок",
     "matchScore": "Рахунок серії",
     "scoreCaptured": "Захоплено точок",

@@ -82,7 +82,14 @@
     "secTurn": "s / ruch",
     "orJoinWithCode": "lub dołącz za pomocą kodu",
     "timerModeGame": "Na grę",
-    "timerModeMove": "Na ruch"
+    "timerModeMove": "Na ruch",
+    "winCondition": "Warunek zwycięstwa",
+    "winConditionDesc": "Wybierz sposób wyłonienia zwycięzcy",
+    "winConditionFullBoard": "Pełna plansza",
+    "winConditionTargetScore": "Docelowy wynik",
+    "targetScore": "Docelowy wynik",
+    "targetScoreDesc": "Punkty do wygranej",
+    "points": "pkt"
   },
   "GameRoom": {
     "roomPrefix": "Pokój:",
@@ -130,6 +137,10 @@
     "winReasonBoardFull": "Plansza pełna",
     "winReasonTimeout": "Czas minął",
     "winReasonPasses": "Obaj gracze spasowali z rzędu",
+    "winReasonTargetScore": "Osiągnięto docelowy wynik",
+    "winReasonTargetScoreWin": "Osiągnąłeś docelowy wynik {target} kropek! 🎉",
+    "winReasonTargetScoreLose": "Przeciwnik osiągnął docelowy wynik {target} kropek",
+    "winReasonTargetScoreLocal": "Gracz {winner} osiągnął docelowy wynik {target} kropek! 🎉",
     "score": "Wynik",
     "matchScore": "Wynik meczu",
     "scoreCaptured": "Zdobyte punkty",

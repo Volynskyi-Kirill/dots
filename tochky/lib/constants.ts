@@ -18,7 +18,15 @@ export const WIN_REASON = {
   DISCONNECT: "disconnect",
   BOARD_FULL: "boardFull",
   CONSECUTIVE_PASSES: "consecutive_passes",
+  TARGET_SCORE: "target_score",
 } as const
+
+export const WIN_CONDITION = {
+  FULL_BOARD: "full_board",
+  TARGET_SCORE: "target_score",
+} as const
+export const DEFAULT_TARGET_SCORE = 20
+export type WinConditionType = (typeof WIN_CONDITION)[keyof typeof WIN_CONDITION]
 
 export const CONTROL_SCHEME = {
   DIRECT: "direct",

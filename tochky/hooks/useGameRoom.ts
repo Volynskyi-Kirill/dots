@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { wsService } from '@/lib/websocket';
 import { GameState } from '@/lib/types';
-import { DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT } from '@/lib/constants';
+import { DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT, WIN_CONDITION, DEFAULT_TARGET_SCORE } from '@/lib/constants';
 
 export function useGameRoom(roomId: string) {
   const router = useRouter();
@@ -14,7 +14,12 @@ export function useGameRoom(roomId: string) {
 
   useEffect(() => {
     let settings = undefined;
-    if (searchParams.get('timer') === '1' || searchParams.get('w') || searchParams.get('h')) {
+    if (searchParams.get('timer') === '1' || searchParams.get('w') || searchParams.get('h') || searchParams.get('win') || searchParams.get('local') === '1') {
+      const winParam = searchParams.get('win');
+      const targetParam = searchParams.get('target');
+      const winCondition = winParam === 'target' ? WIN_CONDITION.TARGET_SCORE : WIN_CONDITION.FULL_BOARD;
+      const targetScore = parseInt(targetParam || '20', 10);
+
       settings = {
         timerEnabled: searchParams.get('timer') === '1',
         timerMode: searchParams.get('mode') === 'move' ? 'move' : 'game',
@@ -23,6 +28,8 @@ export function useGameRoom(roomId: string) {
         boardWidth: parseInt(searchParams.get('w') || DEFAULT_BOARD_WIDTH.toString(), 10),
         boardHeight: parseInt(searchParams.get('h') || DEFAULT_BOARD_HEIGHT.toString(), 10),
         isLocal: searchParams.get('local') === '1',
+        winCondition,
+        targetScore: winCondition === WIN_CONDITION.TARGET_SCORE ? Math.max(1, isNaN(targetScore) ? DEFAULT_TARGET_SCORE : targetScore) : 0,
       };
     }
 

@@ -1,4 +1,4 @@
-import { GameStatusType, WinReasonType } from './constants';
+import { GameStatusType, WinReasonType, WinConditionType } from './constants';
 
 export interface Point {
   x: number;
@@ -7,11 +7,14 @@ export interface Point {
 
 export interface RoomSettings {
   timerEnabled: boolean;
+  timerMode?: string;
   initialTime: number;
   increment: number;
   boardWidth: number;
   boardHeight: number;
   isLocal: boolean;
+  winCondition?: WinConditionType;
+  targetScore?: number;
 }
 
 export interface GameState {
