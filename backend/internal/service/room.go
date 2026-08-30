@@ -141,7 +141,9 @@ func (r *Room) HandleClientDisconnected(playerID int) {
 		}
 
 		if r.State.Status == constants.StatusPlaying {
-			r.State.DisconnectDeadline = time.Now().UnixMilli() + r.DisconnectTimeout.Milliseconds()
+			if r.State.DisconnectDeadline == 0 {
+				r.State.DisconnectDeadline = time.Now().UnixMilli() + r.DisconnectTimeout.Milliseconds()
+			}
 		}
 		r.broadcastStateLocked()
 	}
@@ -157,7 +159,14 @@ func (r *Room) HandleClientReconnected(playerID int) {
 		} else if playerID == 2 {
 			r.State.P2Disconnected = false
 		}
-		r.State.DisconnectDeadline = 0
+		
+		isDisconnected := r.State.P1Disconnected || (r.State.P2Disconnected && !r.State.Settings.IsLocal)
+		if !isDisconnected {
+			r.State.DisconnectDeadline = 0
+		} else if r.State.Status == constants.StatusPlaying {
+			// Refresh the timer for the remaining disconnected player
+			r.State.DisconnectDeadline = time.Now().UnixMilli() + r.DisconnectTimeout.Milliseconds()
+		}
 	}
 }
 
@@ -533,18 +542,24 @@ func (r *Room) checkTimeouts() {
 		if time.Now().UnixMilli() > r.State.DisconnectDeadline {
 			r.State.Status = constants.StatusFinished
 			r.State.WinReason = constants.ReasonDisconnect
-			if r.State.P1Disconnected {
+			
+			if r.State.P1Disconnected && r.State.P2Disconnected {
+				r.State.Winner = 0 // Draw
+			} else if r.State.P1Disconnected {
 				r.State.Winner = 2
 				r.State.MatchScoreP2++
 			} else {
 				r.State.Winner = 1
 				r.State.MatchScoreP1++
 			}
+			
 			r.State.DisconnectDeadline = 0
 			slog.Info("Game finished", "event", "game_finished", "room_id", r.ID, "reason", "disconnect")
 			r.broadcastStateLocked()
 			return
 		}
+	} else if !isDisconnected && r.State.DisconnectDeadline > 0 {
+		r.State.DisconnectDeadline = 0
 	}
 
 	if r.State.Settings.TimerEnabled && r.State.LastMoveTime > 0 && !r.State.P1Disconnected && !r.State.P2Disconnected {

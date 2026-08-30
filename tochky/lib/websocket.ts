@@ -13,6 +13,8 @@ export class WSService {
   private sessionId: string;
   private connectionCount = 0;
   private disconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+  private lastRoomId?: string;
+  private lastSettings?: any;
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -25,6 +27,17 @@ export class WSService {
     } else {
       this.sessionId = '';
     }
+    
+    if (typeof window !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          if (this.connectionCount > 0 && (!this.ws || this.ws.readyState === WebSocket.CLOSED)) {
+            console.log('Tab became visible, reconnecting WS...');
+            this.connect(this.lastRoomId, this.lastSettings);
+          }
+        }
+      });
+    }
   }
 
   /**
@@ -35,6 +48,9 @@ export class WSService {
   connect(roomId?: string, settings?: any) {
     if (typeof window === 'undefined') return;
 
+    if (roomId) this.lastRoomId = roomId;
+    if (settings) this.lastSettings = settings;
+
     this.connectionCount++;
     if (this.disconnectTimeout) {
       clearTimeout(this.disconnectTimeout);
@@ -44,6 +60,8 @@ export class WSService {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       if (roomId) {
         this.send('join', { roomId, settings });
+      } else if (this.lastRoomId) {
+        this.send('join', { roomId: this.lastRoomId, settings: this.lastSettings });
       }
       return;
     }
@@ -86,6 +104,16 @@ export class WSService {
     this.ws.onclose = () => {
       console.log('Disconnected from WS server');
       this.ws = null;
+      
+      // Auto-reconnect if we still want to be connected
+      if (this.connectionCount > 0) {
+        console.log('Attempting to reconnect in 1s...');
+        setTimeout(() => {
+          if (this.connectionCount > 0 && !this.ws) {
+            this.connect(this.lastRoomId, this.lastSettings);
+          }
+        }, 1000);
+      }
     };
   }
 
