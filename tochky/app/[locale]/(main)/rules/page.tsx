@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: t('rulesTitle'),
     description: t('rulesDescription'),
     alternates: {
-      canonical: `${baseUrl}/${locale}/rules`,
+      canonical: new URL(`/${locale}/rules`, baseUrl).toString(),
     },
   };
 }
@@ -25,7 +25,7 @@ export default function RulesPage() {
     '@type': 'HowTo',
     name: t('title'),
     description: tMeta('rulesDescription'),
-    image: `${baseUrl}/og-image.jpg`,
+    image: new URL('/og-image.jpg', baseUrl).toString(),
     step: [
       {
         '@type': 'HowToStep',
@@ -68,7 +68,7 @@ export default function RulesPage() {
         '@type': 'ListItem',
         position: 2,
         name: t('title'),
-        item: `${baseUrl}/rules`,
+        item: new URL('/rules', baseUrl).toString(),
       },
     ],
   };

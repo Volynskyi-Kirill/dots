@@ -14,10 +14,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   for (const page of pages) {
     for (const locale of locales) {
-      const pageUrl = `${baseUrl}/${locale}${page.path}`;
+      const pageUrl = new URL(`/${locale}${page.path}`, baseUrl).toString();
       const languages: Record<string, string> = {};
       for (const l of locales) {
-        languages[l] = `${baseUrl}/${l}${page.path}`;
+        languages[l] = new URL(`/${l}${page.path}`, baseUrl).toString();
       }
 
       sitemapEntries.push({
@@ -34,7 +34,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Root redirect entry
   sitemapEntries.push({
-    url: `${baseUrl}/`,
+    url: new URL('/', baseUrl).toString(),
     lastModified: new Date(),
     changeFrequency: 'daily',
     priority: 0.9,

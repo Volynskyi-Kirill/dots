@@ -20,11 +20,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     openGraph: {
       title,
       description,
-      url: `${baseUrl}/${locale}/room/${id}`,
+      url: new URL(`/${locale}/room/${id}`, baseUrl).toString(),
       siteName: 'Dots Game',
       images: [
         {
-          url: `${baseUrl}/og-image.jpg`,
+          url: new URL('/og-image.jpg', baseUrl).toString(),
           width: 1200,
           height: 630,
           alt: 'Dots Game Room',
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       card: 'summary_large_image',
       title,
       description,
-      images: [`${baseUrl}/og-image.jpg`],
+      images: [new URL('/og-image.jpg', baseUrl).toString()],
     },
   };
 }

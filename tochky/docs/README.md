@@ -68,7 +68,7 @@ When you add a new page (e.g., `/about` or `/blog`), follow this workflow to mai
      return {
        title: t('newPageTitle'),
        description: t('newPageDescription'),
-       alternates: { canonical: `${baseUrl}/${locale}/<new-page>` },
+       alternates: { canonical: new URL(`/${locale}/<new-page>`, baseUrl).toString() },
      };
    }
    ```

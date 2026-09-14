@@ -15,6 +15,6 @@ export default function robots(): MetadataRoute.Robots {
         '/pl/room/',
       ],
     },
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: new URL('/sitemap.xml', baseUrl).toString(),
   };
 }

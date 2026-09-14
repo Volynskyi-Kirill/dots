@@ -16,22 +16,22 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description,
     keywords: ['Dots game online', 'play tochka', 'точка игра', 'точка онлайн', 'dots strategy game', 'local multiplayer', 'hotseat'],
     alternates: {
-      canonical: `${baseUrl}/${locale}`,
+      canonical: new URL(`/${locale}`, baseUrl).toString(),
       languages: {
-        'en': `${baseUrl}/en`,
-        'ru': `${baseUrl}/ru`,
-        'uk': `${baseUrl}/uk`,
-        'pl': `${baseUrl}/pl`,
+        'en': new URL('/en', baseUrl).toString(),
+        'ru': new URL('/ru', baseUrl).toString(),
+        'uk': new URL('/uk', baseUrl).toString(),
+        'pl': new URL('/pl', baseUrl).toString(),
       },
     },
     openGraph: {
       title,
       description,
-      url: `${baseUrl}/${locale}`,
+      url: new URL(`/${locale}`, baseUrl).toString(),
       siteName: 'Dots Game',
       images: [
         {
-          url: `${baseUrl}/og-image.jpg`,
+          url: new URL('/og-image.jpg', baseUrl).toString(),
           width: 1200,
           height: 630,
           alt: 'Dots Game Preview',
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       card: 'summary_large_image',
       title,
       description,
-      images: [`${baseUrl}/og-image.jpg`],
+      images: [new URL('/og-image.jpg', baseUrl).toString()],
     },
   };
 }

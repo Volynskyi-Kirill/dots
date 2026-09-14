@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: t('guideTitle'),
     description: t('guideDescription'),
     alternates: {
-      canonical: `${baseUrl}/${locale}/guide`,
+      canonical: new URL(`/${locale}/guide`, baseUrl).toString(),
     },
   };
 }
@@ -26,7 +26,7 @@ export default function GuidePage() {
     '@type': 'Article',
     headline: t('title'),
     description: tMeta('guideDescription'),
-    image: `${baseUrl}/og-image.jpg`,
+    image: new URL('/og-image.jpg', baseUrl).toString(),
     author: {
       '@type': 'Organization',
       name: 'Dots Game',
@@ -37,10 +37,10 @@ export default function GuidePage() {
       name: 'Dots Game',
       logo: {
         '@type': 'ImageObject',
-        url: `${baseUrl}/icons/icon.jpg`,
+        url: new URL('/icons/icon.jpg', baseUrl).toString(),
       },
     },
-    mainEntityOfPage: `${baseUrl}/guide`,
+    mainEntityOfPage: new URL('/guide', baseUrl).toString(),
   };
 
   const breadcrumbsLd = {
@@ -57,7 +57,7 @@ export default function GuidePage() {
         '@type': 'ListItem',
         position: 2,
         name: t('title'),
-        item: `${baseUrl}/guide`,
+        item: new URL('/guide', baseUrl).toString(),
       },
     ],
   };

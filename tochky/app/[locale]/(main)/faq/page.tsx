@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: t('faqTitle'),
     description: t('faqDescription'),
     alternates: {
-      canonical: `${baseUrl}/${locale}/faq`,
+      canonical: new URL(`/${locale}/faq`, baseUrl).toString(),
     },
   };
 }
