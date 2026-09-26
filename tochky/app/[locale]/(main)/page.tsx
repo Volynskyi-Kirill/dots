@@ -6,7 +6,7 @@ import { getTranslations } from "next-intl/server"
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Metadata' });
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://dots-game.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://krapki.tech';
   
   const title = t('title');
   const description = t('description');
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default function Page() {
   const t = useTranslations('Index');
   const tMeta = useTranslations('Metadata');
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://dots-game.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://krapki.tech';
 
   const jsonLd = {
     '@context': 'https://schema.org',

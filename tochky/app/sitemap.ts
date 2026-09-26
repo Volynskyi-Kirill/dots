@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://dots-game.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://krapki.tech';
   const locales = ['en', 'ru', 'uk', 'pl'];
   const pages = [
     { path: '', priority: 1.0, changeFrequency: 'daily' as const },
